@@ -54,6 +54,20 @@
         
         .console-scrollbar::-webkit-scrollbar { width: 4px; }
         .console-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        
+        #terminal-input:focus { outline: none; }
+        .cursor-blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .ai-response {
+            border-left: 2px solid #FBBF24;
+            background: rgba(251, 191, 36, 0.05);
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
     </style>
 </head>
 <body class="antialiased h-screen flex flex-col md:flex-row">
@@ -140,10 +154,17 @@
                 <h2 id="scenario-title" class="text-sm font-bold text-white uppercase tracking-wider">Scenario Name</h2>
                 
                 <div class="h-6 w-px bg-gray-800 mx-2"></div>
-                <button onclick="startSimulation()" id="sim-btn" class="flex items-center space-x-2 px-3 py-1 bg-amber-500/10 border border-amber-500/50 rounded-full text-amber-500 text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-gray-900 transition-all">
-                    <i data-lucide="play" class="w-3 h-3"></i>
-                    <span>Run Simulation</span>
-                </button>
+                <div class="flex items-center space-x-2">
+                    <button onclick="startSimulation()" id="sim-btn" class="flex items-center space-x-2 px-3 py-1 bg-amber-500/10 border border-amber-500/50 rounded-full text-amber-500 text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-gray-900 transition-all">
+                        <i data-lucide="play" class="w-3 h-3"></i>
+                        <span>Run Simulation</span>
+                    </button>
+                    <!-- Toggle Terminal Button -->
+                    <button onclick="toggleTerminal()" id="term-toggle-btn" class="flex items-center space-x-2 px-3 py-1 bg-gray-800 border border-gray-700 rounded-full text-gray-400 text-[10px] font-black uppercase tracking-widest hover:border-amber-500/50 hover:text-white transition-all">
+                        <i data-lucide="terminal" class="w-3 h-3"></i>
+                        <span>Console</span>
+                    </button>
+                </div>
             </div>
             
             <div class="flex items-center space-x-4">
@@ -158,17 +179,28 @@
                 <div id="node-layer" class="absolute top-0 left-0 w-full h-full z-10"></div>
             </div>
 
-            <!-- Live Terminal -->
-            <div id="live-terminal" class="absolute bottom-6 left-6 right-6 h-32 bg-black/80 backdrop-blur-md border border-white/10 rounded-xl z-20 overflow-hidden flex flex-col pointer-events-none opacity-0 transition-opacity duration-300">
+            <!-- Live Terminal (Interactive) -->
+            <div id="live-terminal" class="absolute bottom-6 left-6 right-6 h-48 bg-black/90 backdrop-blur-md border border-white/10 rounded-xl z-20 overflow-hidden flex flex-col transition-all duration-300 shadow-2xl opacity-0 pointer-events-none">
                 <div class="px-4 py-2 border-b border-white/5 flex items-center justify-between bg-white/5">
                     <div class="flex items-center space-x-2">
                         <div class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></div>
-                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">System Execution Logs</span>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Interactive Command Terminal</span>
                     </div>
-                    <span class="text-[9px] mono text-gray-600">v2.4.0-stable</span>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-[9px] mono text-gray-600">INPUT READY</span>
+                        <div class="w-3 h-3 bg-red-500/20 rounded-full flex items-center justify-center cursor-pointer hover:bg-red-500/40" onclick="toggleTerminal(false)">
+                            <div class="w-1 h-1 bg-red-500 rounded-full"></div>
+                        </div>
+                    </div>
                 </div>
                 <div id="log-container" class="p-4 text-[10px] mono text-gray-400 space-y-1 overflow-y-auto flex-grow console-scrollbar">
+                    <div class="text-amber-500/50 italic mb-2">// Type '/help' for a list of available commands.</div>
                     <!-- Logs stream here -->
+                </div>
+                <div class="p-3 bg-black/40 border-t border-white/5 flex items-center space-x-2">
+                    <span class="text-amber-500 text-xs mono font-bold ml-1">></span>
+                    <input type="text" id="terminal-input" placeholder="Type data payload or /command..." class="bg-transparent border-none text-amber-500 text-xs mono w-full focus:ring-0 placeholder:text-gray-700" autocomplete="off">
+                    <span class="w-1.5 h-3 bg-amber-500 cursor-blink"></span>
                 </div>
             </div>
         </div>
@@ -217,7 +249,6 @@
                     <div id="drawer-code" class="bg-blue-500/5 border border-blue-500/20 rounded-xl p-5 text-xs text-blue-300/80 mono whitespace-pre-wrap italic"></div>
                 </section>
 
-                <!-- Added safety containers for assets -->
                 <section id="drawer-links-section" class="hidden">
                     <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                         <i data-lucide="link" class="w-3 h-3"></i> Project Assets
@@ -271,6 +302,7 @@
                     { name: 'Case Study', url: 'https://www.behance.net/gallery/235950315/AI-Context-Management-Workflow-Automation-System', icon: 'external-link' },
                     { name: 'LinkedIn Profile', url: 'https://www.linkedin.com/in/kyle-tolilic', icon: 'linkedin' }
                 ],
+                summary: "This is a 'Brain for Projects'. It watches everything you do in your code and uses specialized AI assistants to summarize your progress, set goals, and learn from your coding style over time. It essentially turns every mistake into a future lesson.",
                 nodes: [
                     { id: 'm1', x: 450, y: 300, type: 'Core', name: 'Mother Core (Brain)', icon: 'cpu', tool: 'Python/Tkinter', purpose: 'Central orchestration layer managing task distribution and persistence.', logic: 'Directs all traffic. Uses dual-persistence (YAML/PostgreSQL).', metaphor: 'The Librarian who knows where every book is and who is currently reading what.', statusText: 'ORCHESTRATING', tools: ['Python', 'PostgreSQL'], input: 'Event: Project Commit Detected', output: 'Action: Trigger RCS Module' },
                     { id: 'm2', x: 150, y: 300, type: 'Perception', name: 'Event Listener', icon: 'eye', tool: 'Git/FileWatcher', purpose: 'Detects systemic changes and project history logs.', logic: 'Summarizes history to optimize context window for LLMs.', metaphor: 'A Watchman standing at the gate, writing down everything that enters in a notebook.', statusText: 'LISTENING', tools: ['Git API'], input: 'Git Diff: modified app_controller.py', output: 'Context: Summarized Data' },
@@ -281,6 +313,7 @@
             },
             'aethelgard': {
                 title: "Aethelgard: The Guild's Path",
+                summary: "A role-playing adventure system built for Discord. It uses a database to track your character's hunger, health, and location, simulating a living world where your rank grows as you explore and complete encounters.",
                 links: [
                     { name: 'Bot Source Code', url: 'https://github.com/Elykibra/discord-adventure-bot', icon: 'github' },
                     { name: 'Design Case Study', url: 'https://www.behance.net/gallery/235945913/Aethelgard-Technical-Design-Scalability-Case-Study', icon: 'external-link' }
@@ -295,8 +328,9 @@
             },
             'zapier-debug': {
                 title: "Failed Payment Debug",
+                summary: "This fixes a common 'Stale Data' bug. It ensures that if a customer pays their bill during a 24-hour waiting period, the system is smart enough to check the live database again before sending a reminder email, preventing awkward 'Please Pay' emails to people who already paid.",
                 nodes: [
-                    { id: 'z1', x: 150, y: 300, type: 'Trigger', name: 'Stripe Failed Charge', icon: 'zap', tool: 'Stripe API', purpose: 'Captures initial failure.', logic: 'Root Problem: Data ignored delay changes.', metaphor: 'Taking a snapshot of a moving train; the photo stays still, but the train keeps going.', statusText: 'TRIGGERING', tools: ['Stripe'], input: '{"status": "failed"}', output: '{"status": "failed"}' },
+                    { id: 'z1', x: 150, y: 300, type: 'Trigger', name: 'Stripe Failed Charge', icon: 'zap', tool: 'Stripe API', purpose: 'Captures initial failure. Data becomes stale after the delay.', logic: 'Root Problem: Data ignored delay changes.', metaphor: 'Taking a snapshot of a moving train; the photo stays still, but the train keeps going.', statusText: 'TRIGGERING', tools: ['Stripe'], input: '{"status": "failed"}', output: '{"status": "failed"}' },
                     { id: 'z2', x: 450, y: 300, type: 'Delay', name: '24-Hour Buffer', icon: 'clock', tool: 'Zapier Delay', purpose: 'Incubator for data contradictions.', logic: 'Wait period for customer retry.', metaphor: 'Putting a letter in the "Outbox" and waiting for the morning mailman.', statusText: 'WAITING (24H)', tools: ['Zapier'], input: '{"delay": "24h"}', output: '{"status": "resumed"}' },
                     { id: 'z3', x: 750, y: 300, type: 'Fix', name: 'CRM Live Lookup', icon: 'search', tool: 'Visa CRM', purpose: 'Refreshes the Source of Truth post-delay.', logic: 'Inquiry into current deal status.', metaphor: 'Actually looking out the window to see where the train is now.', statusText: 'LOOKUP...', tools: ['CRM API'], input: '{"email": "user@test.com"}', output: '{"status": "Deal won!"}' },
                     { id: 'z4', x: 1050, y: 300, type: 'Router', name: 'Decision Gate', icon: 'filter', tool: 'Zapier Filter', purpose: 'Quality gate preventing duplicate emails.', logic: 'Rule: If Status === "Deal won!", STOP.', metaphor: 'Checking the expiry date on the milk before pouring it.', statusText: 'FILTERING', tools: ['Filter'], input: '{"status": "Deal won!"}', output: 'HALT (PAID)' }
@@ -305,9 +339,8 @@
             },
             'attorney': {
                 title: "Attorney Pipeline v2.0",
-                links: [
-                    { name: 'Notion Database', url: 'https://www.notion.so/promo-panda/26ac503ebc858000bddcfee1b940dd8b', icon: 'layout' }
-                ],
+                summary: "An automated lead generation system for Law Firms. It hunts for attorneys on Google, checks their websites for specialty areas, and writes personalized emails for them—all while checking to make sure it never sends the same person two emails.",
+                links: [{ name: 'Notion Database', url: 'https://www.notion.so/promo-panda/26ac503ebc858000bddcfee1b940dd8b', icon: 'layout' }],
                 nodes: [
                     { id: 'at1', x: 150, y: 300, type: 'Trigger', name: 'Notion Trigger', icon: 'zap', tool: 'Notion Button', purpose: 'Manual initiation of Phase 1 to control costs.', logic: 'Webhook sends session metadata to Zapier.', metaphor: 'Turning on a water faucet only when you need to fill a glass.', statusText: 'ACTIVATING', tools: ['Notion'], input: '{"action": "START"}', output: '{"status": "SCOUTING"}' },
                     { id: 'at2', x: 450, y: 300, type: 'Logic', name: 'Relevance AI Scout', icon: 'search', tool: 'Relevance AI', purpose: 'Scrapes Google and attorney sites for profile data.', logic: 'Extracts Firm, Email, and Practice Areas.', metaphor: 'A research assistant scanning a phone book for specific keywords.', statusText: 'SCRAPING', tools: ['Relevance AI'], input: '{"query": "Immigration Attorneys"}', output: '{"profiles": [25]}' },
@@ -318,9 +351,8 @@
             },
             'helpscout': {
                 title: "Help Scout Sage",
-                links: [
-                    { name: 'Source Code', url: 'https://github.com/Elykibra/helpscout-sage-app', icon: 'github' }
-                ],
+                summary: "A 'Smart Sidekick' for Customer Support agents. When an agent is stuck on a difficult question, they click a button, and the AI reads the entire conversation history to write a perfect draft response for them to review.",
+                links: [{ name: 'Source Code', url: 'https://github.com/Elykibra/helpscout-sage-app', icon: 'github' }],
                 nodes: [
                     { id: 'hs1', x: 150, y: 300, type: 'Trigger', name: 'Sidebar Trigger', icon: 'mouse-pointer-2', tool: 'Help Scout', purpose: 'Manual on-demand draft generation for cost control.', logic: 'Sends conversation ID to Node.js backend.', metaphor: 'Ringing a bell to call a waiter when you are ready to order.', statusText: 'TRIGGERING', tools: ['Vanilla JS'], input: '{"id": "3107675947"}', output: '{"status": "SAGE_CALL"}' },
                     { id: 'hs2', x: 450, y: 300, type: 'Context', name: 'Context Fetcher', icon: 'file-search', tool: 'Node.js', purpose: 'Retrieves full conversation history via HS API.', logic: 'Extracts threads for AI analysis.', metaphor: 'An assistant reading through all previous letters in a file to get context.', statusText: 'FETCHING', tools: ['Node.js'], input: '{"id": "3107675947"}', output: '{"threads": [...]}' },
@@ -331,6 +363,7 @@
             },
             'ai-validation': {
                 title: "AI Validation Flow",
+                summary: "This is a 'Digital Gatekeeper'. It uses AI to listen to incoming requests and filter out spam or low-quality data before it ever touches your main database. It keeps your CRM clean and focused.",
                 nodes: [
                     { id: 'v1', x: 150, y: 300, type: 'Trigger', name: 'Webhook Ingest', icon: 'zap', tool: 'Webhook', purpose: 'Captures raw inbound lead data from external forms.', logic: 'Acts as primary listener for system input.', metaphor: 'A mailbox catching letters as they are dropped off.', statusText: 'INGESTING', tools: ['Make'], input: '{"name": "Ky"}', output: '{"raw": {...}}' },
                     { id: 'v2', x: 450, y: 300, type: 'AI Agent', name: 'Gemini Gatekeeper', icon: 'shield-check', tool: 'Gemini', purpose: 'Analyzes lead quality and flags junk/spam data.', logic: 'Forces failure codes for non-professional input.', metaphor: 'A quality control inspector throwing away dented cans on an assembly line.', statusText: 'VALIDATING', tools: ['Gemini'], input: '{"about": "crypto"}', output: '{"valid": false}' },
@@ -343,6 +376,7 @@
 
         let activeScenario = 'mother-ai';
         let isSimulating = false;
+        let userInjectedData = null;
 
         function addLog(message, type = 'info') {
             const container = document.getElementById('log-container');
@@ -350,39 +384,102 @@
             const log = document.createElement('div');
             const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
             
-            let colorClass = 'text-gray-500';
-            if (type === 'success') colorClass = 'text-green-400';
-            if (type === 'process') colorClass = 'text-amber-400';
-            if (type === 'system') colorClass = 'text-blue-400';
+            let prefix = `[${time}] `;
+            
+            if (type === 'ai') {
+                log.className = "p-3 ai-response my-2 rounded-r-lg";
+                prefix = `<span class="text-amber-500 font-bold tracking-widest text-[8px] block mb-1">KYLE_AI_ASSISTANT</span>`;
+            } else if (type === 'success') log.className = "text-green-400";
+            else if (type === 'process') log.className = "text-amber-400 font-bold";
+            else if (type === 'system') log.className = "text-blue-400";
+            else if (type === 'user') log.className = "text-amber-500 font-bold";
+            else log.className = "text-gray-500";
 
-            log.innerHTML = `<span class="text-gray-600">[${time}]</span> <span class="${colorClass}">${message}</span>`;
+            log.innerHTML = `${prefix} ${message}`;
             container.appendChild(log);
             container.scrollTop = container.scrollHeight;
+        }
+
+        // Terminal Toggle Function
+        function toggleTerminal(force) {
+            const terminal = document.getElementById('live-terminal');
+            const btn = document.getElementById('term-toggle-btn');
+            const isHidden = terminal.style.opacity === '0' || terminal.classList.contains('pointer-events-none');
+            
+            const newState = (force !== undefined) ? force : isHidden;
+
+            if (newState) {
+                terminal.style.opacity = '1';
+                terminal.classList.remove('pointer-events-none');
+                btn.classList.add('bg-amber-500/10', 'border-amber-500/50', 'text-amber-500');
+                btn.classList.remove('bg-gray-800', 'border-gray-700', 'text-gray-400');
+                addLog("Terminal enabled via override.", "system");
+            } else {
+                terminal.style.opacity = '0';
+                terminal.classList.add('pointer-events-none');
+                btn.classList.remove('bg-amber-500/10', 'border-amber-500/50', 'text-amber-500');
+                btn.classList.add('bg-gray-800', 'border-gray-700', 'text-gray-400');
+            }
+        }
+
+        // Terminal Input Listener
+        document.getElementById('terminal-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const val = this.value.trim();
+                if (!val) return;
+                
+                if (val.startsWith('/')) {
+                    handleCommand(val.substring(1));
+                } else if (val.toLowerCase() === 'run') {
+                    startSimulation();
+                } else {
+                    userInjectedData = val;
+                    addLog(`DATA_INJECTED: "${val}" -> Routing...`, 'user');
+                    startSimulation(val);
+                }
+                this.value = '';
+            }
+        });
+
+        function handleCommand(cmd) {
+            const scenario = scenarioData[activeScenario];
+            const parts = cmd.toLowerCase().split(' ');
+            const command = parts[0];
+
+            switch(command) {
+                case 'help':
+                    addLog(`Available Commands:<br/>
+                        <span class="text-white">/summarize</span> - High-level overview.<br/>
+                        <span class="text-white">/status</span> - System health.<br/>
+                        <span class="text-white">/hide</span> - Minimize console.<br/>
+                        <span class="text-white">/clear</span> - Wipe logs.<br/>
+                        <span class="text-white">/nodes</span> - List architecture.`, 'system');
+                    break;
+                case 'summarize': addLog(scenario.summary, 'ai'); break;
+                case 'status': addLog(`Uptime: ${Math.floor(Math.random()*1000)}h | Latency: 12ms | DB: STABLE`, 'system'); break;
+                case 'hide': toggleTerminal(false); break;
+                case 'clear': document.getElementById('log-container').innerHTML = ''; break;
+                case 'nodes': 
+                    addLog(`Nodes: ${scenario.nodes.map(n => n.name).join(' -> ')}`, 'system'); 
+                    break;
+                default: addLog(`Invalid: /${command}`, 'error');
+            }
         }
 
         function loadScenario(id) {
             if (isSimulating) stopSimulation();
             activeScenario = id;
             const data = scenarioData[id];
-            
             if (!data) return;
 
             document.getElementById('scenario-title').innerText = data.title;
             
             const pulse = document.getElementById('status-pulse');
             const statusText = document.getElementById('system-status');
-            const simBtn = document.getElementById('sim-btn');
 
-            if (id === 'zapier-debug') {
-                pulse.className = "w-2 h-2 rounded-full bg-red-500 animate-pulse";
-                statusText.innerText = "Diagnostic: Debugging Active";
-            } else if (id === 'mother-ai') {
-                pulse.className = "w-2 h-2 rounded-full bg-blue-500 animate-pulse";
-                statusText.innerText = "Cognitive Engine: Heuristic Mode";
-            } else {
-                pulse.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse";
-                statusText.innerText = "Status: Operational";
-            }
+            if (id === 'zapier-debug') pulse.className = "w-2 h-2 rounded-full bg-red-500 animate-pulse";
+            else if (id === 'mother-ai') pulse.className = "w-2 h-2 rounded-full bg-blue-500 animate-pulse";
+            else pulse.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse";
 
             document.querySelectorAll('nav button').forEach(btn => {
                 btn.className = "w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group";
@@ -396,36 +493,23 @@
         function renderCanvas() {
             const data = scenarioData[activeScenario];
             if (!data) return;
-
             const nodeLayer = document.getElementById('node-layer');
             const svgLayer = document.getElementById('svg-layer');
             const NODE_WIDTH = 192; 
             const NODE_HEIGHT = 140; 
-
-            nodeLayer.innerHTML = '';
-            svgLayer.innerHTML = '';
+            nodeLayer.innerHTML = ''; svgLayer.innerHTML = '';
 
             data.edges.forEach((edge, idx) => {
                 const source = data.nodes.find(n => n.id === edge[0]);
                 const target = data.nodes.find(n => n.id === edge[1]);
                 if (!source || !target) return;
-
-                const x1 = source.x + NODE_WIDTH;
-                const y1 = source.y + (NODE_HEIGHT / 2);
-                const x2 = target.x;
-                const y2 = target.y + (NODE_HEIGHT / 2);
-                
+                const x1 = source.x + NODE_WIDTH; const y1 = source.y + (NODE_HEIGHT / 2);
+                const x2 = target.x; const y2 = target.y + (NODE_HEIGHT / 2);
                 const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                const cp1x = x1 + (x2 - x1) / 2;
-                const cp2x = x1 + (x2 - x1) / 2;
-                
-                const d = `M ${x1} ${y1} C ${cp1x} ${y1}, ${cp2x} ${y2}, ${x2} ${y2}`;
-                line.setAttribute("d", d);
+                line.setAttribute("d", `M ${x1} ${y1} C ${x1 + (x2-x1)/2} ${y1}, ${x1 + (x2-x1)/2} ${y2}, ${x2} ${y2}`);
                 line.setAttribute("id", `path-${activeScenario}-${idx}`);
-                line.setAttribute("stroke", "#374151");
-                line.setAttribute("stroke-width", "2");
-                line.setAttribute("fill", "none");
-                line.setAttribute("class", "line-flow");
+                line.setAttribute("stroke", "#374151"); line.setAttribute("stroke-width", "2");
+                line.setAttribute("fill", "none"); line.setAttribute("class", "line-flow");
                 svgLayer.appendChild(line);
             });
 
@@ -433,56 +517,40 @@
                 const div = document.createElement('div');
                 div.id = `node-${node.id}`;
                 div.className = "absolute node-card w-48 p-4 rounded-xl cursor-pointer shadow-xl z-10 flex flex-col h-[140px]";
-                div.style.left = `${node.x}px`;
-                div.style.top = `${node.y}px`;
+                div.style.left = `${node.x}px`; div.style.top = `${node.y}px`;
                 div.onclick = () => openDrawer(node);
-
                 div.innerHTML = `
                     <div id="status-bubble-${node.id}" class="absolute -top-6 left-1/2 -translate-x-1/2 bg-amber-500 text-gray-900 text-[8px] font-black px-2 py-0.5 rounded opacity-0 transition-all pointer-events-none uppercase tracking-tighter shadow-lg z-20 whitespace-nowrap">${node.statusText || 'ACTIVE'}</div>
                     <span class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">${node.type}</span>
                     <div class="flex items-center space-x-3 mb-4">
-                        <div class="p-2 bg-gray-800 rounded-lg text-gray-300">
-                            <i data-lucide="${node.icon}" class="w-5 h-5"></i>
-                        </div>
+                        <div class="p-2 bg-gray-800 rounded-lg text-gray-300"><i data-lucide="${node.icon}" class="w-5 h-5"></i></div>
                         <h4 class="text-xs font-bold text-white leading-tight">${node.name}</h4>
-                    </div>
-                    <div class="mt-auto pt-3 border-t border-gray-700/50 flex justify-between items-center">
-                        <span class="text-[9px] mono text-gray-400 font-bold tracking-tighter uppercase">${node.tool}</span>
                     </div>
                 `;
                 nodeLayer.appendChild(div);
             });
-
             lucide.createIcons();
         }
 
-        async function startSimulation() {
+        async function startSimulation(manualPayload = null) {
             if (isSimulating) return;
             isSimulating = true;
-            
-            const terminal = document.getElementById('live-terminal');
-            const logContainer = document.getElementById('log-container');
-            if (terminal) terminal.style.opacity = '1';
-            if (logContainer) logContainer.innerHTML = '';
+            toggleTerminal(true); // Force open for simulation
             
             addLog(`SYSTEM: INITIATING ${activeScenario.toUpperCase()} RUN`, 'system');
             
             const data = scenarioData[activeScenario];
             const svgLayer = document.getElementById('svg-layer');
             const simBtn = document.getElementById('sim-btn');
-            if (simBtn) {
-                simBtn.innerHTML = `<i data-lucide="square" class="w-3 h-3"></i><span>Stop Sim</span>`;
-                lucide.createIcons();
-            }
+            simBtn.innerHTML = `<i data-lucide="square" class="w-3 h-3"></i><span>Stop Sim</span>`;
+            lucide.createIcons();
 
             const packet = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            packet.setAttribute("r", "5");
-            packet.setAttribute("class", "data-packet");
-            if (svgLayer) svgLayer.appendChild(packet);
+            packet.setAttribute("r", "5"); packet.setAttribute("class", "data-packet");
+            svgLayer.appendChild(packet);
 
             for (let i = 0; i < data.edges.length; i++) {
                 if (!isSimulating) break;
-                
                 const edge = data.edges[i];
                 const sourceNode = data.nodes.find(n => n.id === edge[0]);
                 const targetNode = data.nodes.find(n => n.id === edge[1]);
@@ -491,147 +559,90 @@
                 if (sourceNode) {
                     const nodeEl = document.getElementById(`node-${sourceNode.id}`);
                     const bubbleEl = document.getElementById(`status-bubble-${sourceNode.id}`);
-                    if (nodeEl) nodeEl.classList.add('processing');
-                    if (bubbleEl) {
-                        bubbleEl.classList.add('status-bubble');
-                        bubbleEl.style.opacity = '1';
-                    }
-                    openDrawer(sourceNode);
-                    addLog(`[PROCESS] ${sourceNode.name}: Initiated...`, 'process');
-                    
-                    let delay = sourceNode.type === 'Delay' ? 3000 : 1000;
-                    await new Promise(r => setTimeout(r, delay));
-                    addLog(`[SUCCESS] ${sourceNode.name}: Step completed.`, 'success');
-                    if (nodeEl) nodeEl.classList.remove('processing');
-                    if (bubbleEl) bubbleEl.style.opacity = '0';
+                    nodeEl.classList.add('processing');
+                    bubbleEl.style.opacity = '1';
+                    openDrawer(sourceNode, (i === 0 && manualPayload) ? manualPayload : sourceNode.input);
+                    addLog(`[STEP] ${sourceNode.name}: Processing Logic`, 'process');
+                    await new Promise(r => setTimeout(r, sourceNode.type === 'Delay' ? 2500 : 800));
+                    addLog(`[OK] ${sourceNode.name}: Response generated.`, 'success');
+                    nodeEl.classList.remove('processing'); bubbleEl.style.opacity = '0';
                 }
 
-                if (path && packet) {
+                if (path) {
                     const length = path.getTotalLength();
-                    const duration = 1200;
                     const start = performance.now();
-                    addLog(`[NETWORK] Routing data packet...`, 'info');
-
                     await new Promise(resolve => {
                         function animate(time) {
                             if (!isSimulating) return resolve();
                             const elapsed = time - start;
-                            const progress = Math.min(elapsed / duration, 1);
+                            const progress = Math.min(elapsed / 1000, 1);
                             const point = path.getPointAtLength(progress * length);
-                            packet.setAttribute("cx", point.x);
-                            packet.setAttribute("cy", point.y);
+                            packet.setAttribute("cx", point.x); packet.setAttribute("cy", point.y);
                             if (progress < 1) requestAnimationFrame(animate); else resolve();
                         }
                         requestAnimationFrame(animate);
                     });
                 }
-
-                if (i === data.edges.length - 1 && targetNode) {
-                    const finalNodeEl = document.getElementById(`node-${targetNode.id}`);
-                    if (finalNodeEl) finalNodeEl.classList.add('processing');
-                    openDrawer(targetNode);
-                    addLog(`[ACTION] ${targetNode.name}: Finalizing...`, 'process');
-                    await new Promise(r => setTimeout(r, 1000));
-                    addLog(`[DONE] Workflow run concluded.`, 'system');
-                    if (finalNodeEl) finalNodeEl.classList.remove('processing');
-                }
             }
-
             stopSimulation();
         }
 
         function stopSimulation() {
             isSimulating = false;
-            const terminal = document.getElementById('live-terminal');
-            if (terminal) terminal.style.opacity = '0';
             const packets = document.querySelectorAll('.data-packet');
             packets.forEach(p => p.remove());
             const simBtn = document.getElementById('sim-btn');
-            if (simBtn) {
-                simBtn.innerHTML = `<i data-lucide="play" class="w-3 h-3"></i><span>Run Simulation</span>`;
-                lucide.createIcons();
-            }
+            simBtn.innerHTML = `<i data-lucide="play" class="w-3 h-3"></i><span>Run Simulation</span>`;
             document.querySelectorAll('.node-card').forEach(n => n.classList.remove('processing'));
             document.querySelectorAll('[id^="status-bubble-"]').forEach(b => b.style.opacity = '0');
+            lucide.createIcons();
         }
 
-        function openDrawer(node) {
-            if (!node) return;
+        function openDrawer(node, customInput = null) {
             const drawer = document.getElementById('drawer');
-            if (!drawer) return;
-
-            const nameEl = document.getElementById('drawer-name');
-            const typeEl = document.getElementById('drawer-type');
-            const purposeEl = document.getElementById('drawer-purpose');
-            const logicEl = document.getElementById('drawer-logic');
-            const metaphorEl = document.getElementById('drawer-metaphor');
-            const inputEl = document.getElementById('drawer-input');
-            const outputEl = document.getElementById('drawer-output');
-
-            if (nameEl) nameEl.innerText = node.name;
-            if (typeEl) typeEl.innerText = `${node.type} Logic`;
-            if (purposeEl) purposeEl.innerText = node.purpose;
-            if (logicEl) logicEl.innerText = node.logic;
-            if (metaphorEl) metaphorEl.innerText = node.metaphor || "Plain explanation...";
-            if (inputEl) inputEl.innerText = node.input;
-            if (outputEl) outputEl.innerText = node.output;
+            document.getElementById('drawer-name').innerText = node.name;
+            document.getElementById('drawer-purpose').innerText = node.purpose;
+            document.getElementById('drawer-logic').innerText = node.logic;
+            document.getElementById('drawer-metaphor').innerText = node.metaphor;
+            document.getElementById('drawer-input').innerText = customInput || node.input;
+            document.getElementById('drawer-output').innerText = node.output;
             
             const codeSection = document.getElementById('node-js-section');
-            const codeEl = document.getElementById('drawer-code');
-            if(node.code && codeSection && codeEl) {
-                codeSection.classList.remove('hidden');
-                codeEl.innerText = node.code;
-            } else if (codeSection) {
-                codeSection.classList.add('hidden');
-            }
+            if(node.code) { 
+                codeSection.classList.remove('hidden'); 
+                document.getElementById('drawer-code').innerText = node.code; 
+            } else codeSection.classList.add('hidden');
 
             const linksSection = document.getElementById('drawer-links-section');
             const linksContainer = document.getElementById('drawer-links');
             const scenarioLinks = scenarioData[activeScenario]?.links;
-
-            if (linksSection && linksContainer) {
-                if (scenarioLinks && scenarioLinks.length > 0) {
-                    linksSection.classList.remove('hidden');
-                    linksContainer.innerHTML = scenarioLinks.map(link => `
-                        <a href="${link.url}" target="_blank" class="flex items-center justify-between p-3 bg-gray-900/50 border border-white/5 rounded-xl hover:border-amber-500/50 hover:bg-amber-500/5 transition-all group">
-                            <div class="flex items-center gap-3">
-                                <i data-lucide="${link.icon || 'external-link'}" class="w-4 h-4 text-gray-400 group-hover:text-amber-500"></i>
-                                <span class="text-xs font-bold text-gray-300 group-hover:text-white">${link.name}</span>
-                            </div>
-                            <i data-lucide="arrow-up-right" class="w-3 h-3 text-gray-600 group-hover:text-amber-500"></i>
-                        </a>
-                    `).join('');
-                } else {
-                    linksSection.classList.add('hidden');
-                }
-            }
-
-            const iconContainer = document.getElementById('drawer-icon');
-            if (iconContainer) iconContainer.innerHTML = `<i data-lucide="${node.icon}" class="w-8 h-8"></i>`;
+            if (scenarioLinks?.length > 0) {
+                linksSection.classList.remove('hidden');
+                linksContainer.innerHTML = scenarioLinks.map(link => `
+                    <a href="${link.url}" target="_blank" class="flex items-center justify-between p-3 bg-gray-900/50 border border-white/5 rounded-xl hover:border-amber-500/50 hover:bg-amber-500/5 transition-all group">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="${link.icon || 'link'}" class="w-4 h-4 text-gray-400 group-hover:text-amber-500"></i>
+                            <span class="text-xs font-bold text-gray-300 group-hover:text-white">${link.name}</span>
+                        </div>
+                    </a>
+                `).join('');
+            } else linksSection.classList.add('hidden');
 
             const toolsContainer = document.getElementById('drawer-tools');
-            if (toolsContainer && node.tools) {
-                toolsContainer.innerHTML = node.tools.map(tool => `<span class="px-2 py-1 bg-white/5 rounded text-[10px] text-gray-400 font-bold border border-white/5">${tool}</span>`).join('');
-            }
-
-            drawer.classList.remove('translate-x-full');
-            lucide.createIcons();
+            toolsContainer.innerHTML = node.tools.map(tool => `<span class="px-2 py-1 bg-white/5 rounded text-[10px] text-gray-400 font-bold border border-white/5">${tool}</span>`).join('');
+            drawer.classList.remove('translate-x-full'); lucide.createIcons();
         }
 
-        function closeDrawer() {
-            const drawer = document.getElementById('drawer');
-            if (drawer) drawer.classList.add('translate-x-full');
-        }
+        function closeDrawer() { document.getElementById('drawer').classList.add('translate-x-full'); }
 
         window.onload = () => {
             loadScenario('mother-ai');
             const container = document.getElementById('canvas-container');
-            if (!container) return;
-            let isDown = false; let startX, startY, scrollLeft, scrollTop;
+            let isDown = false, startX, startY, scrollLeft, scrollTop;
             container.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - container.offsetLeft; startY = e.pageY - container.offsetTop; scrollLeft = container.scrollLeft; scrollTop = container.scrollTop; });
             container.addEventListener('mouseleave', () => isDown = false);
             container.addEventListener('mouseup', () => isDown = false);
-            container.addEventListener('mousemove', (e) => { if(!isDown) return; e.preventDefault(); const x = e.pageX - container.offsetLeft; const y = e.pageY - container.offsetTop; const walkX = (x - startX) * 1.5; const walkY = (y - startY) * 1.5; container.scrollLeft = scrollLeft - walkX; container.scrollTop = scrollTop - walkY; });
+            container.addEventListener('mousemove', (e) => { if(!isDown) return; e.preventDefault(); const x = e.pageX - container.offsetLeft; const y = e.pageY - container.offsetTop; container.scrollLeft = scrollLeft - (x - startX) * 1.5; container.scrollTop = scrollTop - (y - startY) * 1.5; });
         };
     </script>
 </body>
