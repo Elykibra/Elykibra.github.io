@@ -26,10 +26,10 @@
             border: 1px solid #374151;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .node-card:hover {
+        .node-card.processing {
             border-color: #FBBF24;
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(251, 191, 36, 0.1);
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+            transform: scale(1.05);
         }
         .line-flow {
             stroke-dasharray: 8;
@@ -39,11 +39,21 @@
             from { stroke-dashoffset: 500; }
             to { stroke-dashoffset: 0; }
         }
+        .data-packet {
+            fill: #FBBF24;
+            filter: drop-shadow(0 0 5px #FBBF24);
+        }
+        .status-bubble {
+            animation: bounceIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3) translateY(10px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
         .mono { font-family: 'JetBrains Mono', monospace; }
         
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #111827; }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        .console-scrollbar::-webkit-scrollbar { width: 4px; }
+        .console-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
     </style>
 </head>
 <body class="antialiased h-screen flex flex-col md:flex-row">
@@ -69,7 +79,7 @@
             <div>
                 <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 text-center md:text-left">Game Systems</h3>
                 <div class="space-y-2">
-                    <button onclick="loadScenario('aethelgard')" id="btn-aethelgard" class="w-full text-left px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/50 text-amber-500 text-sm font-bold flex items-center justify-between group transition-all">
+                    <button onclick="loadScenario('aethelgard')" id="btn-aethelgard" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
                         <span>Aethelgard RPG</span>
                         <i data-lucide="gamepad-2" class="w-4 h-4"></i>
                     </button>
@@ -120,28 +130,24 @@
                 </a>
             </div>
         </nav>
-
-        <div class="mt-auto pt-6 border-t border-gray-800">
-            <div class="bg-gray-800/50 p-3 rounded-lg border border-gray-700">
-                <p class="text-[10px] text-gray-500 leading-tight italic">
-                    State-Driven Systems: From RPG loops to enterprise pipelines. Word: blue.
-                </p>
-            </div>
-        </div>
     </aside>
 
     <!-- Main Workspace -->
     <main class="flex-grow relative overflow-hidden flex flex-col bg-[#0b0f1a]">
         <header class="p-4 bg-gray-900/50 backdrop-blur-md border-b border-gray-800 flex justify-between items-center z-10">
-            <div class="flex items-center space-x-3">
-                <div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse" id="status-pulse"></div>
-                <h2 id="scenario-title" class="text-sm font-bold text-white uppercase tracking-wider uppercase">Aethelgard: The Guild's Path</h2>
-            </div>
             <div class="flex items-center space-x-4">
-                <span class="text-[10px] mono text-gray-500 uppercase tracking-tighter" id="system-status">Engine: Python 3.10 | SQLite DB</span>
-                <button class="bg-gray-800 hover:bg-gray-700 p-1.5 rounded text-gray-400 transition-colors">
-                    <i data-lucide="maximize" class="w-4 h-4"></i>
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse" id="status-pulse"></div>
+                <h2 id="scenario-title" class="text-sm font-bold text-white uppercase tracking-wider">Scenario Name</h2>
+                
+                <div class="h-6 w-px bg-gray-800 mx-2"></div>
+                <button onclick="startSimulation()" id="sim-btn" class="flex items-center space-x-2 px-3 py-1 bg-amber-500/10 border border-amber-500/50 rounded-full text-amber-500 text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-gray-900 transition-all">
+                    <i data-lucide="play" class="w-3 h-3"></i>
+                    <span>Run Simulation</span>
                 </button>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <span class="text-[10px] mono text-gray-500 uppercase tracking-tighter" id="system-status">Operational</span>
             </div>
         </header>
 
@@ -150,6 +156,20 @@
             <div class="relative w-[2400px] h-[1200px]">
                 <svg id="svg-layer" class="absolute top-0 left-0 w-full h-full pointer-events-none z-0"></svg>
                 <div id="node-layer" class="absolute top-0 left-0 w-full h-full z-10"></div>
+            </div>
+
+            <!-- Live Terminal -->
+            <div id="live-terminal" class="absolute bottom-6 left-6 right-6 h-32 bg-black/80 backdrop-blur-md border border-white/10 rounded-xl z-20 overflow-hidden flex flex-col pointer-events-none opacity-0 transition-opacity duration-300">
+                <div class="px-4 py-2 border-b border-white/5 flex items-center justify-between bg-white/5">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></div>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">System Execution Logs</span>
+                    </div>
+                    <span class="text-[9px] mono text-gray-600">v2.4.0-stable</span>
+                </div>
+                <div id="log-container" class="p-4 text-[10px] mono text-gray-400 space-y-1 overflow-y-auto flex-grow console-scrollbar">
+                    <!-- Logs stream here -->
+                </div>
             </div>
         </div>
 
@@ -169,64 +189,70 @@
             </div>
 
             <div class="p-8 space-y-8 overflow-y-auto flex-grow">
+                <section class="bg-amber-500/5 border border-amber-500/20 p-5 rounded-2xl">
+                    <h4 class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i data-lucide="lightbulb" class="w-3 h-3"></i> Plain English Metaphor
+                    </h4>
+                    <p id="drawer-metaphor" class="text-sm text-amber-100/90 leading-relaxed italic"></p>
+                </section>
+
                 <section>
                     <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <i data-lucide="target" class="w-3 h-3"></i> System Goal
+                        <i data-lucide="target" class="w-3 h-3"></i> The Main Goal
                     </h4>
                     <p id="drawer-purpose" class="text-sm text-gray-300 leading-relaxed font-medium"></p>
                 </section>
 
                 <section>
                     <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <i data-lucide="terminal" class="w-3 h-3"></i> Application Logic
+                        <i data-lucide="terminal" class="w-3 h-3"></i> The "How it Works" Logic
                     </h4>
-                    <div id="drawer-logic" class="bg-black/40 border border-white/5 rounded-xl p-5 text-xs text-gray-300 leading-relaxed mono whitespace-pre-wrap border-l-2 border-l-amber-500/50"></div>
+                    <div id="drawer-logic" class="bg-black/40 border border-white/5 rounded-xl p-5 text-xs text-gray-300 leading-relaxed mono whitespace-pre-wrap border-l-2 border-l-blue-500/50"></div>
                 </section>
 
                 <section id="node-js-section" class="hidden">
                     <h4 class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <i data-lucide="file-code" class="w-3 h-3"></i> Code Context
+                        <i data-lucide="file-code" class="w-3 h-3"></i> Technical implementation
                     </h4>
                     <div id="drawer-code" class="bg-blue-500/5 border border-blue-500/20 rounded-xl p-5 text-xs text-blue-300/80 mono whitespace-pre-wrap italic"></div>
                 </section>
 
+                <!-- Added safety containers for assets -->
                 <section id="drawer-links-section" class="hidden">
                     <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                         <i data-lucide="link" class="w-3 h-3"></i> Project Assets
                     </h4>
-                    <div id="drawer-links" class="grid grid-cols-1 gap-2">
-                        <!-- Links -->
-                    </div>
+                    <div id="drawer-links" class="grid grid-cols-1 gap-2"></div>
                 </section>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-gray-900/50 p-5 rounded-2xl border border-white/5">
-                        <h4 class="text-[10px] font-bold text-amber-500 uppercase mb-3">Modular Cog</h4>
+                        <h4 class="text-[10px] font-bold text-amber-500 uppercase mb-3">The Stack</h4>
                         <div id="drawer-tools" class="flex flex-wrap gap-2"></div>
                     </div>
                     <div class="bg-gray-900/50 p-5 rounded-2xl border border-white/5">
                         <h4 class="text-[10px] font-bold text-green-500 uppercase mb-3">Availability</h4>
                         <div class="flex items-center space-x-2">
                             <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                            <span class="text-xs text-gray-200 font-bold uppercase tracking-tighter">Alpha Stage</span>
+                            <span class="text-xs text-gray-200 font-bold uppercase tracking-tighter">Operational</span>
                         </div>
                     </div>
                 </div>
 
                 <section>
-                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">State Interaction Trace</h4>
+                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">Live Execution Trace</h4>
                     <div class="space-y-4">
                         <div class="bg-black/60 rounded-xl border border-blue-500/20 overflow-hidden">
                             <div class="bg-blue-500/10 px-3 py-1.5 border-b border-blue-500/20 flex justify-between items-center">
-                                <span class="text-[9px] font-bold text-blue-400 mono">USER_INPUT</span>
-                                <i data-lucide="message-square" class="w-3 h-3 text-blue-400 opacity-50"></i>
+                                <span class="text-[9px] font-bold text-blue-400 mono uppercase tracking-widest">Input</span>
+                                <i data-lucide="arrow-right-circle" class="w-3 h-3 text-blue-400 opacity-50"></i>
                             </div>
                             <pre id="drawer-input" class="p-4 text-[10px] text-blue-300/80 overflow-x-auto mono"></pre>
                         </div>
                         <div class="bg-black/60 rounded-xl border border-purple-500/20 overflow-hidden">
                             <div class="bg-purple-500/10 px-3 py-1.5 border-b border-purple-500/20 flex justify-between items-center">
-                                <span class="text-[9px] font-bold text-purple-400 mono">UI_RENDER (EMBED)</span>
-                                <i data-lucide="layout" class="w-3 h-3 text-purple-400 opacity-50"></i>
+                                <span class="text-[9px] font-bold text-purple-400 mono uppercase tracking-widest">Output</span>
+                                <i data-lucide="check-circle" class="w-3 h-3 text-purple-400 opacity-50"></i>
                             </div>
                             <pre id="drawer-output" class="p-4 text-[10px] text-purple-300/80 overflow-x-auto mono"></pre>
                         </div>
@@ -238,110 +264,124 @@
 
     <script>
         const scenarioData = {
-            'aethelgard': {
-                title: "Aethelgard: The Guild's Path",
-                links: [
-                    { name: 'Bot Source Code', url: 'https://github.com/Elykibra/discord-adventure-bot', icon: 'github' },
-                    { name: 'Technical Design Case Study', url: 'https://www.behance.net/gallery/235945913/Aethelgard-Technical-Design-Scalability-Case-Study', icon: 'external-link' }
-                ],
-                nodes: [
-                    { id: 'a1', x: 150, y: 300, type: 'Input', name: 'Slash Command', icon: 'terminal', tool: 'discord.py', purpose: 'Capture player intent (e.g., /explore, /battle). The system must parse commands while respecting the global Day/Night cycle.', logic: 'Command Listener: cog_handler.py\nValidates if player has enough "Day Energy" to perform the requested action.', code: '@tree.command(name="explore")\nasync def explore(interaction):\n    if player.energy < 10:\n        return await interaction.response.send_message("Exhausted!")', tools: ['Python', 'Discord API'], input: '/explore [Oskhaven Outpost]', output: 'Status: PROCEEDING' },
-                    { id: 'a2', x: 450, y: 300, type: 'State', name: 'Session Controller', icon: 'user-check', tool: 'Logic Cog', purpose: 'The primary quality gate. Checks persistent stats (HP, Hunger, Energy) from the database before allowing game-loop entry.', logic: 'Constraint Check: If Hunger > 90, apply "Starvation" debuff to combat stats. If Energy < 1, block world travel.', code: '// State Check Logic\nif (hp <= 0) return "Fainted";\nif (hunger >= 100) return "Blocked";', tools: ['Python Logic'], input: '{"HP": 44, "Hunger": 94}', output: '{"can_proceed": true}' },
-                    { id: 'a3', x: 750, y: 300, type: 'World', name: 'Encounter Engine', icon: 'map', tool: 'Gloom System', purpose: 'Deterministic world logic. Determines encounters based on the 10-town travel system and player rank (Novice to Master).', logic: 'RNG Guardrails: Difficulty scales with player rank. "The Gloom" multiplier adjusts drop rates for rare materials.', tools: ['Python', 'RNG Controller'], input: 'Location: Whisperwood Grove', output: 'Encounter: Gloom-Touched Fungus' },
-                    { id: 'a4', x: 1050, y: 300, type: 'Database', name: 'Persistent Storage', icon: 'database', tool: 'SQLite / PG', purpose: 'Logs all world events and player state. Transitioned from SQLite to PostgreSQL for better scalability.', logic: 'CRUD Operations: Updates player rank, inventory, and pet evolution stage after every successful encounter.', code: 'UPDATE players SET exp = exp + 10, energy = energy - 10 WHERE id = ?', tools: ['SQLite', 'SQLAlchemy'], input: 'Exp: +10, Energy: -10', output: 'DB COMMIT SUCCESS' },
-                    { id: 'a5', x: 1350, y: 300, type: 'UI', name: 'Visual Dispatcher', icon: 'layout', tool: 'Embed Renderer', purpose: 'Translates complex state data into high-fidelity Discord Embeds using AI-generated assets.', logic: 'Dynamic Rendering: Assembles stats, gear, and location-specific images (1920x1080 px) into a cohesive response.', tools: ['Discord.py Embeds', 'Pillow'], input: '{"Location": "Oskhaven", "HP": 29/44}', output: 'Rendered Discord Embed' }
-                ],
-                edges: [['a1', 'a2'], ['a2', 'a3'], ['a3', 'a4'], ['a4', 'a5']]
-            },
             'mother-ai': {
-                title: "Mother AI Orchestration Ecosystem",
+                title: "Mother AI Orchestrator",
                 links: [
                     { name: 'Source Code', url: 'https://github.com/Elykibra/project-orchestrator-template', icon: 'github' },
                     { name: 'Case Study', url: 'https://www.behance.net/gallery/235950315/AI-Context-Management-Workflow-Automation-System', icon: 'external-link' },
                     { name: 'LinkedIn Profile', url: 'https://www.linkedin.com/in/kyle-tolilic', icon: 'linkedin' }
                 ],
                 nodes: [
-                    { id: 'm1', x: 450, y: 300, type: 'Core', name: 'Mother Core (Brain)', icon: 'cpu', tool: 'Python/Tkinter', purpose: 'The central orchestration layer. Manages task distribution, global state loading, and manages the dual-persistence model (YAML/PostgreSQL).', logic: 'Controller: app_controller.py\nFeatures: Scrolled Text console redirection for real-time meta-debugging.', code: '// Persistence Model\nStructured files (YAML) for local project state.\nPostgreSQL for high-volume world event logging.', tools: ['Python', 'PostgreSQL', 'ttkthemes'], input: 'Event: Project Commit Detected', output: 'Action: Trigger RCS Module' },
-                    { id: 'm2', x: 150, y: 300, type: 'Perception', name: 'Event Listener', icon: 'eye', tool: 'Git/FileWatcher', purpose: 'Detects systemic changes, Git diffs, and project history logs to feed the perception layer.', logic: 'Summarizes and truncates history to optimize the context window for the LLM agents.', tools: ['Git API', 'YAML Parser'], input: 'Git Diff: modified app_controller.py', output: 'Context: Summarized Change Data' },
-                    { id: 'm3', x: 450, y: 100, type: 'Reflection', name: 'RCS Modules', icon: 'refresh-ccw', tool: 'Gemini/GPT-4o', purpose: 'Reflective Checkpoint System (RCS). Specialized agents that observe and evaluate their own performance.', logic: 'Performs recursive feedback loops. If score < 0.8, re-reflects. This prevents halluncination through self-critique.', code: '// Reflection Logic\nif (rcs_score < confidence_threshold) {\n  trigger_secondary_reflection(data);\n}', tools: ['Gemini 1.5 Pro', 'OpenAI API'], input: 'Goal: Optimize Memory Cleanup', output: 'Reflection: Logic suggests 250KB limit.' },
-                    { id: 'm4', x: 750, y: 300, type: 'Memory', name: 'World Memory', icon: 'database', tool: 'Knowledge Base', purpose: 'A global distilled knowledge bank where local insights are generalized into stable heuristics.', logic: 'Stabilization/Decay: Insights become STABLE after 5 reinforcements. Metrics decay over 60 days if not reinforced.', code: '// Memory Decay Logic\nif (insight.reinforcements >= 5 && metric >= 0.9) {\n  status = "STABLE";\n}', tools: ['PostgreSQL', 'world_memory_service.py'], input: 'Insight: API failure on rate limit', output: 'Heuristic: Add 334ms delay to all Notion reqs' },
-                    { id: 'm5', x: 450, y: 500, type: 'Cognition', name: 'True Echo Engine', icon: 'sparkles', tool: 'Self-Adapting LLM', purpose: 'The conversational layer that adjusts its logic and interaction style based on World Memory insights.', logic: 'Transitions from API dependency to local heuristic reasoning through "Reflective Synthesis Loops."', tools: ['Echo Learnings', 'RCS Synthesis'], input: 'World Data: Frequent rate limit errors', output: 'Adjustment: Logic now defaults to restricted flow.' }
+                    { id: 'm1', x: 450, y: 300, type: 'Core', name: 'Mother Core (Brain)', icon: 'cpu', tool: 'Python/Tkinter', purpose: 'Central orchestration layer managing task distribution and persistence.', logic: 'Directs all traffic. Uses dual-persistence (YAML/PostgreSQL).', metaphor: 'The Librarian who knows where every book is and who is currently reading what.', statusText: 'ORCHESTRATING', tools: ['Python', 'PostgreSQL'], input: 'Event: Project Commit Detected', output: 'Action: Trigger RCS Module' },
+                    { id: 'm2', x: 150, y: 300, type: 'Perception', name: 'Event Listener', icon: 'eye', tool: 'Git/FileWatcher', purpose: 'Detects systemic changes and project history logs.', logic: 'Summarizes history to optimize context window for LLMs.', metaphor: 'A Watchman standing at the gate, writing down everything that enters in a notebook.', statusText: 'LISTENING', tools: ['Git API'], input: 'Git Diff: modified app_controller.py', output: 'Context: Summarized Data' },
+                    { id: 'm3', x: 450, y: 100, type: 'Reflection', name: 'RCS Modules', icon: 'refresh-ccw', tool: 'Gemini/GPT-4o', purpose: 'Self-evaluating agents that critique performance.', logic: 'Recursive feedback loops. If score < 0.8, re-reflects.', metaphor: 'A Quality Control inspector who checks their own work twice before signing off.', statusText: 'REFLECTING', tools: ['Gemini 1.5 Pro'], input: 'Goal: Optimize Memory Cleanup', output: 'Reflection: 250KB limit suggested' },
+                    { id: 'm4', x: 750, y: 300, type: 'Memory', name: 'World Memory', icon: 'database', tool: 'Knowledge Base', purpose: 'Global distilled knowledge bank for generalized insights.', logic: 'Stabilization rules: Insights become STABLE after 5 reinforcements.', metaphor: 'An Old Sage who forgets small talk but remembers life lessons forever.', statusText: 'SAVING', tools: ['PostgreSQL'], input: 'Insight: Rate limit failure', output: 'Heuristic: Add 334ms delay' }
                 ],
-                edges: [['m2', 'm1'], ['m1', 'm3'], ['m3', 'm2'], ['m3', 'm4'], ['m4', 'm5'], ['m5', 'm1']]
+                edges: [['m2', 'm1'], ['m1', 'm3'], ['m3', 'm4'], ['m4', 'm1']]
+            },
+            'aethelgard': {
+                title: "Aethelgard: The Guild's Path",
+                links: [
+                    { name: 'Bot Source Code', url: 'https://github.com/Elykibra/discord-adventure-bot', icon: 'github' },
+                    { name: 'Design Case Study', url: 'https://www.behance.net/gallery/235945913/Aethelgard-Technical-Design-Scalability-Case-Study', icon: 'external-link' }
+                ],
+                nodes: [
+                    { id: 'a1', x: 150, y: 300, type: 'Input', name: 'Slash Command', icon: 'terminal', tool: 'discord.py', purpose: 'Capture player intent via Discord interactions.', logic: 'Parses commands and respects Day/Night cycle.', metaphor: 'Dropping a letter in a mailbox; it reads the address and knows where to go.', statusText: 'PARSING', tools: ['Python'], input: '/explore [Oskhaven]', output: 'Status: PROCEEDING' },
+                    { id: 'a2', x: 450, y: 300, type: 'State', name: 'Session Controller', icon: 'user-check', tool: 'Logic Cog', purpose: 'Validates player stats before allowing game-loop entry.', logic: 'Constraint Check: If Hunger > 90, block travel.', metaphor: 'A Bouncer at a club checking if you are too tired to enter.', statusText: 'VALIDATING', tools: ['Python Logic'], input: '{"HP": 44, "Hunger": 94}', output: '{"can_proceed": true}' },
+                    { id: 'a3', x: 750, y: 300, type: 'World', name: 'Encounter Engine', icon: 'map', tool: 'Gloom System', purpose: 'Deterministic world logic based on location and rank.', logic: 'RNG Guardrails: Difficulty scales with player rank.', metaphor: 'A Dungeon Master rolling dice to decide what you run into.', statusText: 'ROLLING...', tools: ['Python'], input: 'Loc: Whisperwood Grove', output: 'Encounter: Fungus' },
+                    { id: 'a4', x: 1050, y: 300, type: 'Database', name: 'Persistent Storage', icon: 'database', tool: 'SQLite', purpose: 'Logs world events and player state changes.', logic: 'CRUD Operations: Updates rank post-battle.', metaphor: 'The Scorekeeper in a board game writing in a permanent notebook.', statusText: 'SYNCING DB', tools: ['SQLite'], input: 'Exp: +10, Energy: -10', output: 'SUCCESS' }
+                ],
+                edges: [['a1', 'a2'], ['a2', 'a3'], ['a3', 'a4']]
             },
             'zapier-debug': {
-                title: "Failed Payment Fix (Zapier)",
+                title: "Failed Payment Debug",
                 nodes: [
-                    { id: 'z1', x: 150, y: 300, type: 'Trigger', name: 'Stripe Failed Charge', icon: 'zap', tool: 'Stripe API', purpose: 'Captures the initial failure event. The bug starts here because this data becomes "STALE" after the 24-hour delay.', logic: 'Original Problem: Step 1 data (failed) was used for Step 12 logic, ignoring any payments made during the delay.', code: '// Stale Snapshot Logic\nconst initialStatus = trigger.data.status; // "failed"\n// 24 hours pass...\n// initialStatus is STILL "failed" even if paid.', tools: ['Stripe Webhook'], input: '{"charge_status": "failed", "customer": "ssadman"}', output: '{"charge_status": "failed"}' },
-                    { id: 'z2', x: 450, y: 300, type: 'Delay', name: '24-Hour Buffer', icon: 'clock', tool: 'Zapier Delay', purpose: 'Provides the customer time to retry the payment. This is the "Data Incubator" where data contradictions occur.', logic: 'During this 24-hour pause, the CRM status might change to "Deal won!", but Zapier Step 1 data does NOT refresh.', tools: ['Delay by Zapier'], input: '{"delay": "24h"}', output: '{"status": "resumed"}' },
-                    { id: 'z3', x: 750, y: 300, type: 'Fix', name: 'CRM Live Lookup', icon: 'search', tool: 'Visa CRM API', purpose: 'THE SOLUTION: Added Step 11.5 to perform a fresh inquiry into the CRM status AFTER the delay.', logic: 'Refreshes the "Source of Truth." Instead of relying on Step 1, we pull current "Deal Status" directly from the CRM.', code: '// Step 11.5: Refresh Data\nconst currentRecord = await crm.getRecord(email);\nconst liveStatus = currentRecord.status; // "Deal won!"', tools: ['CRM API', 'Step 11.5 Fix'], input: '{"email": "ssadman@test.com"}', output: '{"Deal Status": "Deal won!"}' },
-                    { id: 'z4', x: 1050, y: 300, type: 'Router', name: 'Multi-Rule Filter', icon: 'filter', tool: 'Zapier Filter', purpose: 'The final quality gate using two rules to prevent incorrect emails.', logic: 'Rule 1: CRM Record must exist.\nRule 2: Deal Status must NOT contain "Deal won!".\nIf Rule 2 fails (meaning they paid), the Zap STOPS.', code: '// Perfected Filter Logic\nif (exists && status !== "Deal won!") {\n  continue();\n} else {\n  stop(); // Correctly halts for paid users\n}', tools: ['Filter by Zapier'], input: '{"Status": "Deal won!"}', output: 'FAILS / STOPS (Correct)' },
-                    { id: 'z5', x: 1350, y: 300, type: 'Action', name: 'Follow-up Email', icon: 'mail', tool: 'Gmail API', purpose: 'The final action that was previously firing incorrectly. Now only fires for truly pending users.', logic: 'Only reached for leads whose live CRM status remains "initiated/in review" after 24 hours.', tools: ['Gmail API'], input: '{"to": "pending_user@test.com"}', output: '{"sent": true}' }
+                    { id: 'z1', x: 150, y: 300, type: 'Trigger', name: 'Stripe Failed Charge', icon: 'zap', tool: 'Stripe API', purpose: 'Captures initial failure.', logic: 'Root Problem: Data ignored delay changes.', metaphor: 'Taking a snapshot of a moving train; the photo stays still, but the train keeps going.', statusText: 'TRIGGERING', tools: ['Stripe'], input: '{"status": "failed"}', output: '{"status": "failed"}' },
+                    { id: 'z2', x: 450, y: 300, type: 'Delay', name: '24-Hour Buffer', icon: 'clock', tool: 'Zapier Delay', purpose: 'Incubator for data contradictions.', logic: 'Wait period for customer retry.', metaphor: 'Putting a letter in the "Outbox" and waiting for the morning mailman.', statusText: 'WAITING (24H)', tools: ['Zapier'], input: '{"delay": "24h"}', output: '{"status": "resumed"}' },
+                    { id: 'z3', x: 750, y: 300, type: 'Fix', name: 'CRM Live Lookup', icon: 'search', tool: 'Visa CRM', purpose: 'Refreshes the Source of Truth post-delay.', logic: 'Inquiry into current deal status.', metaphor: 'Actually looking out the window to see where the train is now.', statusText: 'LOOKUP...', tools: ['CRM API'], input: '{"email": "user@test.com"}', output: '{"status": "Deal won!"}' },
+                    { id: 'z4', x: 1050, y: 300, type: 'Router', name: 'Decision Gate', icon: 'filter', tool: 'Zapier Filter', purpose: 'Quality gate preventing duplicate emails.', logic: 'Rule: If Status === "Deal won!", STOP.', metaphor: 'Checking the expiry date on the milk before pouring it.', statusText: 'FILTERING', tools: ['Filter'], input: '{"status": "Deal won!"}', output: 'HALT (PAID)' }
                 ],
-                edges: [['z1', 'z2'], ['z2', 'z3'], ['z3', 'z4'], ['z4', 'z5']]
+                edges: [['z1', 'z2'], ['z2', 'z3'], ['z3', 'z4']]
             },
             'attorney': {
-                title: "Attorney Nurturing Pipeline v2.0",
+                title: "Attorney Pipeline v2.0",
                 links: [
                     { name: 'Notion Database', url: 'https://www.notion.so/promo-panda/26ac503ebc858000bddcfee1b940dd8b', icon: 'layout' }
                 ],
                 nodes: [
-                    { id: 'n1', x: 150, y: 300, type: 'Trigger', name: 'Manual Notion Trigger', icon: 'zap', tool: 'Notion Button', purpose: 'Phase 1 initiation. Uses a Notion Button + Webhook to control daily search volume.', logic: 'Manual Mechanism: Prevents high costs of 24/7 background scraping.', code: '// Notion API mapping\nconst trigger = await axios.post(ZAPIER_WEBHOOK_URL, {...});', tools: ['Notion Button', 'Webhooks'], input: '{"action": "START_PHASE_1", "limit": 25}', output: '{"status": "SCOUT_BOT_ACTIVATED"}' },
-                    { id: 'n2', x: 450, y: 300, type: 'Logic', name: 'Relevance AI Scout Bot', icon: 'search', tool: 'Relevance AI', purpose: 'Conducts Google searches and deep scrapes attorney websites for practice areas.', logic: 'Phase 1 Data Acquisition: Extracts Name, Firm, Email, Website, and Practice Areas.', tools: ['Relevance AI', 'Google Search API'], input: '{"query": "Immigration Attorneys NYC"}', output: '{"profiles": [25 items]}' },
-                    { id: 'n3', x: 750, y: 300, type: 'Queue', name: 'Intermediary Queue', icon: 'layers', tool: 'Google Sheets', purpose: 'Added in v2.0 to act as a visible, stable buffer between Relevance AI and Notion.', logic: 'Stability Patch: Eliminates unreliable direct connections and batch failures.', tools: ['Google Sheets', 'Zapier'], input: '{"batch": [25 profiles]}', output: '{"queued_count": 25, "status": "STABLE"}' },
-                    { id: 'n4', x: 1050, y: 300, type: 'Logic', name: '5-Layer Deduplication', icon: 'filter', tool: 'Python / Zapier', purpose: 'Increased duplicate detection from 3 to 5 layers with weighted scoring.', logic: '96%+ Accuracy Check: Weighted scoring catches firm variations and edge cases.', code: '// Python Score Logic\nif name_match: score += 0.4\nif email_match: score += 0.6', tools: ['Python', 'Zapier Logic'], input: '{"email": "kyle@legal.com"}', output: '{"is_unique": true}' },
-                    { id: 'n5', x: 1350, y: 300, type: 'AI Agent', name: 'Gemini Flash 2.0 Classify', icon: 'brain-circuit', tool: 'Gemini Flash', purpose: 'Grades lead focus as HIGH/MEDIUM/LOW based on practice area relevance.', tools: ['Gemini Flash 2.0', 'Notion'], input: '{"practice_areas": ["EB-1"]}', output: '{"focus": "HIGH"}' },
-                    { id: 'n6', x: 1650, y: 300, type: 'Action', name: 'Notion CRM & GPT-4o', icon: 'database', tool: 'GPT-4o / Notion', purpose: 'Final CRM upload and personalized outreach drafting.', tools: ['GPT-4o', 'Notion API'], input: '{"focus": "HIGH"}', output: '{"status": "DRAFT_SAVED"}' }
+                    { id: 'at1', x: 150, y: 300, type: 'Trigger', name: 'Notion Trigger', icon: 'zap', tool: 'Notion Button', purpose: 'Manual initiation of Phase 1 to control costs.', logic: 'Webhook sends session metadata to Zapier.', metaphor: 'Turning on a water faucet only when you need to fill a glass.', statusText: 'ACTIVATING', tools: ['Notion'], input: '{"action": "START"}', output: '{"status": "SCOUTING"}' },
+                    { id: 'at2', x: 450, y: 300, type: 'Logic', name: 'Relevance AI Scout', icon: 'search', tool: 'Relevance AI', purpose: 'Scrapes Google and attorney sites for profile data.', logic: 'Extracts Firm, Email, and Practice Areas.', metaphor: 'A research assistant scanning a phone book for specific keywords.', statusText: 'SCRAPING', tools: ['Relevance AI'], input: '{"query": "Immigration Attorneys"}', output: '{"profiles": [25]}' },
+                    { id: 'at3', x: 750, y: 300, type: 'Queue', name: 'Google Sheets Buffer', icon: 'layers', tool: 'GSheets', purpose: 'Stable intermediary queue between scraper and CRM.', logic: 'Stabilizes batch processing for Notion API.', metaphor: 'A holding area where cargo is checked before entering the main warehouse.', statusText: 'QUEUING', tools: ['Google Sheets'], input: '{"batch": 25}', output: '{"status": "BUFFERED"}' },
+                    { id: 'at4', x: 1050, y: 300, type: 'Logic', name: '5-Layer Dedupe', icon: 'filter', tool: 'Python', purpose: 'Weighted duplicate detection across 5 data points.', logic: 'Checks Name, Email, Firm, Web, and Phone.', metaphor: 'A security guard checking face, fingerprints, and ID to verify identity.', statusText: 'DEDUPING', tools: ['Python'], input: '{"email": "kyle@legal.com"}', output: '{"is_unique": true}' }
                 ],
-                edges: [['n1', 'n2'], ['n2', 'n3'], ['n3', 'n4'], ['n4', 'n5'], ['n5', 'n6']]
+                edges: [['at1', 'at2'], ['at2', 'at3'], ['at3', 'at4']]
             },
             'helpscout': {
-                title: "Help Scout Sage (Manual Mode)",
+                title: "Help Scout Sage",
                 links: [
                     { name: 'Source Code', url: 'https://github.com/Elykibra/helpscout-sage-app', icon: 'github' }
                 ],
                 nodes: [
-                    { id: 'h1', x: 150, y: 300, type: 'Trigger', name: 'Agent Sidebar Click', icon: 'mouse-pointer-2', tool: 'Help Scout', purpose: 'Transitioned from constant background operation to agent-triggered "Manual Mode" to reduce unpredictable processing costs.', logic: 'On-demand trigger: Sends the conversation ID to the Node.js backend.', tools: ['Vanilla JS', 'Help Scout Sidebar API'], input: '{"action": "CLICK"}', output: '{"status": "TRIGGERING SAGE"}' },
-                    { id: 'h2', x: 450, y: 300, type: 'Context', name: 'Context Retrieval', icon: 'file-search', tool: 'DigitalOcean', purpose: 'Enriches the request by fetching the full conversation history.', tools: ['Node.js', 'Express', 'Help Scout API'], input: '{"id": "3107675947"}', output: '{"threads": [...]}' },
-                    { id: 'h3', x: 750, y: 300, type: 'AI Agent', name: 'Sage Draft Engine', icon: 'sparkles', tool: 'Gemini / Relevance', purpose: 'Generates a contextually aware draft.', tools: ['Gemini 1.5 Pro', 'Relevance AI'], input: '{"latestMsg": "..."}', output: '{"draft": "Hello! ..."}' },
-                    { id: 'h4', x: 1050, y: 300, type: 'Action', name: 'Draft Injection', icon: 'send', tool: 'Help Scout API', purpose: 'Injects the AI draft back into Help Scout for review.', tools: ['Help Scout API'], input: '{"text": "...", "draft": true}', output: '{"status": "201 Created"}' }
+                    { id: 'hs1', x: 150, y: 300, type: 'Trigger', name: 'Sidebar Trigger', icon: 'mouse-pointer-2', tool: 'Help Scout', purpose: 'Manual on-demand draft generation for cost control.', logic: 'Sends conversation ID to Node.js backend.', metaphor: 'Ringing a bell to call a waiter when you are ready to order.', statusText: 'TRIGGERING', tools: ['Vanilla JS'], input: '{"id": "3107675947"}', output: '{"status": "SAGE_CALL"}' },
+                    { id: 'hs2', x: 450, y: 300, type: 'Context', name: 'Context Fetcher', icon: 'file-search', tool: 'Node.js', purpose: 'Retrieves full conversation history via HS API.', logic: 'Extracts threads for AI analysis.', metaphor: 'An assistant reading through all previous letters in a file to get context.', statusText: 'FETCHING', tools: ['Node.js'], input: '{"id": "3107675947"}', output: '{"threads": [...]}' },
+                    { id: 'hs3', x: 750, y: 300, type: 'AI Agent', name: 'Sage Engine', icon: 'sparkles', tool: 'Gemini', purpose: 'Generates a personalized draft response.', logic: 'Analyzes latest customer message for intent.', metaphor: 'A professional ghostwriter drafting a reply in your specific voice.', statusText: 'DRAFTING', tools: ['Gemini'], input: '{"latest": "Refund?"}', output: '{"draft": "Hello..."}' },
+                    { id: 'hs4', x: 1050, y: 300, type: 'Action', name: 'Draft Injection', icon: 'send', tool: 'Help Scout', purpose: 'Inserts draft back into thread as internal note.', logic: 'Posts reply with draft=true.', metaphor: 'Placing a sticky note on a file for your boss to approve.', statusText: 'POSTING', tools: ['Help Scout API'], input: '{"draft": true}', output: '{"status": "CREATED"}' }
                 ],
-                edges: [['h1', 'h2'], ['h2', 'h3'], ['h3', 'h4']]
+                edges: [['hs1', 'hs2'], ['hs2', 'hs3'], ['hs3', 'hs4']]
             },
             'ai-validation': {
-                title: "AI Validation Workflow",
+                title: "AI Validation Flow",
                 nodes: [
-                    { id: 'av1', x: 150, y: 300, type: 'Trigger', name: 'Webhook Ingest', icon: 'zap', tool: 'Webhook', purpose: 'Captures raw inbound lead data.', tools: ['Make Webhooks'], input: '{"name": "Ky"}', output: '{"name": "Ky"}' },
-                    { id: 'av2', x: 450, y: 300, type: 'AI Agent', name: 'Gemini Gatekeeper', icon: 'shield-check', tool: 'Google Gemini', purpose: 'Analyzes input quality and forces failure codes for junk data.', tools: ['Gemini 1.5 Pro'], input: '{"aboutMe": "crypto"}', output: '{"Profession": "INVALID_INPUT"}' },
-                    { id: 'av3', x: 750, y: 300, type: 'Router', name: 'Decision Gate', icon: 'git-branch', tool: 'Filter Logic', purpose: 'Checks AI output for semantic and hygiene guardrails.', tools: ['Make Router'], input: '{"Profession": "INVALID_INPUT"}', output: 'Route to Fallback' },
-                    { id: 'av4', x: 1050, y: 200, type: 'Action', name: 'Success Path', icon: 'database', tool: 'CRM / Slack', tools: ['Slack'], input: '{"valid": true}', output: 'Notified Team' },
-                    { id: 'av5', x: 1050, y: 400, type: 'Action', name: 'Fallback Path', icon: 'alert-triangle', tool: 'Error Log', tools: ['PostgreSQL'], input: '{"reason": "junk_data"}', output: 'Logged to Review' }
+                    { id: 'v1', x: 150, y: 300, type: 'Trigger', name: 'Webhook Ingest', icon: 'zap', tool: 'Webhook', purpose: 'Captures raw inbound lead data from external forms.', logic: 'Acts as primary listener for system input.', metaphor: 'A mailbox catching letters as they are dropped off.', statusText: 'INGESTING', tools: ['Make'], input: '{"name": "Ky"}', output: '{"raw": {...}}' },
+                    { id: 'v2', x: 450, y: 300, type: 'AI Agent', name: 'Gemini Gatekeeper', icon: 'shield-check', tool: 'Gemini', purpose: 'Analyzes lead quality and flags junk/spam data.', logic: 'Forces failure codes for non-professional input.', metaphor: 'A quality control inspector throwing away dented cans on an assembly line.', statusText: 'VALIDATING', tools: ['Gemini'], input: '{"about": "crypto"}', output: '{"valid": false}' },
+                    { id: 'v3', x: 750, y: 300, type: 'Router', name: 'Decision Gate', icon: 'git-branch', tool: 'Router', purpose: 'Directs data based on validation results.', logic: 'Filters leads based on AI success codes.', metaphor: 'A traffic light that only turns green for cars that pass inspection.', statusText: 'ROUTING', tools: ['Make'], input: '{"valid": false}', output: 'Route: Fallback' },
+                    { id: 'v4', x: 1050, y: 300, type: 'Action', name: 'Error Log', icon: 'alert-triangle', tool: 'PostgreSQL', purpose: 'Ensures zero data loss by logging failures for review.', logic: 'Logs raw input and timestamp to error table.', metaphor: 'A "Lost and Found" box for things that didn\'t belong in the main warehouse.', statusText: 'LOGGING', tools: ['PostgreSQL'], input: '{"fail": "junk"}', output: '{"logged": true}' }
                 ],
-                edges: [['av1', 'av2'], ['av2', 'av3'], ['av3', 'av4'], ['av3', 'av5']]
+                edges: [['v1', 'v2'], ['v2', 'v3'], ['v3', 'v4']]
             }
         };
 
-        let activeScenario = 'aethelgard';
+        let activeScenario = 'mother-ai';
+        let isSimulating = false;
+
+        function addLog(message, type = 'info') {
+            const container = document.getElementById('log-container');
+            if (!container) return;
+            const log = document.createElement('div');
+            const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            let colorClass = 'text-gray-500';
+            if (type === 'success') colorClass = 'text-green-400';
+            if (type === 'process') colorClass = 'text-amber-400';
+            if (type === 'system') colorClass = 'text-blue-400';
+
+            log.innerHTML = `<span class="text-gray-600">[${time}]</span> <span class="${colorClass}">${message}</span>`;
+            container.appendChild(log);
+            container.scrollTop = container.scrollHeight;
+        }
 
         function loadScenario(id) {
+            if (isSimulating) stopSimulation();
             activeScenario = id;
             const data = scenarioData[id];
+            
+            if (!data) return;
+
             document.getElementById('scenario-title').innerText = data.title;
             
-            // Pulse color
             const pulse = document.getElementById('status-pulse');
+            const statusText = document.getElementById('system-status');
+            const simBtn = document.getElementById('sim-btn');
+
             if (id === 'zapier-debug') {
                 pulse.className = "w-2 h-2 rounded-full bg-red-500 animate-pulse";
-                document.getElementById('system-status').innerText = "Diagnostic: Fix Validated 100%";
+                statusText.innerText = "Diagnostic: Debugging Active";
             } else if (id === 'mother-ai') {
                 pulse.className = "w-2 h-2 rounded-full bg-blue-500 animate-pulse";
-                document.getElementById('system-status').innerText = "Cognitive Engine: ACTIVE | Heuristic Mode";
-            } else if (id === 'aethelgard') {
-                pulse.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
-                document.getElementById('system-status').innerText = "Engine: Python 3.10 | SQLite DB";
+                statusText.innerText = "Cognitive Engine: Heuristic Mode";
             } else {
                 pulse.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse";
-                document.getElementById('system-status').innerText = "Status: Operational";
+                statusText.innerText = "Status: Operational";
             }
 
             document.querySelectorAll('nav button').forEach(btn => {
@@ -355,6 +395,8 @@
 
         function renderCanvas() {
             const data = scenarioData[activeScenario];
+            if (!data) return;
+
             const nodeLayer = document.getElementById('node-layer');
             const svgLayer = document.getElementById('svg-layer');
             const NODE_WIDTH = 192; 
@@ -363,7 +405,7 @@
             nodeLayer.innerHTML = '';
             svgLayer.innerHTML = '';
 
-            data.edges.forEach(edge => {
+            data.edges.forEach((edge, idx) => {
                 const source = data.nodes.find(n => n.id === edge[0]);
                 const target = data.nodes.find(n => n.id === edge[1]);
                 if (!source || !target) return;
@@ -377,14 +419,10 @@
                 const cp1x = x1 + (x2 - x1) / 2;
                 const cp2x = x1 + (x2 - x1) / 2;
                 
-                line.setAttribute("d", `M ${x1} ${y1} C ${cp1x} ${y1}, ${cp2x} ${y2}, ${x2} ${y2}`);
-                
-                let strokeColor = "#374151";
-                if (activeScenario === 'zapier-debug') strokeColor = "#4a5568";
-                if (activeScenario === 'mother-ai') strokeColor = "#2563eb80";
-                if (activeScenario === 'aethelgard') strokeColor = "#d9770680";
-                
-                line.setAttribute("stroke", strokeColor);
+                const d = `M ${x1} ${y1} C ${cp1x} ${y1}, ${cp2x} ${y2}, ${x2} ${y2}`;
+                line.setAttribute("d", d);
+                line.setAttribute("id", `path-${activeScenario}-${idx}`);
+                line.setAttribute("stroke", "#374151");
                 line.setAttribute("stroke-width", "2");
                 line.setAttribute("fill", "none");
                 line.setAttribute("class", "line-flow");
@@ -393,12 +431,14 @@
 
             data.nodes.forEach(node => {
                 const div = document.createElement('div');
+                div.id = `node-${node.id}`;
                 div.className = "absolute node-card w-48 p-4 rounded-xl cursor-pointer shadow-xl z-10 flex flex-col h-[140px]";
                 div.style.left = `${node.x}px`;
                 div.style.top = `${node.y}px`;
                 div.onclick = () => openDrawer(node);
 
                 div.innerHTML = `
+                    <div id="status-bubble-${node.id}" class="absolute -top-6 left-1/2 -translate-x-1/2 bg-amber-500 text-gray-900 text-[8px] font-black px-2 py-0.5 rounded opacity-0 transition-all pointer-events-none uppercase tracking-tighter shadow-lg z-20 whitespace-nowrap">${node.statusText || 'ACTIVE'}</div>
                     <span class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">${node.type}</span>
                     <div class="flex items-center space-x-3 mb-4">
                         <div class="p-2 bg-gray-800 rounded-lg text-gray-300">
@@ -408,7 +448,6 @@
                     </div>
                     <div class="mt-auto pt-3 border-t border-gray-700/50 flex justify-between items-center">
                         <span class="text-[9px] mono text-gray-400 font-bold tracking-tighter uppercase">${node.tool}</span>
-                        <i data-lucide="chevron-right" class="w-2.5 h-2.5 text-gray-600"></i>
                     </div>
                 `;
                 nodeLayer.appendChild(div);
@@ -417,84 +456,182 @@
             lucide.createIcons();
         }
 
+        async function startSimulation() {
+            if (isSimulating) return;
+            isSimulating = true;
+            
+            const terminal = document.getElementById('live-terminal');
+            const logContainer = document.getElementById('log-container');
+            if (terminal) terminal.style.opacity = '1';
+            if (logContainer) logContainer.innerHTML = '';
+            
+            addLog(`SYSTEM: INITIATING ${activeScenario.toUpperCase()} RUN`, 'system');
+            
+            const data = scenarioData[activeScenario];
+            const svgLayer = document.getElementById('svg-layer');
+            const simBtn = document.getElementById('sim-btn');
+            if (simBtn) {
+                simBtn.innerHTML = `<i data-lucide="square" class="w-3 h-3"></i><span>Stop Sim</span>`;
+                lucide.createIcons();
+            }
+
+            const packet = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            packet.setAttribute("r", "5");
+            packet.setAttribute("class", "data-packet");
+            if (svgLayer) svgLayer.appendChild(packet);
+
+            for (let i = 0; i < data.edges.length; i++) {
+                if (!isSimulating) break;
+                
+                const edge = data.edges[i];
+                const sourceNode = data.nodes.find(n => n.id === edge[0]);
+                const targetNode = data.nodes.find(n => n.id === edge[1]);
+                const path = document.getElementById(`path-${activeScenario}-${i}`);
+                
+                if (sourceNode) {
+                    const nodeEl = document.getElementById(`node-${sourceNode.id}`);
+                    const bubbleEl = document.getElementById(`status-bubble-${sourceNode.id}`);
+                    if (nodeEl) nodeEl.classList.add('processing');
+                    if (bubbleEl) {
+                        bubbleEl.classList.add('status-bubble');
+                        bubbleEl.style.opacity = '1';
+                    }
+                    openDrawer(sourceNode);
+                    addLog(`[PROCESS] ${sourceNode.name}: Initiated...`, 'process');
+                    
+                    let delay = sourceNode.type === 'Delay' ? 3000 : 1000;
+                    await new Promise(r => setTimeout(r, delay));
+                    addLog(`[SUCCESS] ${sourceNode.name}: Step completed.`, 'success');
+                    if (nodeEl) nodeEl.classList.remove('processing');
+                    if (bubbleEl) bubbleEl.style.opacity = '0';
+                }
+
+                if (path && packet) {
+                    const length = path.getTotalLength();
+                    const duration = 1200;
+                    const start = performance.now();
+                    addLog(`[NETWORK] Routing data packet...`, 'info');
+
+                    await new Promise(resolve => {
+                        function animate(time) {
+                            if (!isSimulating) return resolve();
+                            const elapsed = time - start;
+                            const progress = Math.min(elapsed / duration, 1);
+                            const point = path.getPointAtLength(progress * length);
+                            packet.setAttribute("cx", point.x);
+                            packet.setAttribute("cy", point.y);
+                            if (progress < 1) requestAnimationFrame(animate); else resolve();
+                        }
+                        requestAnimationFrame(animate);
+                    });
+                }
+
+                if (i === data.edges.length - 1 && targetNode) {
+                    const finalNodeEl = document.getElementById(`node-${targetNode.id}`);
+                    if (finalNodeEl) finalNodeEl.classList.add('processing');
+                    openDrawer(targetNode);
+                    addLog(`[ACTION] ${targetNode.name}: Finalizing...`, 'process');
+                    await new Promise(r => setTimeout(r, 1000));
+                    addLog(`[DONE] Workflow run concluded.`, 'system');
+                    if (finalNodeEl) finalNodeEl.classList.remove('processing');
+                }
+            }
+
+            stopSimulation();
+        }
+
+        function stopSimulation() {
+            isSimulating = false;
+            const terminal = document.getElementById('live-terminal');
+            if (terminal) terminal.style.opacity = '0';
+            const packets = document.querySelectorAll('.data-packet');
+            packets.forEach(p => p.remove());
+            const simBtn = document.getElementById('sim-btn');
+            if (simBtn) {
+                simBtn.innerHTML = `<i data-lucide="play" class="w-3 h-3"></i><span>Run Simulation</span>`;
+                lucide.createIcons();
+            }
+            document.querySelectorAll('.node-card').forEach(n => n.classList.remove('processing'));
+            document.querySelectorAll('[id^="status-bubble-"]').forEach(b => b.style.opacity = '0');
+        }
+
         function openDrawer(node) {
+            if (!node) return;
             const drawer = document.getElementById('drawer');
-            document.getElementById('drawer-name').innerText = node.name;
-            document.getElementById('drawer-type').innerText = `${node.type} Logic/Sub-System`;
-            document.getElementById('drawer-purpose').innerText = node.purpose;
-            document.getElementById('drawer-logic').innerText = node.logic;
-            document.getElementById('drawer-input').innerText = node.input;
-            document.getElementById('drawer-output').innerText = node.output;
+            if (!drawer) return;
+
+            const nameEl = document.getElementById('drawer-name');
+            const typeEl = document.getElementById('drawer-type');
+            const purposeEl = document.getElementById('drawer-purpose');
+            const logicEl = document.getElementById('drawer-logic');
+            const metaphorEl = document.getElementById('drawer-metaphor');
+            const inputEl = document.getElementById('drawer-input');
+            const outputEl = document.getElementById('drawer-output');
+
+            if (nameEl) nameEl.innerText = node.name;
+            if (typeEl) typeEl.innerText = `${node.type} Logic`;
+            if (purposeEl) purposeEl.innerText = node.purpose;
+            if (logicEl) logicEl.innerText = node.logic;
+            if (metaphorEl) metaphorEl.innerText = node.metaphor || "Plain explanation...";
+            if (inputEl) inputEl.innerText = node.input;
+            if (outputEl) outputEl.innerText = node.output;
             
             const codeSection = document.getElementById('node-js-section');
-            if(node.code) {
+            const codeEl = document.getElementById('drawer-code');
+            if(node.code && codeSection && codeEl) {
                 codeSection.classList.remove('hidden');
-                document.getElementById('drawer-code').innerText = node.code;
-            } else {
+                codeEl.innerText = node.code;
+            } else if (codeSection) {
                 codeSection.classList.add('hidden');
             }
 
             const linksSection = document.getElementById('drawer-links-section');
             const linksContainer = document.getElementById('drawer-links');
-            const scenarioLinks = scenarioData[activeScenario].links;
+            const scenarioLinks = scenarioData[activeScenario]?.links;
 
-            if (scenarioLinks && scenarioLinks.length > 0) {
-                linksSection.classList.remove('hidden');
-                linksContainer.innerHTML = scenarioLinks.map(link => `
-                    <a href="${link.url}" target="_blank" class="flex items-center justify-between p-3 bg-gray-900/50 border border-white/5 rounded-xl hover:border-amber-500/50 hover:bg-amber-500/5 transition-all group">
-                        <div class="flex items-center gap-3">
-                            <i data-lucide="${link.icon || 'external-link'}" class="w-4 h-4 text-gray-400 group-hover:text-amber-500"></i>
-                            <span class="text-xs font-bold text-gray-300 group-hover:text-white">${link.name}</span>
-                        </div>
-                        <i data-lucide="arrow-up-right" class="w-3 h-3 text-gray-600 group-hover:text-amber-500"></i>
-                    </a>
-                `).join('');
-            } else {
-                linksSection.classList.add('hidden');
+            if (linksSection && linksContainer) {
+                if (scenarioLinks && scenarioLinks.length > 0) {
+                    linksSection.classList.remove('hidden');
+                    linksContainer.innerHTML = scenarioLinks.map(link => `
+                        <a href="${link.url}" target="_blank" class="flex items-center justify-between p-3 bg-gray-900/50 border border-white/5 rounded-xl hover:border-amber-500/50 hover:bg-amber-500/5 transition-all group">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="${link.icon || 'external-link'}" class="w-4 h-4 text-gray-400 group-hover:text-amber-500"></i>
+                                <span class="text-xs font-bold text-gray-300 group-hover:text-white">${link.name}</span>
+                            </div>
+                            <i data-lucide="arrow-up-right" class="w-3 h-3 text-gray-600 group-hover:text-amber-500"></i>
+                        </a>
+                    `).join('');
+                } else {
+                    linksSection.classList.add('hidden');
+                }
             }
 
             const iconContainer = document.getElementById('drawer-icon');
-            iconContainer.innerHTML = `<i data-lucide="${node.icon}" class="w-8 h-8"></i>`;
+            if (iconContainer) iconContainer.innerHTML = `<i data-lucide="${node.icon}" class="w-8 h-8"></i>`;
 
             const toolsContainer = document.getElementById('drawer-tools');
-            toolsContainer.innerHTML = node.tools.map(tool => 
-                `<span class="px-2 py-1 bg-white/5 rounded text-[10px] text-gray-400 font-bold border border-white/5">${tool}</span>`
-            ).join('');
+            if (toolsContainer && node.tools) {
+                toolsContainer.innerHTML = node.tools.map(tool => `<span class="px-2 py-1 bg-white/5 rounded text-[10px] text-gray-400 font-bold border border-white/5">${tool}</span>`).join('');
+            }
 
             drawer.classList.remove('translate-x-full');
             lucide.createIcons();
         }
 
         function closeDrawer() {
-            document.getElementById('drawer').classList.add('translate-x-full');
+            const drawer = document.getElementById('drawer');
+            if (drawer) drawer.classList.add('translate-x-full');
         }
 
         window.onload = () => {
-            loadScenario('aethelgard');
-            
+            loadScenario('mother-ai');
             const container = document.getElementById('canvas-container');
-            let isDown = false;
-            let startX, startY, scrollLeft, scrollTop;
-
-            container.addEventListener('mousedown', (e) => {
-                isDown = true;
-                startX = e.pageX - container.offsetLeft;
-                startY = e.pageY - container.offsetTop;
-                scrollLeft = container.scrollLeft;
-                scrollTop = container.scrollTop;
-            });
+            if (!container) return;
+            let isDown = false; let startX, startY, scrollLeft, scrollTop;
+            container.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - container.offsetLeft; startY = e.pageY - container.offsetTop; scrollLeft = container.scrollLeft; scrollTop = container.scrollTop; });
             container.addEventListener('mouseleave', () => isDown = false);
             container.addEventListener('mouseup', () => isDown = false);
-            container.addEventListener('mousemove', (e) => {
-                if(!isDown) return;
-                e.preventDefault();
-                const x = e.pageX - container.offsetLeft;
-                const y = e.pageY - container.offsetTop;
-                const walkX = (x - startX) * 1.5;
-                const walkY = (y - startY) * 1.5;
-                container.scrollLeft = scrollLeft - walkX;
-                container.scrollTop = scrollTop - walkY;
-            });
+            container.addEventListener('mousemove', (e) => { if(!isDown) return; e.preventDefault(); const x = e.pageX - container.offsetLeft; const y = e.pageY - container.offsetTop; const walkX = (x - startX) * 1.5; const walkY = (y - startY) * 1.5; container.scrollLeft = scrollLeft - walkX; container.scrollTop = scrollTop - walkY; });
         };
     </script>
 </body>
