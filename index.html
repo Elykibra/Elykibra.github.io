@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kyle Tolilic - Automation Architect</title>
+    <title>Kyle Tolilic - Automation Engineer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,8 +58,45 @@
         .console-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
         
         #terminal-input:focus { outline: none; }
-        .cursor-blink { animation: blink 1s step-end infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
+
+        .toggle-btn.active {
+            background-color: #FBBF24;
+            color: #0b0f1a;
+            font-weight: 800;
+        }
+
+        .exec-card, .landing-card {
+            background: linear-gradient(145deg, rgba(31, 41, 55, 0.4), rgba(15, 23, 42, 0.6));
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        .landing-card:hover {
+            border-color: #FBBF24;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        }
+        
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                height: 100%;
+                width: 85%;
+                transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 20px 0 50px rgba(0,0,0,0.5);
+                z-index: 100;
+            }
+            #sidebar.open { left: 0; }
+            #sidebar-overlay.visible { opacity: 1; pointer-events: auto; }
+            #sidebar-overlay.hidden-overlay { opacity: 0; pointer-events: none; }
+        }
+
+        #view-architect { overscroll-behavior: contain; }
+
+        .hero-gradient {
+            background: radial-gradient(circle at top center, rgba(251, 191, 36, 0.05), transparent 70%);
+        }
 
         .glow-pulse {
             position: absolute;
@@ -78,63 +115,17 @@
             0% { filter: hue-rotate(0deg); }
             100% { filter: hue-rotate(360deg); }
         }
-        .toggle-btn.active {
-            background-color: #FBBF24;
-            color: #0b0f1a;
-            font-weight: 800;
-        }
-
-        .exec-card {
-            background: linear-gradient(145deg, rgba(31, 41, 55, 0.4), rgba(15, 23, 42, 0.6));
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: transform 0.3s ease;
-        }
-        
-        /* Mobile Specific Overrides */
-        @media (max-width: 768px) {
-            #sidebar {
-                position: fixed;
-                left: -100%;
-                top: 0;
-                height: 100%;
-                width: 85%;
-                transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                box-shadow: 20px 0 50px rgba(0,0,0,0.5);
-                z-index: 100;
-            }
-            #sidebar.open {
-                left: 0;
-            }
-            #sidebar-overlay {
-                transition: opacity 0.3s ease;
-            }
-            #sidebar-overlay.visible {
-                opacity: 1;
-                pointer-events: auto;
-            }
-            #sidebar-overlay.hidden-overlay {
-                opacity: 0;
-                pointer-events: none;
-            }
-        }
-
-        /* Prevent scroll chaining on mobile */
-        #view-architect {
-            overscroll-behavior: contain;
-        }
     </style>
 </head>
 <body class="antialiased h-screen flex flex-col md:flex-row">
 
-    <!-- Mobile Sidebar Overlay -->
     <div id="sidebar-overlay" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden-overlay md:hidden z-40"></div>
 
-    <!-- Sidebar -->
     <aside id="sidebar" class="w-full md:w-80 bg-gray-900 border-r border-gray-800 p-6 flex flex-col h-full z-50">
         <div class="mb-8 flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-black text-white tracking-tight uppercase">Kyle Tolilic</h1>
-                <p class="text-amber-500 font-bold text-xs mt-1 uppercase tracking-widest">Automation Architect</p>
+            <div onclick="setViewMode('landing')" class="cursor-pointer group">
+                <h1 class="text-2xl font-black text-white tracking-tight uppercase group-hover:text-amber-500 transition-colors">Kyle Tolilic</h1>
+                <p class="text-amber-500 font-bold text-xs mt-1 uppercase tracking-widest">Automation Engineer</p>
             </div>
             <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-gray-400 hover:text-white transition-colors">
                 <i data-lucide="x" class="w-6 h-6"></i>
@@ -177,16 +168,33 @@
                         <span>Help Scout Sage</span>
                         <i data-lucide="message-square" class="w-4 h-4"></i>
                     </button>
+                    <button onclick="loadScenario('aethelgard')" id="btn-aethelgard" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
+                        <span>Aethelgard RPG</span>
+                        <i data-lucide="swords" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </div>
 
             <div class="pt-6 border-t border-gray-800 space-y-4">
-                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Connect</h3>
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 text-amber-500/50">Connectivity</h3>
+                
+                <a href="Kyle_Tolilic_Resume.pdf" download class="flex items-center justify-between w-full px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500 text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-gray-900 transition-all group mb-2">
+                    <span class="flex items-center gap-2">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                        Download CV
+                    </span>
+                    <i data-lucide="download" class="w-3 h-3 opacity-50 group-hover:opacity-100"></i>
+                </a>
+
                 <a href="mailto:ktolilic@gmail.com" class="flex items-center space-x-3 text-sm text-gray-400 hover:text-amber-500 transition-colors">
                     <i data-lucide="mail" class="w-4 h-4"></i>
                     <span>ktolilic@gmail.com</span>
                 </a>
-                <div class="flex items-center space-x-4">
+                <a href="tel:+639457392267" class="flex items-center space-x-3 text-sm text-gray-400 hover:text-amber-500 transition-colors">
+                    <i data-lucide="phone" class="w-4 h-4"></i>
+                    <span>+63 945 739 2267</span>
+                </a>
+                <div class="flex items-center space-x-4 pt-2">
                     <a href="https://github.com/Elykibra" target="_blank" class="text-gray-500 hover:text-white transition-colors">
                         <i data-lucide="github" class="w-5 h-5"></i>
                     </a>
@@ -201,10 +209,9 @@
         </nav>
     </aside>
 
-    <!-- Main Workspace -->
     <main class="flex-grow relative overflow-hidden flex flex-col bg-[#0b0f1a]">
-        <!-- Global Header -->
-        <header class="p-3 md:p-4 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 flex flex-col md:flex-row gap-4 justify-between items-center z-20">
+        
+        <header id="main-header" class="hidden p-3 md:p-4 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 flex flex-col md:flex-row gap-4 justify-between items-center z-20">
             <div class="flex items-center w-full md:w-auto justify-between md:justify-start gap-4">
                 <div class="flex items-center gap-3">
                     <button onclick="toggleMobileMenu()" class="md:hidden p-2 -ml-2 text-gray-400 hover:text-amber-500 transition-all">
@@ -215,15 +222,13 @@
                 
                 <div class="h-6 w-px bg-gray-800 hidden md:block"></div>
                 
-                <!-- View Mode Toggle -->
                 <div class="flex p-1 bg-black/40 rounded-lg border border-white/5 flex-shrink-0">
                     <button onclick="setViewMode('architect')" id="mode-architect" class="toggle-btn active px-3 md:px-5 py-2 rounded text-[9px] md:text-[10px] uppercase tracking-widest transition-all">Architect View</button>
                     <button onclick="setViewMode('executive')" id="mode-executive" class="toggle-btn px-3 md:px-5 py-2 rounded text-[9px] md:text-[10px] uppercase tracking-widest transition-all text-gray-500">Executive Summary</button>
                 </div>
             </div>
 
-            <!-- Action Controls -->
-            <div class="flex items-center gap-2 w-full md:w-auto justify-end md:justify-start">
+            <div class="flex items-center gap-2 w-full md:w-auto justify-end">
                 <button onclick="toggleTerminal()" id="term-btn" class="flex items-center gap-2 px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-full text-gray-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:border-amber-500/50 hover:text-white transition-all">
                     <i data-lucide="terminal" class="w-3 h-3"></i>
                     <span>Console</span>
@@ -236,14 +241,74 @@
             </div>
         </header>
 
-        <!-- Architect View (Canvas) -->
-        <div id="view-architect" class="flex-grow canvas-grid relative overflow-auto cursor-grab active:cursor-grabbing scroll-smooth">
+        <!-- Landing View -->
+        <div id="view-landing" class="flex-grow overflow-y-auto hero-gradient flex flex-col items-center justify-center p-6 md:p-12 console-scrollbar">
+            <div class="max-w-5xl w-full space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                
+                <div class="text-center space-y-8">
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-amber-500 text-[10px] font-black uppercase tracking-[0.2em]">
+                            <i data-lucide="shield-check" class="w-3 h-3 animate-pulse"></i>
+                            <span>Operational Excellence Initiated</span>
+                        </div>
+                        <div class="mono text-[10px] text-gray-600 bg-black/40 px-3 py-1 rounded-md border border-white/5">
+                            system_init: <span class="text-amber-500/70">v2.5_stable</span> | root_auth: <span class="text-green-500/70">verified</span>
+                        </div>
+                    </div>
+
+                    <h1 class="text-4xl md:text-8xl font-black text-white tracking-tighter uppercase leading-none">
+                        Architecting <span class="text-amber-500">Deterministic</span><br>Flows.
+                    </h1>
+                    
+                    <p class="text-gray-400 md:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
+                        Bridging the gap between manual operations and engineering excellence. I build high-fidelity, API-driven systems that manage high-stakes data and AI contexts with industrial reliability.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="landing-card p-8 rounded-3xl space-y-4 border-l-4 border-l-amber-500/20">
+                        <i data-lucide="workflow" class="w-8 h-8 text-amber-500 mb-2"></i>
+                        <h3 class="text-lg font-bold text-white uppercase tracking-tight">Workflow Engineering</h3>
+                        <p class="text-sm text-gray-400 leading-relaxed">Designing resilient pipelines with advanced error handling, retries, and rate-limiting to ensure 99.9% process uptime.</p>
+                    </div>
+                    <div class="landing-card p-8 rounded-3xl space-y-4 border-l-4 border-l-amber-500/20">
+                        <i data-lucide="binary" class="w-8 h-8 text-amber-500 mb-2"></i>
+                        <h3 class="text-lg font-bold text-white uppercase tracking-tight">Data Hygiene Ops</h3>
+                        <p class="text-sm text-gray-400 leading-relaxed">Implementing multi-layer deduplication and schema-first architectures to maintain absolute CRM and database integrity.</p>
+                    </div>
+                    <div class="landing-card p-8 rounded-3xl space-y-4 border-l-4 border-l-amber-500/20">
+                        <i data-lucide="brain-circuit" class="w-8 h-8 text-amber-500 mb-2"></i>
+                        <h3 class="text-lg font-bold text-white uppercase tracking-tight">Cognitive Orchestration</h3>
+                        <p class="text-sm text-gray-400 leading-relaxed">Managing recursive LLM memory and semantic classifiers to automate complex decision-making with context persistence.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] text-center">Active Logic Traces</h4>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <button onclick="loadScenario('mother-ai')" class="px-6 py-3 bg-gray-900 border border-white/5 rounded-2xl text-xs font-bold text-gray-300 hover:border-amber-500 hover:text-white transition-all flex items-center gap-3 group">
+                            <i data-lucide="cpu" class="w-4 h-4 text-gray-500 group-hover:text-amber-500"></i>
+                            Mother AI Core
+                        </button>
+                        <button onclick="loadScenario('attorney')" class="px-6 py-3 bg-gray-900 border border-white/5 rounded-2xl text-xs font-bold text-gray-300 hover:border-amber-500 hover:text-white transition-all flex items-center gap-3 group">
+                            <i data-lucide="briefcase" class="w-4 h-4 text-gray-500 group-hover:text-amber-500"></i>
+                            Attorney Pipeline
+                        </button>
+                        <button onclick="loadScenario('helpscout')" class="px-6 py-3 bg-gray-900 border border-white/5 rounded-2xl text-xs font-bold text-gray-300 hover:border-amber-500 hover:text-white transition-all flex items-center gap-3 group">
+                            <i data-lucide="message-square" class="w-4 h-4 text-gray-500 group-hover:text-amber-500"></i>
+                            Help Scout Sage
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-architect" class="hidden flex-grow canvas-grid relative overflow-auto cursor-grab active:cursor-grabbing scroll-smooth">
             <div class="relative w-[1800px] md:w-[2400px] h-[1000px] md:h-[1200px]">
                 <svg id="svg-layer" class="absolute top-0 left-0 w-full h-full pointer-events-none z-0"></svg>
                 <div id="node-layer" class="absolute top-0 left-0 w-full h-full z-10"></div>
             </div>
             
-            <!-- Live Terminal Overlay -->
             <div id="live-terminal" class="fixed md:absolute bottom-6 left-4 right-4 md:left-6 md:right-6 h-48 md:h-56 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl z-30 overflow-hidden flex flex-col transition-all duration-300 shadow-2xl opacity-0 pointer-events-none translate-y-10">
                 <div class="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/5">
                     <span class="text-[9px] font-black uppercase tracking-widest text-gray-500">System Trace Log</span>
@@ -254,23 +319,21 @@
                 <div id="log-container" class="p-4 text-[10px] mono text-gray-400 space-y-1 overflow-y-auto flex-grow console-scrollbar"></div>
                 <div class="p-3 bg-black/40 border-t border-white/5 flex items-center space-x-2">
                     <span class="text-amber-500 text-xs mono font-bold ml-1">></span>
-                    <input type="text" id="terminal-input" placeholder="Inject data (e.g. 'fail', 'won')..." class="bg-transparent border-none text-amber-500 text-xs mono w-full focus:ring-0 placeholder:text-gray-700" autocomplete="off">
+                    <input type="text" id="terminal-input" placeholder="Inject data (e.g. 'fail')..." class="bg-transparent border-none text-amber-500 text-xs mono w-full focus:ring-0 placeholder:text-gray-700" autocomplete="off">
                 </div>
             </div>
         </div>
 
-        <!-- Executive View (Summary) -->
         <div id="view-executive" class="hidden flex-grow overflow-y-auto bg-[#0b0f1a] p-5 md:p-12 flex flex-col items-center console-scrollbar">
             <div class="max-w-4xl w-full space-y-8 md:space-y-12 pb-20">
                 <div class="space-y-4 border-l-4 border-amber-500 pl-4 md:pl-8">
-                    <h2 class="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter leading-tight" id="exec-title">Scenario Title</h2>
+                    <h2 class="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter leading-tight" id="exec-title">Title</h2>
                     <div class="flex flex-wrap items-center gap-2 md:gap-3">
                         <span class="px-3 py-1 bg-amber-500/10 text-amber-500 text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-full border border-amber-500/20" id="exec-intent">Intent</span>
-                        <span class="text-gray-600 text-[9px] md:text-[10px] font-bold uppercase tracking-widest">Architectural Case Study</span>
+                        <span class="text-gray-600 text-[9px] md:text-[10px] font-bold uppercase tracking-widest">Engineering Case Study</span>
                     </div>
                 </div>
 
-                <!-- Problem/Solution/Outcome Stack -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
                     <div class="exec-card p-6 md:p-8 rounded-2xl md:rounded-3xl">
                         <div class="flex items-center space-x-3 mb-4 text-gray-400">
@@ -295,23 +358,21 @@
                     </div>
                 </div>
 
-                <!-- KPI Panel -->
                 <div class="bg-gray-900/50 border border-white/5 p-6 md:p-10 rounded-2xl md:rounded-[3rem] relative overflow-hidden">
-                    <h4 class="text-[9px] md:text-[11px] font-black text-amber-500 uppercase mb-8 md:mb-10 tracking-[0.2em] text-center">Business Intelligence & Performance</h4>
+                    <h4 class="text-[9px] md:text-[11px] font-black text-amber-500 uppercase mb-8 md:mb-10 tracking-[0.2em] text-center">System Performance Metrics</h4>
                     <div id="exec-kpis" class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12 relative z-10"></div>
                 </div>
 
-                <!-- Strategic Sections -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div class="space-y-6">
                         <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                            <i data-lucide="shield-alert" class="w-3 h-3"></i> Strategic Guardrails
+                            <i data-lucide="shield-alert" class="w-3 h-3"></i> Engineering Constraints
                         </h4>
                         <div id="exec-restraint" class="bg-black/20 p-6 md:p-8 rounded-2xl md:rounded-3xl border border-white/5 text-xs md:text-sm text-gray-400 italic leading-relaxed"></div>
                     </div>
                     <div class="space-y-6">
                         <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                            <i data-lucide="target" class="w-3 h-3"></i> Core Value Add
+                            <i data-lucide="target" class="w-3 h-3"></i> Functional Impact
                         </h4>
                         <div id="exec-value" class="bg-amber-500/5 p-6 md:p-8 rounded-2xl md:rounded-3xl border border-amber-500/10 text-xs md:text-sm text-amber-100/70 leading-relaxed"></div>
                     </div>
@@ -319,7 +380,6 @@
             </div>
         </div>
 
-        <!-- Inspection Drawer -->
         <div id="drawer" class="fixed top-0 right-0 h-full w-full md:w-[520px] bg-[#0f172a] border-l border-white/10 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-[60] flex flex-col">
             <div class="p-5 md:p-6 border-b border-white/5 flex justify-between items-center bg-gray-900/50">
                 <div class="flex items-center space-x-4">
@@ -335,32 +395,18 @@
             </div>
 
             <div class="p-6 md:p-8 space-y-8 overflow-y-auto flex-grow console-scrollbar">
-                <section id="drawer-why-section" class="bg-blue-500/5 border border-blue-500/20 p-5 rounded-2xl hidden">
-                    <h4 class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <i data-lucide="info" class="w-3 h-3"></i> Why this shape?
-                    </h4>
-                    <p id="drawer-design-note" class="text-sm text-blue-100/80 leading-relaxed italic"></p>
-                </section>
-
                 <section class="bg-amber-500/5 border border-amber-500/20 p-5 rounded-2xl">
                     <h4 class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <i data-lucide="lightbulb" class="w-3 h-3"></i> Plain English Metaphor
+                        <i data-lucide="lightbulb" class="w-3 h-3"></i> Conceptual metaphor
                     </h4>
                     <p id="drawer-metaphor" class="text-sm text-amber-100/90 leading-relaxed italic"></p>
                 </section>
 
                 <section>
                     <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <i data-lucide="target" class="w-3 h-3"></i> The Main Goal
+                        <i data-lucide="target" class="w-3 h-3"></i> Engineering Goal
                     </h4>
                     <p id="drawer-purpose" class="text-sm text-gray-300 leading-relaxed font-medium"></p>
-                </section>
-
-                <section id="drawer-constraints-section" class="hidden">
-                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <i data-lucide="alert-circle" class="w-3 h-3"></i> System Constraints
-                    </h4>
-                    <div id="drawer-constraints" class="flex flex-wrap gap-2"></div>
                 </section>
 
                 <section>
@@ -371,25 +417,17 @@
                 </section>
 
                 <div class="bg-gray-900/50 p-5 rounded-2xl border border-white/5">
-                    <h4 class="text-[10px] font-bold text-amber-500 uppercase mb-3">The Stack</h4>
+                    <h4 class="text-[10px] font-bold text-amber-500 uppercase mb-3">Toolchain</h4>
                     <div id="drawer-tools" class="flex flex-wrap gap-2"></div>
                 </div>
 
                 <section class="pb-10">
-                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">Execution Trace</h4>
+                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">Live execution</h4>
                     <div class="space-y-4">
                         <div class="bg-black/60 rounded-xl border border-blue-500/20 overflow-hidden">
-                            <div class="bg-blue-500/10 px-3 py-1.5 border-b border-blue-500/20 flex justify-between items-center">
-                                <span class="text-[9px] font-bold text-blue-400 mono uppercase tracking-widest">Input</span>
-                                <i data-lucide="arrow-right-circle" class="w-3 h-3 text-blue-400 opacity-50"></i>
-                            </div>
                             <pre id="drawer-input" class="p-4 text-[10px] text-blue-300/80 overflow-x-auto mono"></pre>
                         </div>
                         <div class="bg-black/60 rounded-xl border border-purple-500/20 overflow-hidden">
-                            <div class="bg-purple-500/10 px-3 py-1.5 border-b border-purple-500/20 flex justify-between items-center">
-                                <span class="text-[9px] font-bold text-purple-400 mono uppercase tracking-widest">Output</span>
-                                <i data-lucide="check-circle" class="w-3 h-3 text-purple-400 opacity-50"></i>
-                            </div>
                             <pre id="drawer-output" class="p-4 text-[10px] text-purple-300/80 overflow-x-auto mono"></pre>
                         </div>
                     </div>
@@ -397,23 +435,18 @@
             </div>
         </div>
 
-        <!-- Global Design Principles Footer -->
         <footer class="p-3 bg-gray-900 border-t border-gray-800 flex justify-center space-x-6 md:space-x-12 z-20 overflow-x-auto whitespace-nowrap scrollbar-hide">
-            <div class="flex items-center space-x-2 text-[7px] md:text-[8px] font-black uppercase tracking-widest text-gray-600">
+            <div class="flex items-center space-x-2 text-[8px] font-black uppercase tracking-widest text-gray-600">
                 <i data-lucide="database" class="w-3 h-3 text-amber-500/50"></i>
                 <span>Truth vs Event</span>
             </div>
-            <div class="flex items-center space-x-2 text-[7px] md:text-[8px] font-black uppercase tracking-widest text-gray-600">
-                <i data-lucide="user-check" class="w-3 h-3 text-amber-500/50"></i>
-                <span>Human in Loop</span>
-            </div>
-            <div class="flex items-center space-x-2 text-[7px] md:text-[8px] font-black uppercase tracking-widest text-gray-600">
-                <i data-lucide="eye" class="w-3 h-3 text-amber-500/50"></i>
-                <span>Observability</span>
-            </div>
-            <div class="flex items-center space-x-2 text-[7px] md:text-[8px] font-black uppercase tracking-widest text-gray-600">
+            <div class="flex items-center space-x-2 text-[8px] font-black uppercase tracking-widest text-gray-600">
                 <i data-lucide="shield" class="w-3 h-3 text-amber-500/50"></i>
-                <span>Fail Closed</span>
+                <span>Deterministic Logic</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[8px] font-black uppercase tracking-widest text-gray-600">
+                <i data-lucide="award" class="w-3 h-3 text-amber-500/50"></i>
+                <span>Java Certified</span>
             </div>
         </footer>
     </main>
@@ -423,116 +456,136 @@
             'mother-ai': {
                 title: "Mother AI Orchestrator",
                 intent: "Recursive Cognitive Layer",
-                summary: "The central intelligence that learns from its own reflections. Features a dual-persistence memory model and a conversational 'Echo' agent for meta-cognitive oversight.",
+                summary: "A custom desktop IDE developed to enforce AI Context Persistence, solving context loss issues across long-running development sessions.",
                 executive: {
-                    problem: "Creative projects suffer from 'context drift' where daily tasks lose alignment with the vision, leading to inefficient development cycles.",
-                    solution: "A recursive AI orchestrator that transforms passive file events into active reflection loops, syncing local insights into a global knowledge bank.",
-                    result: "Achieved a 60% reduction in manual status tracking and preserved 90%+ context accuracy across multi-week builds.",
-                    value: "Transforms raw data into institutional knowledge. Every technical lesson learned is automatically codified without human overhead.",
+                    problem: "Creative projects suffer from 'context drift' where technical vision is lost during multi-step build cycles.",
+                    solution: "An IDE using dual-persistence (YAML/JSON) and recursive 'Echo' agents to synthesize event data into stable heuristics.",
+                    result: "Achieved a 60% reduction in manual status tracking and preserved 90%+ context accuracy.",
+                    value: "Transforms raw data into institutional knowledge; every lesson learned is automatically codified.",
                     kpis: [["Accuracy", "92%"], ["Overhead", "-60%"], ["Latency", "<2s"], ["State", "Prod"]],
-                    restraint: "Automation is limited to metadata and goal-tracking. requires manual confirmation for code writes to preserve architectural integrity."
+                    restraint: "Automation is limited to metadata to preserve architectural integrity; manual confirmation required for code writes."
                 },
                 nodes: [
-                    { id: 'm1', x: 100, y: 300, type: 'Input', name: 'Event Listener', icon: 'eye', purpose: 'Detects systemic changes and logs.', logic: 'Summarizes history to optimize context window for LLMs.', metaphor: 'A watchman at the gate, writing down everything in a notebook.', input: 'Git Diff: modified app_controller.py', output: 'Context: Summarized Data', tools: ['Python', 'Git API'], constraints: ['File IO speed', 'Git repository access'] },
-                    { id: 'm2', x: 400, y: 300, type: 'Core', name: 'Mother Core', icon: 'cpu', purpose: 'Central logic engine that handles orchestration.', logic: 'Directs all traffic. Manages frame transitions and global styling.', metaphor: 'The Librarian who knows where every book is.', input: 'Context: Summarized Data', output: 'Action: Trigger Reflection', tools: ['Python', 'Tkinter'], designNote: 'Decoupled from actual file ops to prevent accidental corruption during orchestration.', constraints: ['Context window (128k)', 'API cost caps'] },
-                    { id: 'm3', x: 700, y: 300, type: 'Memory', name: 'Project Memory', icon: 'save', purpose: 'Local learning layer for project context.', logic: 'Stores local reflection logs and project-specific scores.', metaphor: 'The specific notebook for just this project.', input: 'Reflection Data', output: 'Local State: Updated', tools: ['PyYAML'], designNote: 'Uses YAML over SQL for local storage to allow human-readable debugging of AI thoughts.', constraints: ['100KB file limit'] },
-                    { id: 'm4', x: 700, y: 100, type: 'Agent', name: 'Echo Engine', icon: 'message-circle', purpose: 'Conversational unit for meta-oversight.', logic: 'Adjusts behavior based on accumulated insights.', metaphor: 'The personal assistant who talks you through the plan.', input: 'Goal: Optimize Memory', output: 'Advice: Compress YAML files', tools: ['Gemini 1.5'] },
-                    { id: 'm5', x: 1000, y: 100, type: 'Gateway', name: 'Zapier Gateway', icon: 'zap', purpose: 'External synchronization.', logic: 'Syncs project events to external CRM or Slack via webhooks.', metaphor: 'The diplomat sending letters to other kingdoms.', input: 'Event: Milestone', output: 'External: Success', tools: ['Zapier', 'Webhooks'] },
-                    { id: 'm6', x: 1000, y: 300, type: 'Global', name: 'World Memory', icon: 'database', purpose: 'Global knowledge bank.', logic: 'Stabilization rules: Insights become STABLE after 5 reinforcements.', metaphor: 'The Master Encyclopedia that never forgets life lessons.', input: 'Insight: API failure', output: 'Heuristic: Add delay', tools: ['PostgreSQL'], designNote: 'Authoritative source for cross-project heuristics.' }
+                    { id: 'm1', x: 100, y: 300, type: 'Input', name: 'Event Listener', icon: 'eye', purpose: 'Detects file changes via GitPython.', logic: 'Summarizes history to optimize context window for LLMs.', metaphor: 'A watchman at the gate writing in a notebook.', input: 'git_diff: app.py', output: 'Context: Summarized', tools: ['GitPython'] },
+                    { id: 'm2', x: 400, y: 300, type: 'Core', name: 'Mother Core', icon: 'cpu', purpose: 'Central orchestrator IDE.', logic: 'Directs traffic and manages Tkinter frame transitions.', metaphor: 'The Librarian knowing where every book is.', input: 'Summarized Data', output: 'Action: Reflect', tools: ['Python', 'Tkinter'] },
+                    { id: 'm3', x: 700, y: 300, type: 'Memory', name: 'Project Memory', icon: 'save', purpose: 'Local context storage.', logic: 'Stores session history in timestamped YAML logs.', metaphor: 'The project-specific notebook.', input: 'Reflection Data', output: 'Local State: Updated', tools: ['PyYAML'] },
+                    { id: 'm4', x: 700, y: 100, type: 'Agent', name: 'Echo Engine', icon: 'message-circle', purpose: 'Meta-cognitive oversight.', logic: 'Recursive agent adjusts behavior based on accumulated insights.', metaphor: 'An assistant talking you through the plan.', input: 'Goal: Scale', output: 'Advice: Add Buffer', tools: ['Gemini 1.5'] },
+                    { id: 'm5', x: 1000, y: 100, type: 'Gateway', name: 'Zapier Gateway', icon: 'zap', purpose: 'External sync.', logic: 'Syncs milestones to external CRM/Slack.', metaphor: 'The diplomat sending letters.', input: 'Event: Milestone', output: 'External: Success', tools: ['Zapier'] },
+                    { id: 'm6', x: 1000, y: 300, type: 'Global', name: 'World Memory', icon: 'database', purpose: 'Global knowledge bank.', logic: 'Stabilizes insights across cross-project heuristics.', metaphor: 'The Master Encyclopedia.', input: 'Insight: API failure', output: 'Heuristic: Stable', tools: ['PostgreSQL'] }
                 ],
                 edges: [['m1', 'm2'], ['m2', 'm3'], ['m2', 'm4'], ['m4', 'm5'], ['m3', 'm6'], ['m5', 'm6']]
             },
             'zapier-debug': {
                 title: "Failed Payment Debug",
-                intent: "Customer Trust Hotfix",
-                summary: "Fixes a critical 'Stale Data' bug in payment reminders. Features a Step 11.5 CRM Lookup and a perfected two-rule filter logic to ensure only unpaid leads receive follow-ups.",
+                intent: "Financial Data Integrity",
+                summary: "Fixes a critical 'Stale Data' bug in payment reminders by introducing runtime CRM lookups.",
                 executive: {
-                    problem: "Paid customers were receiving erroneous payment-failure emails because automation relied on Stripe's stale initial failure trigger.",
-                    solution: "Pivoted from 'Event-Led' to 'Source-of-Truth' architecture. Added a mandatory 24h delay followed by a forced CRM status refresh (Step 11.5).",
-                    result: "100% elimination of erroneous emails. Restored brand integrity and reduced support volume by 40%.",
-                    value: "Prevents brand damage. A single misfired 'Unpaid' email destroys high-ticket relationships; this logic prevents that.",
-                    kpis: [["Error Rate", "0%"], ["Tickets", "-40%"], ["Verify", "2-Step"], ["Status", "Hotfix"]],
-                    restraint: "Fail-Closed: If CRM API is unresponsive, automation halts rather than risk misfiring an email to a potentially paid customer."
+                    problem: "Paid customers were receiving failure emails because automation relied on Stripe's stale initial triggers.",
+                    solution: "Introduced a Step 11.5 forced CRM lookup to refresh source-of-truth before email dispatch.",
+                    result: "100% elimination of erroneous emails. Restored brand trust.",
+                    value: "Ensures communication always aligns with the live financial state.",
+                    kpis: [["Error Rate", "0%"], ["Tickets", "-40%"], ["Precision", "100%"], ["Status", "Live"]],
+                    restraint: "Fail-Closed: System halts if CRM API is unresponsive to prevent accidental sends."
                 },
                 nodes: [
-                    { id: 'z1', x: 150, y: 300, type: 'Trigger', name: 'Stripe Failed Event', icon: 'zap', purpose: 'Captures initial failure signal.', logic: 'Captures charge ID. Data is treated as non-authoritative.', metaphor: 'Taking a snapshot of a moving train.', input: '{"status": "failed"}', output: '{"status": "failed"}', tools: ['Stripe'], designNote: 'Treating the trigger as a "Signal" rather than "Truth" is the core fix.' },
-                    { id: 'z2', x: 450, y: 300, type: 'Delay', name: '24-Hour Buffer', icon: 'clock', purpose: 'Allow window for retry.', logic: 'Essential friction to allow customer self-correction.', metaphor: 'Putting a letter in the "Outbox" for the morning.', input: '{"delay": "24h"}', output: '{"status": "resumed"}', tools: ['Zapier'], designNote: 'Essential friction: Reduces support tickets by 40%.' },
-                    { id: 'z3', x: 750, y: 300, type: 'Lookup', name: 'CRM Live Sync', icon: 'search', purpose: 'Refresh Source of Truth.', logic: 'Querying Visa CRM directly for "Deal Status".', metaphor: 'Looking out the window to see where the train is now.', input: '{"email": "user@...com"}', output: '{"Status": "Deal won!"}', tools: ['CRM API'], designNote: 'Bypasses the stale data from Step 1.' },
-                    { id: 'z4', x: 1050, y: 300, type: 'Router', name: 'Precision Filter', icon: 'filter', purpose: 'Deterministic halt gate.', logic: 'Halt if CRM Status == "Deal won!".', metaphor: 'Checking both the passenger ID and the ticket status.', input: '{"Status": "Deal won!"}', output: 'HALT (VALID FIX)', tools: ['Filter'], designNote: 'Fail-closed logic.' },
-                    { id: 'z5', x: 1350, y: 300, type: 'Action', name: 'Follow-up Email', icon: 'mail', purpose: 'Re-engage customer.', logic: 'Sends personalized email only if Filter passes.', metaphor: 'Delivering the letter after confirmation.', input: 'unpaid', output: 'Email Sent', tools: ['Gmail API'] }
+                    { id: 'z1', x: 150, y: 300, type: 'Trigger', name: 'Stripe Alert', icon: 'zap', purpose: 'Capture signal.', logic: 'Captures charge ID; treated as untrusted signal.', metaphor: 'A snapshot of a moving train.', input: 'charge: failed', output: 'signal', tools: ['Stripe'] },
+                    { id: 'z2', x: 450, y: 300, type: 'Buffer', name: '24h Delay', icon: 'clock', purpose: 'Allow self-correction.', logic: 'Essential friction to allow Stripe to retry charges.', metaphor: 'Waiting for a letter before replying.', input: 'signal', output: 'resumed', tools: ['Zapier'] },
+                    { id: 'z3', x: 750, y: 300, type: 'Lookup', name: 'CRM Live Check', icon: 'search', purpose: 'Refresh truth.', logic: 'Querying live Deal Status (Step 11.5).', metaphor: 'Calling the owner to ask if they paid.', input: 'email: k@...', output: 'Status: Paid', tools: ['CRM API'] },
+                    { id: 'z4', x: 1050, y: 300, type: 'Router', name: 'Halt Gate', icon: 'filter', purpose: 'Prevent misfire.', logic: 'If Status == Paid, kill the automation immediately.', metaphor: 'Checking the ticket before letting someone on.', input: 'Paid', output: 'HALT', tools: ['Filter'] },
+                    { id: 'z5', x: 1350, y: 300, type: 'Action', name: 'Follow-up Email', icon: 'mail', purpose: 'Engagement.', logic: 'Sends email only if Filter passes.', metaphor: 'Delivering confirmed mail.', input: 'Unpaid', output: 'Email Sent', tools: ['Gmail API'] }
                 ],
                 edges: [['z1', 'z2'], ['z2', 'z3'], ['z3', 'z4'], ['z4', 'z5']]
             },
             'ai-validation': {
                 title: "AI Validation Flow",
                 intent: "Semantic Data Hygiene",
-                summary: "A robust lead quality gate that uses semantic validation to filter out spam and deceptive data, ensuring 96%+ CRM hygiene.",
+                summary: "A lead quality gate performing semantic validation to ensure only professional data enters the CRM.",
                 executive: {
-                    problem: "Unprotected webhooks are a magnet for spam and bot-generated leads, resulting in 'Ghost Leads' that waste agent time.",
-                    solution: "A semantic 'Air-Lock' gate. Before any lead enters the CRM, an LLM performs a focus check to ensure the intent is professional.",
-                    result: "Zero spam records in the primary CRM since deployment. 98% detection rate of deceptive lead entries.",
-                    value: "Guaranteed Data Integrity. Agents only ever see verified, high-intent prospects, allowing them to focus on conversion.",
+                    problem: "Unprotected webhooks resulting in 'Ghost Leads' that waste agent capacity.",
+                    solution: "A semantic 'Air-Lock' gate performing an LLM professional focus check.",
+                    result: "Zero spam records in CRM. 98% bot detection.",
+                    value: "Guaranteed Data Integrity and high-intent focus for sales.",
                     kpis: [["Detection", "98%"], ["Hygiene", "100%"], ["Latency", "1.2s"], ["Status", "Live"]],
-                    restraint: "Fail-Closed: If the validation AI is uncertain, the lead is diverted to an 'Isolation Log' for manual review."
+                    restraint: "Fallback: Leads diverted to isolation logs if AI is uncertain."
                 },
                 nodes: [
-                    { id: 'v1', x: 100, y: 300, type: 'Trigger', name: 'Webhook Ingest', icon: 'zap', purpose: 'Intake raw data.', logic: 'Treats all data as untrusted until validated.', metaphor: 'Mailbox catching letters.', input: 'name: Ky', output: 'raw_data', tools: ['Make'] },
-                    { id: 'v2', x: 400, y: 300, type: 'AI Agent', name: 'Gemini Gatekeeper', icon: 'shield-check', purpose: 'Semantic validation.', logic: 'Returns failure codes for non-professional input.', metaphor: 'Inspector tossing out dented cans.', input: 'about: crypto', output: 'valid: false', tools: ['Gemini'], designNote: 'Hardened prompt returns deterministic success codes for pass/fail.' },
-                    { id: 'v3', x: 700, y: 300, type: 'Router', name: 'Decision Gate', icon: 'git-branch', purpose: 'Path selection.', logic: 'Routes data based on AI success code.', metaphor: 'Traffic light for inspected cars.', input: 'valid: false', output: 'Route: Fallback', tools: ['Logic'] },
-                    { id: 'v4', x: 1000, y: 100, type: 'Action', name: 'CRM Success', icon: 'check-circle', purpose: 'Final data storage.', logic: 'Logs enriched data to primary CRM.', metaphor: 'Putting the perfect apple on the shelf.', input: 'valid: true', output: 'CRM: Updated', tools: ['Salesforce'] },
-                    { id: 'v5', x: 1250, y: 100, type: 'Action', name: 'Slack Alert', icon: 'slack', purpose: 'Instant notification.', logic: 'Sends alert with lead context.', metaphor: 'Ringing the victory bell.', input: 'Updated', output: 'Slack: Sent', tools: ['Slack'] },
-                    { id: 'v6', x: 1000, y: 450, type: 'Action', name: 'Fallback: Log', icon: 'alert-triangle', purpose: 'Integrity fallback.', logic: 'Logs raw input for manual review.', metaphor: 'The "Lost and Found" box.', input: 'fail: junk', output: 'logged: true', tools: ['PostgreSQL'] }
+                    { id: 'v1', x: 100, y: 300, type: 'Trigger', name: 'Webhook Intake', icon: 'zap', purpose: 'Raw ingestion.', logic: 'Untrusted intake from public forms.', metaphor: 'Mailbox catching all letters.', input: 'raw_json', output: 'raw_lead', tools: ['Make'] },
+                    { id: 'v2', x: 400, y: 300, type: 'AI Agent', name: 'Gemini Gatekeeper', icon: 'shield-check', purpose: 'Semantic check.', logic: 'Evaluates if text matches professional focus guidelines.', metaphor: 'Inspector reading for prohibited content.', input: 'junk text', output: 'fail_code', tools: ['Gemini'] },
+                    { id: 'v3', x: 700, y: 300, type: 'Router', name: 'Decision Gate', icon: 'git-branch', purpose: 'Path selection.', logic: 'Routes based on AI-generated success codes.', metaphor: 'Traffic light for inspected cars.', input: 'fail_code', output: 'isolation', tools: ['Logic'] },
+                    { id: 'v4', x: 1000, y: 100, type: 'Action', name: 'CRM Success', icon: 'database', purpose: 'Final storage.', logic: 'Maps enriched data to structured CRM fields.', metaphor: 'Placing approved item on shelf.', input: 'valid', output: 'lead_id', tools: ['Salesforce'] },
+                    { id: 'v5', x: 1250, y: 100, type: 'Action', name: 'Slack Alert', icon: 'slack', purpose: 'Notification.', logic: 'Sends alert with lead context.', metaphor: 'Ringing the victory bell.', input: 'lead_id', output: 'Alert Sent', tools: ['Slack'] },
+                    { id: 'v6', x: 1000, y: 450, type: 'Action', name: 'Fallback: Log', icon: 'alert-triangle', purpose: 'Safety.', logic: 'Logs raw input for manual audit.', metaphor: 'The Lost and Found box.', input: 'fail', output: 'logged', tools: ['PostgreSQL'] }
                 ],
                 edges: [['v1', 'v2'], ['v2', 'v3'], ['v3', 'v4'], ['v4', 'v5'], ['v3', 'v6']]
             },
             'attorney': {
                 title: "Attorney Pipeline v2.0",
-                intent: "Regional Acquisition",
-                summary: "Qualifies legal leads at scale using a 3-Phase approach with a Google Sheets buffer for stability and a 5-layer weighted dedupe logic.",
+                intent: "Acquisition at Scale",
+                summary: "A 28-step automation system to source, qualify, and generate personalized outreach for attorneys.",
                 executive: {
-                    problem: "Direct web-scraping into CRMs creates data poisoning and high API costs due to ingestion of non-relevant profiles.",
-                    solution: "A 'Buffered Phase' architecture. Data is staged in Sheets for audit before passing through weighted 5-layer Python dedupe and Gemini classifier.",
-                    result: "96% lead accuracy and 50% reduction in scraping costs by replacing indiscriminate scraping with manual triggers.",
-                    value: "Cost-efficient scaling. Team can scout regions while only paying for qualified data ingestion.",
+                    problem: "Indiscriminate scraping lead to high API costs and low CRM hygiene.",
+                    solution: "Staged data through GSheets for 5-layer Python deduplication and focus-grading.",
+                    result: "96% lead accuracy and 50% cost reduction in scraping.",
+                    value: "Scalable batch processing that only ingests high-intent leads.",
                     kpis: [["Accuracy", "96%"], ["Cost", "-50%"], ["Dedupe", "5-Layer"], ["Batch", "25"]],
-                    restraint: "Triggering is manual to ensure credits are only spent on territories verified by the legal team."
+                    restraint: "Manual Gate: Triggering is manual to ensure budget alignment."
                 },
                 nodes: [
-                    { id: 'at1', x: 100, y: 300, type: 'Trigger', name: 'Notion Trigger', icon: 'zap', purpose: 'Manual activation.', logic: 'Webhook initiation on-demand.', metaphor: 'Turning on the tap.', input: 'START', output: 'SCOUTING', tools: ['Notion'], designNote: 'Intentionally manual to control costs.' },
-                    { id: 'at2', x: 400, y: 300, type: 'Scout', name: 'Relevance Scout', icon: 'search', purpose: 'Web acquisition.', logic: 'Searches Google and sites. Extracting Firm/Email.', metaphor: 'Assistant scanning phone books.', input: 'Immigration', output: 'profiles: 25', tools: ['Relevance AI'] },
-                    { id: 'at3', x: 700, y: 300, type: 'Queue', name: 'GSheets Buffer', icon: 'layers', purpose: 'Stability intermediary.', logic: 'Intermediary queue to eliminate unstable direct connections.', metaphor: 'A cargo check area.', input: 'batch: 25', output: 'BUFFERED', tools: ['GSheets'], designNote: 'Decoupling: Protects Notion API.' },
-                    { id: 'at4', x: 1000, y: 300, type: 'Logic', name: '5-Layer Dedupe', icon: 'filter', purpose: 'Weighted detection.', logic: 'Checks Name, Email, Firm, Web, and Phone.', metaphor: 'Security guard checking fingerprints.', input: 'kyle@legal.com', output: 'unique: true', tools: ['Python'], constraints: ['Notion 3 req/s limit'] },
-                    { id: 'at5', x: 1300, y: 300, type: 'Phase 2', name: 'Gemini Classifier', icon: 'shield-check', purpose: 'Immigration focus grade.', logic: 'Grades leads: HIGH / MEDIUM / LOW focus.', metaphor: 'Sorting mail into important vs junk.', input: 'EB-1A Practice', output: 'focus: HIGH', tools: ['Gemini'] },
-                    { id: 'at6', x: 1600, y: 300, type: 'Phase 3', name: 'GPT-4o Drafter', icon: 'pen-tool', purpose: 'Email personalization.', logic: 'Creates customized drafts based on lead focus.', metaphor: 'Ghostwriter drafting a reply.', input: 'lead: HIGH', output: 'draft: Hello...', tools: ['OpenAI'] }
+                    { id: 'at1', x: 100, y: 300, type: 'Trigger', name: 'Manual Trigger', icon: 'zap', purpose: 'Cost control gate.', logic: 'Triggered upon territory verification.', metaphor: 'Opening the valve when ready.', input: 'START', output: 'START', tools: ['Notion'] },
+                    { id: 'at2', x: 400, y: 300, type: 'Scraper', name: 'Relevance Scout', icon: 'search', purpose: 'Acquisition.', logic: 'Web acquisition of firm data.', metaphor: 'Scouting locations in a city.', input: 'params', output: 'raw_leads', tools: ['Relevance AI'] },
+                    { id: 'at3', x: 700, y: 300, type: 'Buffer', name: 'Staging Buffer', icon: 'layers', purpose: 'Staging.', logic: 'Storage to prevent CRM API flooding.', metaphor: 'Holding area before inspection.', input: 'raw_leads', output: 'staged', tools: ['GSheets'] },
+                    { id: 'at4', x: 1000, y: 300, type: 'Logic', name: '5-Layer Dedupe', icon: 'filter', purpose: 'Hygiene.', logic: 'Python check on Name, Email, Firm, Web, and Phone.', metaphor: 'Security guard checking five IDs.', input: 'staged', output: 'unique_lead', tools: ['Python'] },
+                    { id: 'at5', x: 1300, y: 300, type: 'AI Agent', name: 'Focus Grader', icon: 'shield-check', purpose: 'Qualification.', logic: 'Grades leads HIGH/MED/LOW focus via Gemini.', metaphor: 'Specialist sorting mail.', input: 'unique_lead', output: 'focus: HIGH', tools: ['Gemini'] },
+                    { id: 'at6', x: 1600, y: 300, type: 'Action', name: 'GPT Drafter', icon: 'pen-tool', purpose: 'Personalization.', logic: 'Drafts customized outreach.', metaphor: 'Ghostwriter drafting reply.', input: 'HIGH', output: 'Draft Created', tools: ['OpenAI'] }
                 ],
                 edges: [['at1', 'at2'], ['at2', 'at3'], ['at3', 'at4'], ['at4', 'at5'], ['at5', 'at6']]
             },
             'helpscout': {
                 title: "Help Scout Sage",
-                intent: "Agent Efficiency multiplier",
-                summary: "High-performance AI Draft Generator for customer support agents. Features multi-step intent profiling and tone optimization to ensure human-like drafts.",
+                intent: "Efficiency Multiplier",
+                summary: "Context-aware AI Co-pilot generating private internal drafts for agents using an Express service.",
                 executive: {
-                    problem: "Routine support tickets consume 40% of agent bandwidth, slowing down the response time for complex technical issues.",
-                    solution: "A context-aware AI Co-pilot. The system generates a personalized, brand-voice response as an 'Internal Note' for review.",
-                    result: "60% reduction in initial response drafting time. Achieved high agent adoption by keeping the human in the loop.",
-                    value: "Scaling support without headcount. Agents can handle 2x the volume while maintaining high empathy.",
-                    kpis: [["Drafting", "-60%"], ["Accuracy", "95%"], ["Adoption", "85%"], ["Status", "Live"]],
-                    restraint: "AI drafts are never sent directly to the customer. They are strictly 'Draft-Only' internal notes."
+                    problem: "Routine tickets consume 40% bandwidth, slowing resolutions.",
+                    solution: "Developed an Express service using Help Scout API to inject drafts as internal notes.",
+                    result: "60% reduction in response time and 80% cost reduction vs native tools.",
+                    value: "Scaling support capacity via human-in-the-loop AI assistance.",
+                    kpis: [["Costs", "-80%"], ["Adoption", "85%"], ["Drafting", "-60%"], ["Status", "Live"]],
+                    restraint: "Draft-Only: AI acts strictly as ghostwriter for agent review."
                 },
                 nodes: [
-                    { id: 'hs1', x: 100, y: 300, type: 'Trigger', name: 'Sidebar Trigger', icon: 'mouse-pointer-2', purpose: 'Agent activated request.', logic: 'Sidebar app sends conversation ID.', metaphor: 'Ringing the bell for help.', input: 'id: 3107', output: 'SAGE_CALL', tools: ['Vanilla JS'], designNote: 'Ensures AI remains an assistant.' },
-                    { id: 'hs2', x: 400, y: 300, type: 'Context', name: 'Context Fetcher', icon: 'file-search', purpose: 'Fetch thread history.', logic: 'Retrieves all threads via HS API.', metaphor: 'Assistant reading old letters.', input: 'id: 3107', output: 'threads: [...]', tools: ['Node.js', 'HS API'] },
-                    { id: 'hs3', x: 700, y: 300, type: 'Intelligence', name: 'Intent Profiler', icon: 'brain-circuit', purpose: 'Categorization.', logic: 'Sentiment and intent analysis.', metaphor: 'Reading the room.', input: 'msg: Refund?', output: 'intent: billing', tools: ['Gemini'] },
-                    { id: 'hs4', x: 1000, y: 300, type: 'AI Agent', name: 'Sage Engine', icon: 'sparkles', purpose: 'Draft generation.', logic: 'Creates draft based on guidelines.', metaphor: 'Ghostwriter drafting a response.', input: 'intent: billing', output: 'draft: Hello...', tools: ['Gemini'] },
-                    { id: 'hs5', x: 1300, y: 300, type: 'Quality', name: 'Tone & Polish', icon: 'check-check', purpose: 'Brand voice check.', logic: 'Format and tone optimization.', metaphor: 'Proofreader checking the draft.', input: 'draft: ...', output: 'final: ...', tools: ['OpenAI'] },
-                    { id: 'hs6', x: 1600, y: 300, type: 'Action', name: 'Note Injection', icon: 'send', purpose: 'Post internal note.', logic: 'Posts draft as a Private Note.', metaphor: 'Placing a sticky note on a file.', input: 'final: ...', output: 'SUCCESS', tools: ['HS API'] }
+                    { id: 'hs1', x: 100, y: 300, type: 'Trigger', name: 'Agent Call', icon: 'mouse-pointer-2', purpose: 'Agent activated.', logic: 'Sidebar app requests draft via Node.js Express.', metaphor: 'Raising hand for help.', input: 'thread_id', output: 'req', tools: ['Node.js', 'Express'] },
+                    { id: 'hs2', x: 400, y: 300, type: 'Fetch', name: 'History Sync', icon: 'file-search', purpose: 'Fetch history.', logic: 'Retrieving all thread history via HS API.', metaphor: 'Assistant reading correspondence.', input: 'thread_id', output: 'history', tools: ['HS API'] },
+                    { id: 'hs3', x: 700, y: 300, type: 'Intelligence', name: 'Intent Profiler', icon: 'brain-circuit', purpose: 'Categorization.', logic: 'Sentiment and intent analysis via Gemini 1.5.', metaphor: 'Reading the room.', input: 'msg: Refund?', output: 'intent: billing', tools: ['Gemini'] },
+                    { id: 'hs4', x: 1000, y: 300, type: 'AI Agent', name: 'Sage Engine', icon: 'sparkles', purpose: 'Draft generation.', logic: 'Creates draft based on guidelines.', metaphor: 'Ghostwriter drafting response.', input: 'billing', output: 'draft_text', tools: ['Gemini'] },
+                    { id: 'hs5', x: 1300, y: 300, type: 'Quality', name: 'Tone Polish', icon: 'check-check', purpose: 'Brand check.', logic: 'Tone and format optimization.', metaphor: 'Proofreader checking draft.', input: 'draft', output: 'final', tools: ['OpenAI'] },
+                    { id: 'hs6', x: 1600, y: 300, type: 'Action', name: 'Note Injection', icon: 'send', purpose: 'Post note.', logic: 'Injects draft as private internal note.', metaphor: 'Placing sticky note on file.', input: 'final', output: 'SUCCESS', tools: ['HS API'] }
                 ],
                 edges: [['hs1', 'hs2'], ['hs2', 'hs3'], ['hs3', 'hs4'], ['hs4', 'hs5'], ['hs5', 'hs6']]
+            },
+            'aethelgard': {
+                title: "Aethelgard RPG",
+                intent: "Full-Stack Persistence",
+                summary: "A complex, text-based Discord RPG demonstrating modular management with 30+ source files.",
+                executive: {
+                    problem: "Complex state management leads to database bloat and slow retrieval.",
+                    solution: "Modular Python architecture with custom SQLite schema for player data.",
+                    result: "Zero data loss with sub-millisecond query performance.",
+                    value: "Manages complex state transitions and high-concurrency data events.",
+                    kpis: [["Source", "30+ Files"], ["DB", "SQLite"], ["Language", "Python"], ["State", "Legacy"]],
+                    restraint: "Strict decoupling of logic from data persistence."
+                },
+                nodes: [
+                    { id: 'ae1', x: 100, y: 300, type: 'Trigger', name: 'Command Intake', icon: 'keyboard', purpose: 'User intake.', logic: 'Regex parsing of player intent and state checks.', metaphor: 'Referee listening to move.', input: '!attack', output: 'intent', tools: ['Python'] },
+                    { id: 'ae2', x: 400, y: 300, type: 'Core', name: 'Battle Engine', icon: 'swords', purpose: 'Calculate logic.', logic: 'Determines outcomes across 30+ modular files.', metaphor: 'Rolling dice behind screen.', input: 'intent', output: 'results', tools: ['Python'] },
+                    { id: 'ae3', x: 700, y: 300, type: 'DB', name: 'SQLite Storage', icon: 'database', purpose: 'Persistence.', logic: 'Transactional updates to player profiles.', metaphor: 'Writing on character sheet.', input: 'results', output: 'updated', tools: ['SQLite'] },
+                    { id: 'ae4', x: 1000, y: 300, type: 'Broadcast', name: 'UI Feedback', icon: 'message-circle', purpose: 'Discord update.', logic: 'Returning feedback to Discord interface.', metaphor: 'Announcing result to crowd.', input: 'updated', output: 'msg', tools: ['discord.py'] }
+                ],
+                edges: [['ae1', 'ae2'], ['ae2', 'ae3'], ['ae3', 'ae4']]
             }
         };
 
-        let currentActiveView = 'architect';
-        let activeScenario = 'mother-ai';
+        let currentActiveView = 'landing';
+        let activeScenario = null;
         let isSimulating = false;
         let isTerminalActive = false;
         let isMobileMenuOpen = false;
@@ -554,6 +607,22 @@
 
         function setViewMode(mode) {
             currentActiveView = mode;
+            document.getElementById('view-landing').classList.add('hidden');
+            document.getElementById('view-architect').classList.add('hidden');
+            document.getElementById('view-executive').classList.add('hidden');
+            document.getElementById('main-header').classList.remove('hidden');
+
+            if (mode === 'landing') {
+                document.getElementById('view-landing').classList.remove('hidden');
+                document.getElementById('main-header').classList.add('hidden');
+            } else if (mode === 'architect') {
+                document.getElementById('view-architect').classList.remove('hidden');
+                renderCanvas();
+            } else if (mode === 'executive') {
+                document.getElementById('view-executive').classList.remove('hidden');
+                renderExecutiveView();
+            }
+
             document.querySelectorAll('.toggle-btn').forEach(b => {
                 b.classList.remove('active');
                 b.classList.add('text-gray-500');
@@ -562,15 +631,6 @@
             if (activeBtn) {
                 activeBtn.classList.add('active');
                 activeBtn.classList.remove('text-gray-500');
-            }
-            
-            if (mode === 'architect') {
-                document.getElementById('view-architect').classList.remove('hidden');
-                document.getElementById('view-executive').classList.add('hidden');
-            } else {
-                document.getElementById('view-architect').classList.add('hidden');
-                document.getElementById('view-executive').classList.remove('hidden');
-                renderExecutiveView();
             }
         }
 
@@ -588,8 +648,8 @@
             const kpiContainer = document.getElementById('exec-kpis');
             kpiContainer.innerHTML = s.executive.kpis.map(k => `
                 <div class="text-center group">
-                    <div class="text-[8px] md:text-[9px] font-black text-gray-600 uppercase mb-1 md:mb-2 tracking-[0.2em] group-hover:text-amber-500/50 transition-colors">${k[0]}</div>
-                    <div class="text-lg md:text-3xl font-black text-white group-hover:scale-110 transition-transform cursor-default">${k[1]}</div>
+                    <div class="text-[8px] md:text-[9px] font-black text-gray-600 uppercase mb-1 md:mb-2 tracking-[0.2em] transition-colors">${k[0]}</div>
+                    <div class="text-lg md:text-3xl font-black text-white group-hover:text-amber-500 transition-colors">${k[1]}</div>
                 </div>
             `).join('');
             lucide.createIcons();
@@ -612,7 +672,6 @@
         function toggleTerminal(force) {
             const terminal = document.getElementById('live-terminal');
             const btn = document.getElementById('term-btn');
-            
             if (force !== undefined) isTerminalActive = force;
             else isTerminalActive = !isTerminalActive;
 
@@ -630,10 +689,7 @@
         function loadScenario(id) {
             if (isSimulating) stopSimulation();
             const data = scenarioData[id];
-            if (!data) {
-                addLog(`ERROR: Scenario data for '${id}' not found.`, 'error');
-                return;
-            }
+            if (!data) return;
             activeScenario = id;
             if (isMobileMenuOpen) toggleMobileMenu();
             
@@ -644,8 +700,12 @@
             const activeBtn = document.getElementById(`btn-${id}`);
             if(activeBtn) activeBtn.className = "w-full text-left px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/50 text-amber-500 text-sm font-bold flex items-center justify-between group";
             
-            if (currentActiveView === 'executive') renderExecutiveView();
-            renderCanvas();
+            if (currentActiveView === 'landing') {
+                setViewMode('architect');
+            } else {
+                setViewMode(currentActiveView);
+            }
+            
             addLog(`CONTEXT SWITCH: ${data.title}`, 'system');
         }
 
@@ -682,49 +742,30 @@
         }
 
         async function startSimulation() {
-            if (isSimulating) return;
-            if (currentActiveView !== 'architect') setViewMode('architect');
+            if (isSimulating || !activeScenario) return;
             isSimulating = true;
             toggleTerminal(true);
-            
-            const inputVal = document.getElementById('terminal-input').value.toLowerCase();
-            const isChaos = ['fail', 'won', 'spam', 'crypto'].some(k => inputVal.includes(k));
-            
-            addLog(`INITIATING: ${isChaos ? '[CHAOS_DIAGNOSTIC]' : '[SYSTEM_TRACE]'}`, 'process');
             const data = scenarioData[activeScenario];
-            if (!data) return;
             const svgLayer = document.getElementById('svg-layer');
             const packet = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            packet.setAttribute("r", "5"); packet.setAttribute("class", "data-packet" + (isChaos ? " error-packet" : ""));
+            packet.setAttribute("r", "5"); packet.setAttribute("class", "data-packet");
             svgLayer.appendChild(packet);
 
             for (let i = 0; i < data.edges.length; i++) {
                 if (!isSimulating) break;
                 const edge = data.edges[i];
                 const sourceNode = data.nodes.find(n => n.id === edge[0]);
-                const targetNode = data.nodes.find(n => n.id === edge[1]);
                 const path = document.getElementById(`path-${activeScenario}-${i}`);
-                
                 if (sourceNode) {
                     const nodeEl = document.getElementById(`node-${sourceNode.id}`);
                     if (nodeEl) {
                         nodeEl.classList.add('processing');
                         openDrawer(sourceNode);
-                        addLog(`[EXEC] ${sourceNode.name}`, 'process');
+                        addLog(`[STEP] ${sourceNode.name}`, 'process');
                     }
                     await new Promise(r => setTimeout(r, 600));
-                    
-                    if (isChaos && (sourceNode.id === 'z4' || sourceNode.id === 'v3' || sourceNode.id === 'v2')) {
-                        addLog(`[HALT] Safety gate triggered.`, 'error');
-                        if (nodeEl) {
-                            nodeEl.classList.add('failed');
-                            nodeEl.classList.remove('processing');
-                        }
-                        break;
-                    }
                     if (nodeEl) nodeEl.classList.remove('processing');
                 }
-                
                 if (path) {
                     const length = path.getTotalLength();
                     const start = performance.now();
@@ -739,17 +780,6 @@
                         requestAnimationFrame(animate);
                     });
                 }
-
-                if (i === data.edges.length - 1 && targetNode) {
-                     const finalNodeEl = document.getElementById(`node-${targetNode.id}`);
-                     if (finalNodeEl) {
-                        finalNodeEl.classList.add('processing');
-                        openDrawer(targetNode);
-                        addLog(`[FINAL] ${targetNode.name}: Terminal.`, 'success');
-                     }
-                     await new Promise(r => setTimeout(r, 600));
-                     if (finalNodeEl) finalNodeEl.classList.remove('processing');
-                }
             }
             stopSimulation();
         }
@@ -762,47 +792,28 @@
         }
 
         function openDrawer(node, customInput = null) {
-            const drawerName = document.getElementById('drawer-name');
-            if (!drawerName) return;
-            
-            drawerName.innerText = node.name;
+            const drawerEl = document.getElementById('drawer');
+            if (!drawerEl) return;
+            document.getElementById('drawer-name').innerText = node.name;
             document.getElementById('drawer-type').innerText = node.type;
             document.getElementById('drawer-logic').innerText = node.logic;
             document.getElementById('drawer-metaphor').innerText = node.metaphor;
-            document.getElementById('drawer-purpose').innerText = node.purpose || "Primary objective of this system step.";
-            document.getElementById('drawer-input').innerText = customInput || node.input;
-            document.getElementById('drawer-output').innerText = node.output || "No output samples defined.";
+            document.getElementById('drawer-purpose').innerText = node.purpose || "Primary engineering objective.";
+            document.getElementById('drawer-input').innerText = customInput || node.input || "N/A";
+            document.getElementById('drawer-output').innerText = node.output || "N/A";
             document.getElementById('drawer-tools').innerHTML = (node.tools || []).map(t => `<span class="px-2 py-1 bg-white/5 rounded text-[10px] text-gray-400 font-bold border border-white/5 uppercase">${t}</span>`).join('');
             document.getElementById('drawer-icon').innerHTML = `<i data-lucide="${node.icon}" class="w-8 h-8"></i>`;
-            
-            const whySec = document.getElementById('drawer-why-section');
-            if (node.designNote) {
-                document.getElementById('drawer-design-note').innerText = node.designNote;
-                whySec.classList.remove('hidden');
-            } else whySec.classList.add('hidden');
-
-            const conSec = document.getElementById('drawer-constraints-section');
-            if (node.constraints && node.constraints.length > 0) {
-                document.getElementById('drawer-constraints').innerHTML = node.constraints.map(c => `<span class="px-2 py-1 bg-white/5 border border-white/5 rounded text-[8px] font-bold text-gray-500 uppercase tracking-widest">${c}</span>`).join('');
-                conSec.classList.remove('hidden');
-            } else conSec.classList.add('hidden');
-
-            document.getElementById('drawer').classList.remove('translate-x-full'); 
+            drawerEl.classList.remove('translate-x-full'); 
             lucide.createIcons();
         }
 
         function closeDrawer() { document.getElementById('drawer').classList.add('translate-x-full'); }
-
-        window.onload = () => {
-            loadScenario('mother-ai');
-            lucide.createIcons();
-        };
-
+        window.onload = () => { setViewMode('landing'); lucide.createIcons(); };
         document.getElementById('terminal-input').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 const val = this.value.trim();
                 if (!val) return;
-                addLog(`INJECTED: "${val}"`, 'process');
+                addLog(`INPUT: "${val}"`, 'process');
                 startSimulation();
                 this.value = '';
             }
