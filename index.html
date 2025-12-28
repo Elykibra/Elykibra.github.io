@@ -3,207 +3,370 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kyle Tolilic - Portfolio</title>
+    <title>Kyle Tolilic - Automation Architect</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #111827; /* Dark blue-gray background */
-            color: #E5E7EB; /* Light gray text */
+            background-color: #0b0f1a;
+            color: #E5E7EB;
+            overflow: hidden; /* Prevent body scroll, use container scroll */
         }
-        .accent-color {
-            color: #FBBF24; /* Amber/Gold accent */
+        .canvas-grid {
+            background-image: radial-gradient(#2d3748 1px, transparent 1px);
+            background-size: 30px 30px;
         }
-        .card {
-            background-color: #1F2937; /* Slightly lighter card background */
-            border: 1px solid #374151; /* Subtle border */
+        .node-card {
+            background: rgba(31, 41, 55, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid #374151;
+            transition: all 0.2s ease;
         }
-        .tag {
-            background-color: #374151; /* Darker tag background */
-            color: #D1D5DB;
+        .node-card:hover {
+            border-color: #FBBF24;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(251, 191, 36, 0.1);
         }
-        h1, h2, h3 {
-            font-weight: 800;
+        .line-flow {
+            stroke-dasharray: 10;
+            animation: flow 20s linear infinite;
         }
-        a:hover {
-            color: #FBBF24;
+        @keyframes flow {
+            from { stroke-dashoffset: 200; }
+            to { stroke-dashoffset: 0; }
         }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
     </style>
 </head>
-<body class="antialiased">
-    <div class="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
-        <!-- Main Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<body class="antialiased h-screen flex flex-col md:flex-row">
 
-            <!-- Left Column (Sticky) -->
-            <aside class="lg:col-span-1 lg:sticky lg:top-8 self-start">
-                <div class="card rounded-xl shadow-lg p-6">
-                    <!-- Header -->
-                    <div class="text-center">
-                        <h1 class="text-4xl font-extrabold text-white">KYLE TOLILIC</h1>
-                        <h2 class="text-xl mt-2 accent-color">Application Developer & UI/UX Designer</h2>
-                    </div>
+    <!-- Left Sidebar (Contact & Info) -->
+    <aside class="w-full md:w-80 bg-gray-900 border-r border-gray-800 p-6 flex flex-col h-full z-20">
+        <div class="mb-8">
+            <h1 class="text-2xl font-black text-white tracking-tight uppercase text-center md:text-left">Kyle Tolilic</h1>
+            <p class="text-amber-500 font-bold text-xs mt-1 uppercase tracking-widest text-center md:text-left">System Architect & Developer</p>
+        </div>
 
-                    <!-- Contact Info -->
-                    <div class="mt-8 space-y-4">
-                        <h3 class="text-lg font-bold text-white border-b border-gray-600 pb-2">Contact Information</h3>
-                        <a href="mailto:[Your Email Address]" class="flex items-center space-x-3 group">
-                            <i data-lucide="mail" class="w-5 h-5 text-gray-400 group-hover:accent-color transition-colors"></i>
-                            <span class="text-gray-300 group-hover:accent-color transition-colors">ktolilic@gmail.com</span>
-                        </a>
-                        <a href="tel:[Your Phone Number]" class="flex items-center space-x-3 group">
-                            <i data-lucide="phone" class="w-5 h-5 text-gray-400 group-hover:accent-color transition-colors"></i>
-                            <span class="text-gray-300 group-hover:accent-color transition-colors">+639457392267</span>
-                        </a>
-                         <div class="flex items-center space-x-3">
-                            <i data-lucide="map-pin" class="w-5 h-5 text-gray-400"></i>
-                            <span class="text-gray-300">Dasmariñas, Cavite, Philippines</span>
-                        </div>
-                    </div>
-
-                     <!-- Social Links -->
-                    <div class="mt-8 flex justify-center space-x-6">
-                        <a href="https://linkedin.com/in/kyle-tolilic" target="_blank" class="text-gray-400 hover:accent-color transition-colors" aria-label="LinkedIn">
-                            <i data-lucide="linkedin" class="w-8 h-8"></i>
-                        </a>
-                        <a href="https://github.com/Elykibra" target="_blank" class="text-gray-400 hover:accent-color transition-colors" aria-label="GitHub">
-                            <i data-lucide="github" class="w-8 h-8"></i>
-                        </a>
-                        <a href="https://behance.net/kyletolilic" target="_blank" class="text-gray-400 hover:accent-color transition-colors" aria-label="Behance">
-                            <i data-lucide="box" class="w-8 h-8"></i>
-                        </a>
-                    </div>
+        <nav class="space-y-6 flex-grow overflow-y-auto">
+            <div>
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Scenarios</h3>
+                <div class="space-y-2">
+                    <button onclick="loadScenario('ai-validation')" id="btn-ai-validation" class="w-full text-left px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/50 text-amber-500 text-sm font-bold flex items-center justify-between group">
+                        <span>AI Validation Flow</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="loadScenario('attorney')" id="btn-attorney" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
+                        <span>Attorney Pipeline</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="loadScenario('helpscout')" id="btn-helpscout" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
+                        <span>Help Scout Sage</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
                 </div>
+            </div>
 
-                <!-- Skills Section -->
-                <div class="card rounded-xl shadow-lg p-6 mt-8">
-                    <h3 class="text-xl font-bold text-white border-b border-gray-600 pb-2 mb-4">Technical Skills</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <h4 class="font-semibold text-gray-200 mb-2">Programming & Databases</h4>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="tag text-sm font-medium px-3 py-1 rounded-full">Python (Discord.py)</span>
-                                <span class="tag text-sm font-medium px-3 py-1 rounded-full">Java</span>
-                                <span class="tag text-sm font-medium px-3 py-1 rounded-full">SQLite</span>
-                                <span class="tag text-sm font-medium px-3 py-1 rounded-full">SQL</span>
-                            </div>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-gray-200 mb-2">Design & Prototyping</h4>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="tag text-sm font-medium px-3 py-1 rounded-full">Figma</span>
-                                <span class="tag text-sm font-medium px-3 py-1 rounded-full">Adobe Photoshop</span>
-                                <span class="tag text-sm font-medium px-3 py-1 rounded-full">UI/UX Principles</span>
-                            </div>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-gray-200 mb-2">Development & Web</h4>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="tag text-sm font-medium px-3 py-1 rounded-full">Git & GitHub</span>
-                                <span class="tag text-sm font-medium px-3 py-1 rounded-full">VS Code</span>
-                                <span class="tag text-sm font-medium px-3 py-1 rounded-full">HTML & CSS</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                 <!-- Education Section -->
-                <div class="card rounded-xl shadow-lg p-6 mt-8">
-                    <h3 class="text-xl font-bold text-white border-b border-gray-600 pb-2 mb-4">Education & Certifications</h3>
-                     <div class="mb-4">
-                        <h4 class="font-semibold text-gray-200">BS in Information Technology</h4>
-                        <p class="text-sm text-gray-400">National University (NU) Dasmariñas</p>
-                        <p class="text-sm text-gray-400">2025 - Present</p>
+            <div class="pt-6 border-t border-gray-800 space-y-4">
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 text-center md:text-left">Connect</h3>
+                <a href="mailto:ktolilic@gmail.com" class="flex items-center space-x-3 text-sm text-gray-400 hover:text-amber-500 transition-colors">
+                    <i data-lucide="mail" class="w-4 h-4"></i>
+                    <span>ktolilic@gmail.com</span>
+                </a>
+                <a href="https://github.com/Elykibra" target="_blank" class="flex items-center space-x-3 text-sm text-gray-400 hover:text-amber-500 transition-colors">
+                    <i data-lucide="github" class="w-4 h-4"></i>
+                    <span>Elykibra</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="mt-auto pt-6 border-t border-gray-800">
+            <div class="bg-gray-800/50 p-3 rounded-lg border border-gray-700">
+                <p class="text-[10px] text-gray-500 leading-tight">
+                    This portfolio is built as an interactive system map. Select nodes to inspect the architecture.
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow relative overflow-hidden flex flex-col bg-[#0b0f1a]">
+        
+        <!-- Workspace Header -->
+        <header class="p-4 bg-gray-900/50 backdrop-blur-md border-b border-gray-800 flex justify-between items-center z-10">
+            <div class="flex items-center space-x-3">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <h2 id="scenario-title" class="text-sm font-bold text-white uppercase tracking-wider">AI Validation Workflow</h2>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-[10px] mono text-gray-500">v3.0.0-production</span>
+                <button class="bg-gray-800 hover:bg-gray-700 p-1.5 rounded text-gray-400 transition-colors">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- The Canvas -->
+        <div id="canvas-container" class="flex-grow canvas-grid relative overflow-auto p-20 cursor-grab active:cursor-grabbing">
+            <!-- SVG Layer for Lines -->
+            <svg id="svg-layer" class="absolute top-0 left-0 w-[2000px] h-[1000px] pointer-events-none z-0">
+                <!-- Lines will be injected here -->
+            </svg>
+
+            <!-- Node Layer -->
+            <div id="node-layer" class="relative z-10 w-[2000px] h-[1000px]">
+                <!-- Nodes will be injected here -->
+            </div>
+        </div>
+
+        <!-- Inspection Drawer -->
+        <div id="drawer" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-[#0f172a] border-l border-white/10 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-gray-900/50">
+                <div class="flex items-center space-x-3">
+                    <div id="drawer-icon" class="p-2 bg-amber-500/20 rounded-lg text-amber-500">
+                        <!-- Icon -->
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-200">Java Fundamentals</h4>
-                        <p class="text-sm text-gray-400">Oracle Academy, 2024</p>
+                        <h3 id="drawer-name" class="text-lg font-bold text-white">Node Name</h3>
+                        <p id="drawer-type" class="text-[10px] uppercase tracking-widest text-gray-500">Trigger Step</p>
                     </div>
                 </div>
-            </aside>
+                <button onclick="closeDrawer()" class="p-2 hover:bg-white/5 rounded-full text-gray-400 transition-all">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
 
-            <!-- Right Column -->
-            <main class="lg:col-span-2">
-                <!-- Summary Section -->
-                <section class="card rounded-xl shadow-lg p-8">
-                    <h3 class="text-2xl font-bold text-white mb-4">Professional Summary</h3>
-                    <p class="text-gray-300 leading-relaxed">
-                        A versatile and self-motivated IT professional specializing in application development and UI/UX design. Possesses hands-on experience building complex, data-driven applications in Python and Java, alongside a proven ability to design intuitive user interfaces in Figma. Eager to apply a unique blend of technical skill and design thinking to contribute to innovative remote projects.
-                    </p>
+            <div class="p-8 space-y-8 overflow-y-auto flex-grow scrollbar-hide">
+                <section>
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i data-lucide="info" class="w-3 h-3"></i> Purpose
+                    </h4>
+                    <p id="drawer-purpose" class="text-sm text-gray-300 leading-relaxed font-medium">Description of the step.</p>
                 </section>
 
-                <!-- Portfolio Section -->
-                <section class="mt-8">
-                    <h3 class="text-3xl font-bold text-white mb-6">Project Portfolio</h3>
-                    <div class="space-y-8">
-                        <!-- Project 1: Discord Bot -->
-                        <article class="card rounded-xl shadow-lg p-8 transform hover:scale-105 transition-transform duration-300">
-                             <div class="flex justify-between items-start">
-                                <div>
-                                    <h4 class="text-2xl font-bold text-white">Aethelgard: The Guild's Path</h4>
-                                    <p class="text-md accent-color font-medium">Discord Adventure RPG (Alpha Stage)</p>
-                                </div>
-                                <a href="https://github.com/Elykibra/discord-adventure-bot" target="_blank" class="tag text-sm font-medium px-4 py-2 rounded-full flex items-center space-x-2 hover:bg-amber-500 hover:text-gray-900 transition-colors">
-                                    <span>GitHub</span>
-                                    <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-                                </a>
-                            </div>
-                            <ul class="mt-4 list-disc list-inside text-gray-300 space-y-2">
-                                <li>Sole developer of a complex, text-based adventure game in **Python**, demonstrating full-stack project management.</li>
-                                <li>Architected a scalable and modular application using a professional **cog structure**.</li>
-                                <li>Designed and implemented a custom **SQLite database** to manage all persistent player data.</li>
-                                <li>Leveraged **AI tools** as a development partner for brainstorming, refactoring, and debugging.</li>
-                            </ul>
-                        </article>
-
-                        <!-- Project 2: LingoWizards -->
-                        <article class="card rounded-xl shadow-lg p-8 transform hover:scale-105 transition-transform duration-300">
-                             <div class="flex justify-between items-start">
-                                <div>
-                                    <h4 class="text-2xl font-bold text-white">LingoWizards</h4>
-                                    <p class="text-md accent-color font-medium">UI/UX Mobile App Concept</p>
-                                </div>
-                                <a href="https://behance.net/gallery/233304813" target="_blank" class="tag text-sm font-medium px-4 py-2 rounded-full flex items-center space-x-2 hover:bg-amber-500 hover:text-gray-900 transition-colors">
-                                    <span>Behance</span>
-                                    <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-                                </a>
-                            </div>
-                            <ul class="mt-4 list-disc list-inside text-gray-300 space-y-2">
-                                <li>Led the end-to-end design of a luxury mobile app, from competitive analysis to a high-fidelity prototype.</li>
-                                <li>Developed a comprehensive UI system in **Figma**, including wireframes and a sophisticated visual language.</li>
-                                <li>Created an interactive prototype using **Marvel App** to validate user flows for key features.</li>
-                            </ul>
-                        </article>
-
-                        <!-- Project 3: Online Market -->
-                         <article class="card rounded-xl shadow-lg p-8 transform hover:scale-105 transition-transform duration-300">
-                             <div class="flex justify-between items-start">
-                                <div>
-                                    <h4 class="text-2xl font-bold text-white">Online Market</h4>
-                                    <p class="text-md accent-color font-medium">Command-Line Application</p>
-                                </div>
-                                <a href="https://github.com/Elykibra/java-online-market-app" target="_blank" class="tag text-sm font-medium px-4 py-2 rounded-full flex items-center space-x-2 hover:bg-amber-500 hover:text-gray-900 transition-colors">
-                                    <span>GitHub</span>
-                                    <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-                                </a>
-                            </div>
-                            <ul class="mt-4 list-disc list-inside text-gray-300 space-y-2">
-                                <li>Developed a complete e-commerce simulation in **Java**, demonstrating a strong grasp of **Object-Oriented Programming (OOP)**.</li>
-                                <li>Implemented distinct classes for items, users, and shopping carts to showcase robust class design.</li>
-                                <li>Utilized **File I/O** to generate and save detailed receipts for each transaction.</li>
-                            </ul>
-                        </article>
+                <section>
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i data-lucide="cpu" class="w-3 h-3"></i> Logic & Transformation
+                    </h4>
+                    <div id="drawer-logic" class="bg-black/30 border border-white/5 rounded-lg p-4 text-xs text-gray-400 leading-relaxed mono whitespace-pre-wrap">
+                        Code or logic flow here.
                     </div>
                 </section>
-            </main>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-900/50 p-4 rounded-xl border border-white/5">
+                        <h4 class="text-[10px] font-bold text-amber-500 uppercase mb-2">Tools</h4>
+                        <div id="drawer-tools" class="flex flex-wrap gap-2">
+                            <!-- Tools -->
+                        </div>
+                    </div>
+                    <div class="bg-gray-900/50 p-4 rounded-xl border border-white/5">
+                        <h4 class="text-[10px] font-bold text-green-500 uppercase mb-2">Status</h4>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                            <span class="text-xs text-gray-300 font-bold">Operational</span>
+                        </div>
+                    </div>
+                </div>
+
+                <section>
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Data Trace (I/O)</h4>
+                    <div class="space-y-4">
+                        <div class="space-y-1">
+                            <span class="text-[10px] mono text-blue-400">INPUT_STREAM</span>
+                            <pre id="drawer-input" class="bg-black p-4 rounded-lg text-[10px] text-blue-300 overflow-x-auto mono border border-blue-500/20"></pre>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] mono text-purple-400">OUTPUT_RESULT</span>
+                            <pre id="drawer-output" class="bg-black p-4 rounded-lg text-[10px] text-purple-300 overflow-x-auto mono border border-purple-500/20"></pre>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
-    </div>
+    </main>
 
     <script>
-        lucide.createIcons();
+        const scenarioData = {
+            'ai-validation': {
+                title: "AI Validation Workflow",
+                nodes: [
+                    { id: 'av1', x: 100, y: 250, type: 'Trigger', name: 'Webhook Ingest', icon: 'zap', tool: 'Webhook', purpose: 'Captures raw inbound lead data (Name, Email, About Me).', logic: 'Primary listener for external form submissions or ad platform triggers.', tools: ['Make Webhooks'], input: '{"name": "Ky", "email": "ky@bad", "aboutMe": "I love crypto tokens"}', output: '{"name": "Ky", "email": "ky@bad", "aboutMe": "I love crypto tokens"}' },
+                    { id: 'av2', x: 400, y: 250, type: 'AI Agent', name: 'Gemini Gatekeeper', icon: 'brain-circuit', tool: 'Google Gemini', purpose: 'Analyzes input quality and forces specific failure codes if quality is poor.', logic: 'Uses a Hardened Smart Prompt defining specific rejection criteria: \n- Name < 3 chars\n- Email lacks @ or .\n- Content is generic spam/financial speculation.', tools: ['Gemini 1.5 Pro', 'Structured Output'], input: '{"aboutMe": "I love crypto tokens"}', output: '{"Profession": "INVALID_INPUT", "Industry": "JUNK_DATA"}' },
+                    { id: 'av3', x: 700, y: 250, type: 'Router', name: 'Final Decision Gate', icon: 'git-branch', tool: 'Filter Logic', purpose: 'Checks AI output for success codes and contact hygiene.', logic: 'Semantic Guardrail: If Profession != "INVALID_INPUT" AND Industry != "JUNK_DATA", route to Success.', tools: ['Make Router'], input: '{"Profession": "INVALID_INPUT"}', output: 'Route to Failure' },
+                    { id: 'av4', x: 1000, y: 150, type: 'Action', name: 'Success Path', icon: 'database', tool: 'CRM / Slack', purpose: 'Logs high-quality enriched data to the primary database.', logic: 'Only reached if AI validates the lead as high-intent and formatted correctly.', tools: ['Slack', 'Google Sheets'], input: '{"score": 0.98, "valid": true}', output: 'Notified Team' },
+                    { id: 'av5', x: 1000, y: 350, type: 'Action', name: 'Fallback Path', icon: 'alert-triangle', tool: 'Error Log', purpose: 'Ensures no data is lost by logging low-quality inputs for manual review.', logic: 'Captures timestamp and raw input of filtered-out leads to prevent data leakage.', tools: ['PostgreSQL', 'Google Sheets'], input: '{"reason": "junk_data"}', output: 'Logged to Review' }
+                ],
+                edges: [['av1', 'av2'], ['av2', 'av3'], ['av3', 'av4'], ['av3', 'av5']]
+            },
+            'attorney': {
+                title: "Attorney Nurturing Pipeline",
+                nodes: [
+                    { id: 'n1', x: 100, y: 250, type: 'Trigger', name: 'Lead Webhook', icon: 'zap', tool: 'Zapier', purpose: 'Ingests new leads from Typeform and Facebook Lead Ads.', logic: 'Validates payload schema and strips tracking parameters before injection.', tools: ['Zapier', 'Webhooks'], input: '{"raw_email": "Kyle@example.com", "msg": "EB-1 Help"}', output: '{"email": "kyle@example.com", "intent": "EB-1"}' },
+                    { id: 'n2', x: 400, y: 250, type: 'Logic', name: 'Data Normalizer', icon: 'code-2', tool: 'Python', purpose: 'Standardizes phone numbers and checks for duplicate entries.', logic: 'Uses regex for international phone formatting and queries PostgreSQL for existing lead_id.', tools: ['Python', 'PostgreSQL'], input: '{"phone": "09457392267"}', output: '{"phone_intl": "+639457392267", "is_new": true}' },
+                    { id: 'n3', x: 700, y: 250, type: 'AI Agent', name: 'Qualify Engine', icon: 'brain-circuit', tool: 'GPT-4o', purpose: 'Analyzes the specific legal case to determine high-value eligibility.', logic: 'Sends case text to Relevance AI with a custom prompt to extract "Urgency" and "USCIS Criteria" scores.', tools: ['OpenAI', 'Relevance AI'], input: '{"intent": "EB-1", "bio": "Software dev with 3 patents"}', output: '{"score": 0.92, "priority": "High"}' },
+                    { id: 'n4', x: 1000, y: 150, type: 'Action', name: 'CRM Dispatch', icon: 'database', tool: 'Notion', purpose: 'Creates a visual card in the Attorney Sales gallery.', logic: 'Map internal lead objects to Notion Properties API schema.', tools: ['Notion API'], input: '{"priority": "High"}', output: '{"status": "201 Created", "id": "notion_882"}' },
+                    { id: 'n5', x: 1000, y: 350, type: 'Action', name: 'Slack Notify', icon: 'slack', tool: 'Slack', purpose: 'Alerts the team of high-priority leads immediately.', logic: 'Triggers a Slack Block Kit message with action buttons (Approve/Reject).', tools: ['Slack API', 'Make'], input: '{"name": "Kyle", "score": 0.92}', output: '{"msg_ts": "1623...822"}' }
+                ],
+                edges: [['n1', 'n2'], ['n2', 'n3'], ['n3', 'n4'], ['n3', 'n5']]
+            },
+            'helpscout': {
+                title: "Help Scout Sage",
+                nodes: [
+                    { id: 'h1', x: 100, y: 250, type: 'Trigger', name: 'New Ticket', icon: 'mail', tool: 'Help Scout', purpose: 'Monitors incoming support conversations.', logic: 'Webhook listener triggered on "convo.created" event.', tools: ['Help Scout API'], input: '{"subject": "Refund Request"}', output: '{"convo_id": "8122"}' },
+                    { id: 'h2', x: 400, y: 250, type: 'Context', name: 'User Profile Sync', icon: 'users', tool: 'DigitalOcean', purpose: 'Enriches the ticket with user purchase history.', logic: 'Queries production DB to find active subscriptions and LTV (Life-Time Value).', tools: ['Node.js', 'SQL'], input: '{"email": "user@test.com"}', output: '{"plan": "Pro", "LTV": "$1,200"}' },
+                    { id: 'h3', x: 700, y: 250, type: 'AI Agent', name: 'Sage Draft Gen', icon: 'sparkles', tool: 'Gemini', purpose: 'Drafts a helpful response based on internal docs.', logic: 'Retrieves relevant documentation snippets using Vector Search, then prompts LLM to draft reply.', tools: ['Gemini', 'Pinecone'], input: '{"issue": "Refund", "plan": "Pro"}', output: '{"draft": "Hello! As a Pro user, your refund is..."}' },
+                    { id: 'h4', x: 1000, y: 250, type: 'Action', name: 'Draft Injection', icon: 'send', tool: 'Help Scout', purpose: 'Pushes the draft back to Help Scout as an internal note.', logic: 'Uses Help Scout Conversation API to post a non-visible draft for agents to review.', tools: ['Help Scout API'], input: '{"draft": "..."}', output: '{"status": "success"}' }
+                ],
+                edges: [['h1', 'h2'], ['h2', 'h3'], ['h3', 'h4']]
+            }
+        };
+
+        let activeScenario = 'ai-validation';
+
+        function loadScenario(id) {
+            activeScenario = id;
+            const data = scenarioData[id];
+            
+            // Update UI
+            document.getElementById('scenario-title').innerText = data.title;
+            
+            // Update Buttons
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.className = "w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group";
+            });
+            const activeBtn = document.getElementById(`btn-${id}`);
+            if(activeBtn) activeBtn.className = "w-full text-left px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/50 text-amber-500 text-sm font-bold flex items-center justify-between group";
+
+            renderCanvas();
+        }
+
+        function renderCanvas() {
+            const data = scenarioData[activeScenario];
+            const nodeLayer = document.getElementById('node-layer');
+            const svgLayer = document.getElementById('svg-layer');
+            
+            nodeLayer.innerHTML = '';
+            svgLayer.innerHTML = '';
+
+            // Draw Lines first
+            data.edges.forEach(edge => {
+                const source = data.nodes.find(n => n.id === edge[0]);
+                const target = data.nodes.find(n => n.id === edge[1]);
+                
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                const x1 = source.x + 192; // Adjust for node width (48 * 4px)
+                const y1 = source.y + 50;  // Adjust for node center
+                const x2 = target.x;
+                const y2 = target.y + 50;
+                
+                // Bezier curve
+                const cp1x = x1 + (x2 - x1) / 2;
+                const cp2x = x1 + (x2 - x1) / 2;
+                
+                line.setAttribute("d", `M ${x1} ${y1} C ${cp1x} ${y1}, ${cp2x} ${y2}, ${x2} ${y2}`);
+                line.setAttribute("stroke", "#374151");
+                line.setAttribute("stroke-width", "2");
+                line.setAttribute("fill", "none");
+                line.setAttribute("class", "line-flow");
+                
+                svgLayer.appendChild(line);
+            });
+
+            // Draw Nodes
+            data.nodes.forEach(node => {
+                const div = document.createElement('div');
+                div.className = "absolute node-card w-48 p-4 rounded-xl cursor-pointer shadow-xl z-10";
+                div.style.left = `${node.x}px`;
+                div.style.top = `${node.y}px`;
+                div.onclick = () => openDrawer(node);
+
+                div.innerHTML = `
+                    <div class="flex flex-col h-full">
+                        <span class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">${node.type}</span>
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="p-2 bg-gray-800 rounded-lg">
+                                <i data-lucide="${node.icon}" class="w-5 h-5 text-gray-300"></i>
+                            </div>
+                            <h4 class="text-xs font-bold text-white leading-tight">${node.name}</h4>
+                        </div>
+                        <div class="mt-auto pt-3 border-t border-gray-700/50 flex justify-between items-center">
+                            <span class="text-[9px] mono text-gray-400">${node.tool}</span>
+                            <i data-lucide="external-link" class="w-2.5 h-2.5 text-gray-600"></i>
+                        </div>
+                    </div>
+                `;
+                nodeLayer.appendChild(div);
+            });
+
+            lucide.createIcons();
+        }
+
+        function openDrawer(node) {
+            const drawer = document.getElementById('drawer');
+            
+            // Populate
+            document.getElementById('drawer-name').innerText = node.name;
+            document.getElementById('drawer-type').innerText = `${node.type} Step`;
+            document.getElementById('drawer-purpose').innerText = node.purpose;
+            document.getElementById('drawer-logic').innerText = node.logic;
+            document.getElementById('drawer-input').innerText = node.input;
+            document.getElementById('drawer-output').innerText = node.output;
+            
+            const iconContainer = document.getElementById('drawer-icon');
+            iconContainer.innerHTML = `<i data-lucide="${node.icon}" class="w-6 h-6"></i>`;
+
+            const toolsContainer = document.getElementById('drawer-tools');
+            toolsContainer.innerHTML = node.tools.map(tool => 
+                `<span class="px-2 py-1 bg-white/5 rounded text-[10px] text-gray-400 font-bold border border-white/5">${tool}</span>`
+            ).join('');
+
+            drawer.classList.remove('translate-x-full');
+            lucide.createIcons();
+        }
+
+        function closeDrawer() {
+            document.getElementById('drawer').classList.add('translate-x-full');
+        }
+
+        // Initialize
+        window.onload = () => {
+            loadScenario('ai-validation');
+            
+            // Basic Pan behavior simulation
+            const container = document.getElementById('canvas-container');
+            let isDown = false;
+            let startX, startY, scrollLeft, scrollTop;
+
+            container.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - container.offsetLeft;
+                startY = e.pageY - container.offsetTop;
+                scrollLeft = container.scrollLeft;
+                scrollTop = container.scrollTop;
+            });
+            container.addEventListener('mouseleave', () => isDown = false);
+            container.addEventListener('mouseup', () => isDown = false);
+            container.addEventListener('mousemove', (e) => {
+                if(!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - container.offsetLeft;
+                const y = e.pageY - container.offsetTop;
+                const walkX = (x - startX) * 1.5;
+                const walkY = (y - startY) * 1.5;
+                container.scrollLeft = scrollLeft - walkX;
+                container.scrollTop = scrollTop - walkY;
+            });
+        };
     </script>
 </body>
 </html>
