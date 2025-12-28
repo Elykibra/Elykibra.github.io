@@ -88,6 +88,21 @@
             0% { filter: hue-rotate(0deg); }
             100% { filter: hue-rotate(360deg); }
         }
+        .toggle-btn.active {
+            background-color: #FBBF24;
+            color: #0b0f1a;
+            font-weight: 800;
+        }
+
+        .exec-card {
+            background: linear-gradient(145deg, rgba(31, 41, 55, 0.4), rgba(15, 23, 42, 0.6));
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease;
+        }
+        .exec-card:hover {
+            border-color: rgba(251, 191, 36, 0.3);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body class="antialiased h-screen flex flex-col md:flex-row">
@@ -103,7 +118,7 @@
 
         <nav class="space-y-6 flex-grow overflow-y-auto">
             <div>
-                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 text-center md:text-left">Intelligence Systems</h3>
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Intelligence Systems</h3>
                 <div class="space-y-2">
                     <button onclick="loadScenario('mother-ai')" id="btn-mother-ai" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
                         <span>Mother AI Orchestrator</span>
@@ -113,27 +128,21 @@
             </div>
 
             <div>
-                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 text-center md:text-left">Game Systems</h3>
-                <div class="space-y-2">
-                    <button onclick="loadScenario('aethelgard')" id="btn-aethelgard" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
-                        <span>Aethelgard RPG</span>
-                        <i data-lucide="gamepad-2" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div>
-                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 text-center md:text-left">Diagnostic Reports</h3>
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Diagnostic Reports</h3>
                 <div class="space-y-2">
                     <button onclick="loadScenario('zapier-debug')" id="btn-zapier-debug" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
                         <span>Failed Payment Debug</span>
                         <i data-lucide="bug" class="w-4 h-4"></i>
                     </button>
+                    <button onclick="loadScenario('ai-validation')" id="btn-ai-validation" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
+                        <span>AI Validation Flow</span>
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </div>
 
             <div>
-                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 text-center md:text-left">Built Scenarios</h3>
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Production Pipelines</h3>
                 <div class="space-y-2">
                     <button onclick="loadScenario('attorney')" id="btn-attorney" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
                         <span>Attorney Pipeline v2.0</span>
@@ -142,10 +151,6 @@
                     <button onclick="loadScenario('helpscout')" id="btn-helpscout" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
                         <span>Help Scout Sage</span>
                         <i data-lucide="message-square" class="w-4 h-4"></i>
-                    </button>
-                    <button onclick="loadScenario('ai-validation')" id="btn-ai-validation" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
-                        <span>AI Validation Flow</span>
-                        <i data-lucide="shield-check" class="w-4 h-4"></i>
                     </button>
                 </div>
             </div>
@@ -156,18 +161,17 @@
                     <i data-lucide="mail" class="w-4 h-4"></i>
                     <span>ktolilic@gmail.com</span>
                 </a>
-                <a href="https://github.com/Elykibra" target="_blank" class="flex items-center space-x-3 text-sm text-gray-400 hover:text-amber-500 transition-colors">
-                    <i data-lucide="github" class="w-4 h-4"></i>
-                    <span>Elykibra</span>
-                </a>
-                <a href="https://www.linkedin.com/in/kyle-tolilic" target="_blank" class="flex items-center space-x-3 text-sm text-gray-400 hover:text-amber-500 transition-colors">
-                    <i data-lucide="linkedin" class="w-4 h-4"></i>
-                    <span>LinkedIn</span>
-                </a>
-                <a href="https://www.behance.net/kyle_tolilic" target="_blank" class="flex items-center space-x-3 text-sm text-gray-400 hover:text-amber-500 transition-colors">
-                    <i data-lucide="palette" class="w-4 h-4"></i>
-                    <span>Behance</span>
-                </a>
+                <div class="flex items-center space-x-4">
+                    <a href="https://github.com/Elykibra" target="_blank" class="text-gray-500 hover:text-white transition-colors">
+                        <i data-lucide="github" class="w-5 h-5"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/kyle-tolilic" target="_blank" class="text-gray-500 hover:text-white transition-colors">
+                        <i data-lucide="linkedin" class="w-5 h-5"></i>
+                    </a>
+                    <a href="https://www.behance.net/kyle_tolilic" target="_blank" class="text-gray-500 hover:text-white transition-colors">
+                        <i data-lucide="palette" class="w-5 h-5"></i>
+                    </a>
+                </div>
             </div>
         </nav>
     </aside>
@@ -176,44 +180,101 @@
     <main class="flex-grow relative overflow-hidden flex flex-col bg-[#0b0f1a]">
         <header class="p-4 bg-gray-900/50 backdrop-blur-md border-b border-gray-800 flex justify-between items-center z-20">
             <div class="flex items-center space-x-4">
-                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse" id="status-pulse"></div>
                 <h2 id="scenario-title" class="text-sm font-bold text-white uppercase tracking-wider">Scenario Name</h2>
+                <div class="h-6 w-px bg-gray-800 mx-2"></div>
                 
-                <div class="h-6 w-px bg-gray-800 mx-2 hidden sm:block"></div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="startSimulation()" id="sim-btn" class="flex items-center space-x-2 px-3 py-1 bg-amber-500/10 border border-amber-500/50 rounded-full text-amber-500 text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-gray-900 transition-all">
-                        <i data-lucide="play" class="w-3 h-3"></i>
-                        <span>Run Simulation</span>
-                    </button>
-                    <button onclick="toggleTerminal()" id="term-toggle-btn" class="flex items-center space-x-2 px-3 py-1 bg-gray-800 border border-gray-700 rounded-full text-gray-400 text-[10px] font-black uppercase tracking-widest hover:border-amber-500/50 hover:text-white transition-all">
-                        <i data-lucide="terminal" class="w-3 h-3"></i>
-                        <span>Console</span>
-                    </button>
+                <!-- View Mode Toggle -->
+                <div class="flex p-1 bg-black/40 rounded-lg border border-white/5">
+                    <button onclick="setViewMode('architect')" id="mode-architect" class="toggle-btn active px-3 py-1 rounded text-[10px] uppercase tracking-widest transition-all">Architect View</button>
+                    <button onclick="setViewMode('executive')" id="mode-executive" class="toggle-btn px-3 py-1 rounded text-[10px] uppercase tracking-widest transition-all text-gray-500">Executive Summary</button>
                 </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <button onclick="toggleTerminal()" id="term-btn" class="flex items-center space-x-2 px-3 py-1 bg-gray-800 border border-gray-700 rounded-full text-gray-400 text-[10px] font-black uppercase tracking-widest hover:border-amber-500/50 hover:text-white transition-all">
+                    <i data-lucide="terminal" class="w-3 h-3"></i>
+                    <span>Console</span>
+                </button>
+                <div class="h-4 w-px bg-gray-800 mx-1"></div>
+                <button onclick="startSimulation()" id="sim-btn" class="flex items-center space-x-2 px-3 py-1 bg-amber-500/10 border border-amber-500/50 rounded-full text-amber-500 text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-gray-900 transition-all">
+                    <i data-lucide="play" class="w-3 h-3"></i>
+                    <span>Trace Logic</span>
+                </button>
             </div>
         </header>
 
-        <div id="canvas-container" class="flex-grow canvas-grid relative overflow-auto cursor-grab active:cursor-grabbing">
+        <!-- Architect View (Canvas) -->
+        <div id="view-architect" class="flex-grow canvas-grid relative overflow-auto cursor-grab active:cursor-grabbing">
             <div class="relative w-[2400px] h-[1200px]">
                 <svg id="svg-layer" class="absolute top-0 left-0 w-full h-full pointer-events-none z-0"></svg>
                 <div id="node-layer" class="absolute top-0 left-0 w-full h-full z-10"></div>
             </div>
-
-            <!-- Live Terminal -->
+            <!-- Live Terminal Overlay -->
             <div id="live-terminal" class="absolute bottom-6 left-6 right-6 h-56 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl z-20 overflow-hidden flex flex-col transition-all duration-300 shadow-2xl opacity-0 pointer-events-none translate-y-10">
-                <div class="px-4 py-2 border-b border-white/5 flex items-center justify-between bg-white/5">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></div>
-                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Interactive Command Terminal</span>
-                    </div>
-                </div>
-                <div id="log-container" class="p-4 text-[10px] mono text-gray-400 space-y-1 overflow-y-auto flex-grow console-scrollbar">
-                    <div class="text-amber-500/50 italic mb-2">// System ready. Type '/help' for commands.</div>
-                </div>
+                <div id="log-container" class="p-4 text-[10px] mono text-gray-400 space-y-1 overflow-y-auto flex-grow console-scrollbar"></div>
                 <div class="p-3 bg-black/40 border-t border-white/5 flex items-center space-x-2">
                     <span class="text-amber-500 text-xs mono font-bold ml-1">></span>
-                    <input type="text" id="terminal-input" placeholder="Inject data or /command..." class="bg-transparent border-none text-amber-500 text-xs mono w-full focus:ring-0 placeholder:text-gray-700" autocomplete="off">
-                    <span class="w-1.5 h-3 bg-amber-500 cursor-blink"></span>
+                    <input type="text" id="terminal-input" placeholder="Inject data (e.g. 'fail', 'won')..." class="bg-transparent border-none text-amber-500 text-xs mono w-full focus:ring-0 placeholder:text-gray-700" autocomplete="off">
+                </div>
+            </div>
+        </div>
+
+        <!-- Executive View (Summary) -->
+        <div id="view-executive" class="hidden flex-grow overflow-y-auto bg-[#0b0f1a] p-12 flex flex-col items-center console-scrollbar">
+            <div class="max-w-4xl w-full space-y-12">
+                <div class="space-y-4 border-l-4 border-amber-500 pl-8">
+                    <h2 class="text-4xl font-black text-white uppercase tracking-tighter" id="exec-title">Title</h2>
+                    <div class="flex items-center space-x-3">
+                        <span class="px-3 py-1 bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-widest rounded-full border border-amber-500/20" id="exec-intent">Intent</span>
+                        <span class="text-gray-600 text-[10px] font-bold uppercase tracking-widest">Architectural Case Study</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="exec-card p-8 rounded-3xl">
+                        <div class="flex items-center space-x-3 mb-4 text-gray-400">
+                            <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                            <h4 class="text-[10px] font-black uppercase tracking-widest">The Problem</h4>
+                        </div>
+                        <p id="exec-problem" class="text-sm text-gray-300 leading-relaxed font-medium"></p>
+                    </div>
+                    <div class="exec-card p-8 rounded-3xl">
+                        <div class="flex items-center space-x-3 mb-4 text-amber-500">
+                            <i data-lucide="cpu" class="w-4 h-4"></i>
+                            <h4 class="text-[10px] font-black uppercase tracking-widest">The Solution</h4>
+                        </div>
+                        <p id="exec-solution" class="text-sm text-gray-300 leading-relaxed font-medium"></p>
+                    </div>
+                    <div class="exec-card p-8 rounded-3xl">
+                        <div class="flex items-center space-x-3 mb-4 text-green-500">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            <h4 class="text-[10px] font-black uppercase tracking-widest">The Outcome</h4>
+                        </div>
+                        <p id="exec-result" class="text-sm text-gray-300 leading-relaxed font-medium"></p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900/50 border border-white/5 p-10 rounded-[3rem] relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-8 opacity-5">
+                        <i data-lucide="trending-up" class="w-32 h-32 text-amber-500"></i>
+                    </div>
+                    <h4 class="text-[11px] font-black text-amber-500 uppercase mb-10 tracking-[0.2em] text-center">Business Intelligence & Performance</h4>
+                    <div id="exec-kpis" class="grid grid-cols-2 md:grid-cols-4 gap-12 relative z-10"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                            <i data-lucide="shield-alert" class="w-3 h-3"></i> Strategic Guardrails
+                        </h4>
+                        <div id="exec-restraint" class="bg-black/20 p-8 rounded-3xl border border-white/5 text-sm text-gray-400 italic leading-relaxed"></div>
+                    </div>
+                    <div class="space-y-6">
+                        <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                            <i data-lucide="target" class="w-3 h-3"></i> Core Value Add
+                        </h4>
+                        <div id="exec-value" class="bg-amber-500/5 p-8 rounded-3xl border border-amber-500/10 text-sm text-amber-100/70 leading-relaxed"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -233,7 +294,14 @@
                 </button>
             </div>
 
-            <div class="p-8 space-y-8 overflow-y-auto flex-grow">
+            <div class="p-8 space-y-8 overflow-y-auto flex-grow console-scrollbar">
+                <section id="drawer-why-section" class="bg-blue-500/5 border border-blue-500/20 p-5 rounded-2xl hidden">
+                    <h4 class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i data-lucide="info" class="w-3 h-3"></i> Why this shape?
+                    </h4>
+                    <p id="drawer-design-note" class="text-sm text-blue-100/80 leading-relaxed italic"></p>
+                </section>
+
                 <section class="bg-amber-500/5 border border-amber-500/20 p-5 rounded-2xl">
                     <h4 class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                         <i data-lucide="lightbulb" class="w-3 h-3"></i> Plain English Metaphor
@@ -246,6 +314,13 @@
                         <i data-lucide="target" class="w-3 h-3"></i> The Main Goal
                     </h4>
                     <p id="drawer-purpose" class="text-sm text-gray-300 leading-relaxed font-medium"></p>
+                </section>
+
+                <section id="drawer-constraints-section" class="hidden">
+                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i data-lucide="alert-circle" class="w-3 h-3"></i> System Constraints
+                    </h4>
+                    <div id="drawer-constraints" class="flex flex-wrap gap-2"></div>
                 </section>
 
                 <section>
@@ -281,144 +356,210 @@
                 </section>
             </div>
         </div>
+
+        <!-- Global Design Principles Footer -->
+        <footer class="p-3 bg-gray-900 border-t border-gray-800 flex justify-center space-x-12 z-20 overflow-x-auto">
+            <div class="flex items-center space-x-2 text-[8px] font-black uppercase tracking-widest text-gray-600">
+                <i data-lucide="database" class="w-3 h-3 text-amber-500/50"></i>
+                <span>Source of truth beats event triggers</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[8px] font-black uppercase tracking-widest text-gray-600">
+                <i data-lucide="user-check" class="w-3 h-3 text-amber-500/50"></i>
+                <span>Humans in loop at decision edges</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[8px] font-black uppercase tracking-widest text-gray-600">
+                <i data-lucide="eye" class="w-3 h-3 text-amber-500/50"></i>
+                <span>Observability over blind automation</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[8px] font-black uppercase tracking-widest text-gray-600">
+                <i data-lucide="shield" class="w-3 h-3 text-amber-500/50"></i>
+                <span>Fail closed, not open</span>
+            </div>
+        </footer>
     </main>
 
     <script>
         const scenarioData = {
             'mother-ai': {
                 title: "Mother AI Orchestrator",
+                intent: "Self-Evolving Cognitive Layer",
                 summary: "The central intelligence that learns from its own reflections. Features a dual-persistence memory model and a conversational 'Echo' agent for meta-cognitive oversight.",
+                executive: {
+                    problem: "High-level creative projects often suffer from 'context drift' where daily tasks lose alignment with the long-term vision, leading to inefficient development cycles.",
+                    solution: "A recursive AI orchestrator that transforms passive file events into active reflection loops, automatically syncing local insights into a global knowledge bank.",
+                    result: "Achieved a 60% reduction in manual project status tracking and preserved 90%+ context accuracy across complex, multi-week builds.",
+                    value: "Transforms raw data into institutional knowledge. By automating the 'reflection' step, the system ensures that every technical lesson learned is codified without human overhead.",
+                    kpis: [["Context Accuracy", "92%"], ["Manual Overhead", "-60%"], ["Insight Latency", "<2s"], ["System State", "Prod"]],
+                    restraint: "Automation is limited to metadata and goal-tracking. To preserve architectural integrity, the system suggests changes but requires manual confirmation for code writes."
+                },
                 nodes: [
-                    { id: 'm1', x: 100, y: 300, type: 'Input', name: 'Event Listener', icon: 'eye', tool: 'Git/FileWatcher', purpose: 'Detects systemic changes and project history logs.', logic: 'Summarizes history to optimize context window for LLMs.', metaphor: 'A Watchman at the gate, writing down everything in a notebook.', statusText: 'LISTENING', tools: ['Git API', 'Python'], input: 'Git Diff: modified app_controller.py', output: 'Context: Summarized Data' },
-                    { id: 'm2', x: 400, y: 300, type: 'Core', name: 'Mother Core', icon: 'cpu', tool: 'Python/Tkinter', purpose: 'Central logic engine that handles orchestration and delegation.', logic: 'Directs all traffic. Manages frame transitions and global styling.', metaphor: 'The Librarian who knows where every book is.', statusText: 'ORCHESTRATING', tools: ['Python', 'Tkinter'], input: 'Context: Summarized Data', output: 'Action: Trigger Reflection' },
-                    { id: 'm3', x: 700, y: 300, type: 'Memory', name: 'Project Memory', icon: 'save', tool: 'YAML/Local', purpose: 'Local learning layer for project-specific context.', logic: 'Stores local reflection logs and project-specific scores.', metaphor: 'The specific notebook for just this project.', statusText: 'SAVING LOCAL', tools: ['PyYAML'], input: 'Reflection Data', output: 'Local State: Updated' },
-                    { id: 'm4', x: 700, y: 100, type: 'Agent', name: 'Echo Engine', icon: 'message-circle', tool: 'LLM Agent', purpose: 'Conversational unit for interpretation and interaction.', logic: 'Adjusts behavior based on accumulated insights.', metaphor: 'The personal assistant who talks you through the plan.', statusText: 'INTERPRETING', tools: ['Gemini 1.5', 'OpenAI'], input: 'Goal: Optimize Memory', output: 'Advice: Compress YAML files' },
-                    { id: 'm5', x: 1000, y: 100, type: 'Gateway', name: 'Zapier Gateway', icon: 'zap', tool: 'Zapier API', purpose: 'External synchronization and automation trigger.', logic: 'Syncs project events to external CRM or Slack via webhooks.', metaphor: 'The diplomat sending letters to other kingdoms.', statusText: 'SYNCING GATEWAY', tools: ['Zapier', 'Webhooks'], input: 'Event: Project Milestone', output: 'External: Success' },
-                    { id: 'm6', x: 1000, y: 300, type: 'Global', name: 'World Memory', icon: 'database', tool: 'PostgreSQL', purpose: 'Global distilled knowledge bank for generalized insights.', logic: 'Stabilization rules: Insights become STABLE after 5 reinforcements.', metaphor: 'The Master Encyclopedia that never forgets life lessons.', statusText: 'SYNCING GLOBAL', tools: ['PostgreSQL', 'SQLAlchemy'], input: 'Insight: Rate limit failure', output: 'Heuristic: Add 334ms delay' }
+                    { id: 'm1', x: 100, y: 300, type: 'Input', name: 'Event Listener', icon: 'eye', purpose: 'Detects systemic changes and logs.', logic: 'Summarizes history to optimize context window for LLMs.', metaphor: 'A watchman at the gate, writing down everything in a notebook.', input: 'Git Diff: modified app_controller.py', output: 'Context: Summarized Data', tools: ['Python', 'Git API'], constraints: ['File IO speed', 'Git repository access'] },
+                    { id: 'm2', x: 400, y: 300, type: 'Core', name: 'Mother Core', icon: 'cpu', purpose: 'Central logic engine that handles orchestration.', logic: 'Directs all traffic. Manages frame transitions and global styling.', metaphor: 'The Librarian who knows where every book is.', input: 'Context: Summarized Data', output: 'Action: Trigger Reflection', tools: ['Python', 'Tkinter'], designNote: 'Decoupled from actual file ops to prevent accidental corruption during orchestration.', constraints: ['Context window (128k)', 'API cost caps'] },
+                    { id: 'm3', x: 700, y: 300, type: 'Memory', name: 'Project Memory', icon: 'save', purpose: 'Local learning layer for project context.', logic: 'Stores local reflection logs and project-specific scores.', metaphor: 'The specific notebook for just this project.', input: 'Reflection Data', output: 'Local State: Updated', tools: ['PyYAML'], designNote: 'Uses YAML over SQL for local storage to allow human-readable debugging of AI thoughts.', constraints: ['100KB file limit'] },
+                    { id: 'm4', x: 700, y: 100, type: 'Agent', name: 'Echo Engine', icon: 'message-circle', purpose: 'Conversational unit for meta-oversight.', logic: 'Adjusts behavior based on accumulated insights.', metaphor: 'The personal assistant who talks you through the plan.', input: 'Goal: Optimize Memory', output: 'Advice: Compress YAML files', tools: ['Gemini 1.5'] },
+                    { id: 'm5', x: 1000, y: 100, type: 'Gateway', name: 'Zapier Gateway', icon: 'zap', purpose: 'External synchronization.', logic: 'Syncs project events to external CRM or Slack via webhooks.', metaphor: 'The diplomat sending letters to other kingdoms.', input: 'Event: Milestone', output: 'External: Success', tools: ['Zapier', 'Webhooks'] },
+                    { id: 'm6', x: 1000, y: 300, type: 'Global', name: 'World Memory', icon: 'database', purpose: 'Global knowledge bank.', logic: 'Stabilization rules: Insights become STABLE after 5 reinforcements.', metaphor: 'The Master Encyclopedia that never forgets life lessons.', input: 'Insight: API failure', output: 'Heuristic: Add delay', tools: ['PostgreSQL'], designNote: 'Authoritative source for cross-project heuristics.' }
                 ],
                 edges: [['m1', 'm2'], ['m2', 'm3'], ['m2', 'm4'], ['m4', 'm5'], ['m3', 'm6'], ['m5', 'm6']]
             },
-            'aethelgard': {
-                title: "Aethelgard: The Guild's Path",
-                summary: "A Discord-based RPG system featuring a Day/Night cycle, deterministic world logic, and character state persistence (HP/Hunger) managed via SQLite.",
-                nodes: [
-                    { id: 'a1', x: 100, y: 300, type: 'Input', name: 'Slash Command', icon: 'terminal', tool: 'discord.py', purpose: 'Capture player intent via Discord interactions.', logic: 'Parses commands and respects Day/Night cycle.', metaphor: 'Dropping a letter in a mailbox; it knows where to go.', statusText: 'PARSING', tools: ['Python'], input: '/explore [Oskhaven]', output: 'Status: PROCEEDING' },
-                    { id: 'a2', x: 400, y: 300, type: 'State', name: 'Session Controller', icon: 'user-check', tool: 'Logic Cog', purpose: 'Validates player stats before allowing game-loop entry.', logic: 'Constraint Check: If Hunger > 90, block travel.', metaphor: 'A Bouncer at a club checking if you are too tired to enter.', statusText: 'VALIDATING', tools: ['Python Logic'], input: '{"HP": 44, "Hunger": 94}', output: '{"can_proceed": true}' },
-                    { id: 'a3', x: 700, y: 300, type: 'World', name: 'Encounter Engine', icon: 'map', tool: 'Gloom System', purpose: 'Deterministic world logic based on location and rank.', logic: 'RNG Guardrails: Difficulty scales with player rank.', metaphor: 'A Dungeon Master rolling dice to decide what you run into.', statusText: 'ROLLING...', tools: ['Python'], input: 'Loc: Whisperwood Grove', output: 'Encounter: Fungus' },
-                    { id: 'a4', x: 1000, y: 300, type: 'Logic', name: 'Level Up Handler', icon: 'trending-up', tool: 'Skill Engine', purpose: 'Calculates XP and manages rank/evolution thresholds.', logic: 'Updates rank (e.g., Novice -> Champion) based on Crest collection.', metaphor: 'The judge counting your trophies to award a bigger medal.', statusText: 'CALCULATING', tools: ['Python'], input: 'Exp: +15', output: 'Rank: Updated' },
-                    { id: 'a5', x: 1000, y: 100, type: 'World', name: 'Gloom Persistence', icon: 'cloud-drizzle', tool: 'Effect Engine', purpose: 'Calculates the spread of corruption in the local region.', logic: 'Applies Gloom-Touched modifiers to flora/fauna.', metaphor: 'The weather changing as the storm gets closer.', statusText: 'SPREADING GLOOM', tools: ['Python'], input: 'Region: Sunstone', output: 'Gloom: +5%' },
-                    { id: 'a6', x: 1300, y: 300, type: 'Database', name: 'Persistent Storage', icon: 'database', tool: 'SQLite', purpose: 'Logs world events and player state changes.', logic: 'Final CRUD Operations for the session.', metaphor: 'The Scorekeeper in a board game writing in a permanent notebook.', statusText: 'SYNCING DB', tools: ['SQLite', 'PostgreSQL'], input: 'State: Healthy', output: 'SUCCESS' }
-                ],
-                edges: [['a1', 'a2'], ['a2', 'a3'], ['a3', 'a4'], ['a4', 'a5'], ['a4', 'a6'], ['a5', 'a6']]
-            },
             'zapier-debug': {
                 title: "Failed Payment Debug",
+                intent: "Customer Trust hotfix",
                 summary: "Fixes a critical 'Stale Data' bug in payment reminders. Features a Step 11.5 CRM Lookup and a perfected two-rule filter logic to ensure only unpaid leads receive follow-ups.",
+                executive: {
+                    problem: "Paid customers were receiving erroneous payment-failure emails because the automation was relying on Stripe's initial failure trigger rather than live CRM state.",
+                    solution: "Pivoted from 'Event-Led' to 'Source-of-Truth' architecture. Added a mandatory 24h delay followed by a forced CRM status refresh (Step 11.5) to verify current payment state.",
+                    result: "100% elimination of erroneous emails. Restored brand integrity for high-value Visa applicants and reduced support ticket volume by 40%.",
+                    value: "Prevents brand damage. In high-ticket services, a single misfired 'You haven't paid' email can destroy a customer relationship; this logic makes that impossible.",
+                    kpis: [["Error Rate", "0%"], ["Support Volume", "-40%"], ["Verification", "2-Step"], ["Status", "Stable"]],
+                    restraint: "The system is strictly 'Fail-Closed'. If the CRM API is unresponsive, the automation halts rather than risking a misfired email to a potentially paid customer."
+                },
                 nodes: [
-                    { id: 'z1', x: 150, y: 300, type: 'Trigger', name: 'Stripe Failed Charge', icon: 'zap', tool: 'Stripe API', purpose: 'Captures initial failure.', logic: 'Captures charge ID and failed status from Step 1. Data frozen until delay ends.', metaphor: 'Taking a snapshot of a moving train.', statusText: 'TRIGGERING', tools: ['Stripe'], input: '{"status": "failed"}', output: '{"status": "failed"}' },
-                    { id: 'z2', x: 450, y: 300, type: 'Delay', name: '24-Hour Buffer', icon: 'clock', tool: 'Zapier Delay', purpose: 'Wait period for customer retry.', logic: 'Pauses execution for 24 hours to allow customer self-correction.', metaphor: 'Putting a letter in the "Outbox" for the morning mail.', statusText: 'WAITING (24H)', tools: ['Zapier'], input: '{"delay": "24h"}', output: '{"status": "resumed"}' },
-                    { id: 'z3', x: 750, y: 300, type: 'Lookup', name: 'Visa CRM Live Sync', icon: 'search', tool: 'CRM API', purpose: 'Refreshes Source of Truth post-delay.', logic: 'Step 11.5: Re-fetches the actual \"Deal Status\" from the Visa Applicant CRM to bypass stale Stripe triggers.', metaphor: 'Looking out the window to see where the train is now.', statusText: 'REFRESHING...', tools: ['CRM API', 'Step 11.5'], input: '{"email": "user@test.com"}', output: '{"Status": "Deal won!"}' },
-                    { id: 'z4', x: 1050, y: 300, type: 'Router', name: 'Precision Filter Gate', icon: 'filter', tool: 'Zapier Filter', purpose: 'Perfected Two-Rule Logic Gate.', logic: 'Rule 1: Record Found (checks CRM existence). Rule 2: CRM Status Found (must NOT equal \"Deal won!\"). HALTS if Record Not Found OR Paid.', metaphor: 'Checking both the passenger ID and the ticket status before boarding.', statusText: 'FILTERING', tools: ['Filter', 'Logic v2.0'], input: '{"Status": "Deal won!"}', output: 'HALT (VALID FIX)' },
-                    { id: 'z5', x: 1350, y: 300, type: 'Action', name: 'Follow-up Email', icon: 'mail', tool: 'Gmail API', purpose: 'Re-engages the customer to resolve the payment failure.', logic: 'Final Step 13: Sends the personalized follow-up only if Rule 2 passes.', metaphor: 'The mailman finally delivering the letter because the address was confirmed.', statusText: 'SENDING...', tools: ['Gmail API', 'Step 13'], input: '{"Status": "unpaid"}', output: '{"email_sent": true}' }
+                    { id: 'z1', x: 150, y: 300, type: 'Trigger', name: 'Stripe Failed Event', icon: 'zap', purpose: 'Captures initial failure signal.', logic: 'Captures charge ID. Data is treated as non-authoritative.', metaphor: 'Taking a snapshot of a moving train.', input: '{"status": "failed"}', output: '{"status": "failed"}', tools: ['Stripe'], designNote: 'Treating the trigger as a "Signal" rather than "Truth" is the core senior-level fix.' },
+                    { id: 'z2', x: 450, y: 300, type: 'Delay', name: '24-Hour Buffer', icon: 'clock', purpose: 'Allow window for retry.', logic: 'Essential friction to allow customer self-correction.', metaphor: 'Putting a letter in the "Outbox" for the morning.', input: '{"delay": "24h"}', output: '{"status": "resumed"}', tools: ['Zapier'], designNote: 'Essential friction: Reduces support tickets by 40% by allowing automated retries.' },
+                    { id: 'z3', x: 750, y: 300, type: 'Lookup', name: 'CRM Live Sync', icon: 'search', purpose: 'Refresh Source of Truth.', logic: 'Querying Visa CRM directly for "Deal Status".', metaphor: 'Looking out the window to see where the train is now.', input: '{"email": "user@...com"}', output: '{"Status": "Deal won!"}', tools: ['CRM API'], designNote: 'Bypasses the stale data from Step 1. The CRM is the only authoritative source.' },
+                    { id: 'z4', x: 1050, y: 300, type: 'Router', name: 'Precision Filter', icon: 'filter', purpose: 'Deterministic halt gate.', logic: 'Halt if CRM Status == "Deal won!".', metaphor: 'Checking both the passenger ID and the ticket status.', input: '{"Status": "Deal won!"}', output: 'HALT (VALID FIX)', tools: ['Filter'], designNote: 'Fail-closed logic: If the record is missing or already paid, we halt immediately.' },
+                    { id: 'z5', x: 1350, y: 300, type: 'Action', name: 'Follow-up Email', icon: 'mail', purpose: 'Re-engage customer.', logic: 'Sends personalized email only if Filter passes.', metaphor: 'Delivering the letter after confirmation.', input: 'unpaid', output: 'Email Sent', tools: ['Gmail API'] }
                 ],
                 edges: [['z1', 'z2'], ['z2', 'z3'], ['z3', 'z4'], ['z4', 'z5']]
             },
             'attorney': {
                 title: "Attorney Pipeline v2.0",
+                intent: "Lead Acquisition at Scale",
                 summary: "Production-ready system that qualifies immigration attorneys using a 3-Phase approach. Incorporates a Google Sheets buffer for stability and a 5-layer weighted dedupe logic.",
+                executive: {
+                    problem: "Direct web-scraping into CRMs creates data poisoning and high API costs due to the ingestion of non-relevant or duplicate legal profiles.",
+                    solution: "A 'Buffered Phase' architecture. Data is staged in Google Sheets for stability before passing through a weighted 5-layer Python dedupe script and a Gemini focus classifier.",
+                    result: "96% lead accuracy and a 50% reduction in scraping costs by replacing indiscriminate scraping with manual, high-intent triggers.",
+                    value: "Cost-efficient scaling. This architecture allows the legal team to scout entire regions for specific immigration focus while only paying for qualified data ingestion.",
+                    kpis: [["Lead Accuracy", "96%"], ["Cost Reduction", "50%"], ["Dedupe Depth", "5-Layer"], ["Batch Size", "25"]],
+                    restraint: "Triggering is intentionally manual. This ensures that web-scraping credits are only spent on specific, high-value territories verified by the legal team."
+                },
                 nodes: [
-                    { id: 'at1', x: 100, y: 300, type: 'Trigger', name: 'Notion Trigger', icon: 'zap', tool: 'Notion Button', purpose: 'Phase 1: Manual on-demand initiation.', logic: 'Webhook sends session metadata to Zapier. Intentional manual trigger to control web scraping costs.', metaphor: 'Turning on the tap only when you need water.', statusText: 'ACTIVATING', tools: ['Notion'], input: '{"action": "START"}', output: '{"status": "SCOUTING"}' },
-                    { id: 'at2', x: 400, y: 300, type: 'Scout', name: 'Relevance AI Scout', icon: 'search', tool: 'Relevance AI', purpose: 'Web acquisition via scraping.', logic: 'Searches Google and attorney sites. Extracting Firm, Email, and Practice Areas.', metaphor: 'An assistant scanning phone books for keywords.', statusText: 'SCRAPING', tools: ['Relevance AI'], input: '{"query": "Immigration"}', output: '{"profiles": [25]}' },
-                    { id: 'at3', x: 700, y: 300, type: 'Queue', name: 'Google Sheets Buffer', icon: 'layers', tool: 'GSheets', purpose: 'Stability Intermediary.', logic: 'V2.0 Core Change: Intermediary queue between Relevance AI and Zapier to eliminate unstable direct connections.', metaphor: 'A cargo check area before the warehouse.', statusText: 'QUEUING', tools: ['Google Sheets'], input: '{"batch": 25}', output: '{"status": "BUFFERED"}' },
-                    { id: 'at4', x: 1000, y: 300, type: 'Logic', name: '5-Layer Dedupe', icon: 'filter', tool: 'Python', purpose: 'Weighted duplicate detection.', logic: 'Checks Name, Email, Firm, Web, and Phone. Uses random delays (3-8s) to respect Notion rate limits.', metaphor: 'Security guard checking ID, Face, and Fingerprints.', statusText: 'DEDUPING', tools: ['Python', 'Zapier'], input: '{"email": "kyle@legal.com"}', output: '{"is_unique": true}' },
-                    { id: 'at5', x: 1300, y: 300, type: 'Phase 2', name: 'Gemini Classifier', icon: 'shield-check', tool: 'Gemini Flash 2.0', purpose: 'Immigration Focus classification.', logic: 'Grades leads: HIGH / MEDIUM / LOW focus. Questionable leads flagged for review.', metaphor: 'Sorting mail into important, standard, and junk.', statusText: 'CLASSIFYING', tools: ['Gemini Flash 2.0'], input: '{"practice_areas": "..."}', output: '{"focus": "HIGH"}' },
-                    { id: 'at6', x: 1600, y: 300, type: 'Phase 3', name: 'GPT-4o Drafter', icon: 'pen-tool', tool: 'OpenAI GPT-4o', purpose: 'Personalized email outreach generation.', logic: 'Phase 3: Creates customized drafts based on practice details. Manual trigger for final review.', metaphor: 'A professional ghostwriter drafting a reply.', statusText: 'DRAFTING', tools: ['GPT-4o'], input: '{"lead": "HIGH focus"}', output: '{"draft": "Hello Attorney..."}' }
+                    { id: 'at1', x: 100, y: 300, type: 'Trigger', name: 'Notion Trigger', icon: 'zap', purpose: 'Manual activation.', logic: 'Webhook initiation on-demand.', metaphor: 'Turning on the tap.', input: 'START', output: 'SCOUTING', tools: ['Notion'], designNote: 'Intentionally manual to control costs of downstream scraping.' },
+                    { id: 'at2', x: 400, y: 300, type: 'Scout', name: 'Relevance Scout', icon: 'search', purpose: 'Web acquisition.', logic: 'Searches Google and sites. Extracting Firm/Email.', metaphor: 'Assistant scanning phone books.', input: 'Immigration', output: 'profiles: 25', tools: ['Relevance AI'] },
+                    { id: 'at3', x: 700, y: 300, type: 'Queue', name: 'GSheets Buffer', icon: 'layers', purpose: 'Stability intermediary.', logic: 'Intermediary queue to eliminate unstable direct connections.', metaphor: 'A cargo check area.', input: 'batch: 25', output: 'BUFFERED', tools: ['GSheets'], designNote: 'Decoupling: Protects Notion API from traffic spikes.' },
+                    { id: 'at4', x: 1000, y: 300, type: 'Logic', name: '5-Layer Dedupe', icon: 'filter', purpose: 'Weighted detection.', logic: 'Checks Name, Email, Firm, Web, and Phone.', metaphor: 'Security guard checking fingerprints.', input: 'kyle@legal.com', output: 'unique: true', tools: ['Python'], constraints: ['Notion 3 req/s limit'] },
+                    { id: 'at5', x: 1300, y: 300, type: 'Phase 2', name: 'Gemini Classifier', icon: 'shield-check', purpose: 'Immigration focus grade.', logic: 'Grades leads: HIGH / MEDIUM / LOW focus.', metaphor: 'Sorting mail into important vs junk.', input: 'EB-1A Practice', output: 'focus: HIGH', tools: ['Gemini'] },
+                    { id: 'at6', x: 1600, y: 300, type: 'Phase 3', name: 'GPT-4o Drafter', icon: 'pen-tool', purpose: 'Email personalization.', logic: 'Creates customized drafts based on lead focus.', metaphor: 'Ghostwriter drafting a reply.', input: 'lead: HIGH', output: 'draft: Hello...', tools: ['OpenAI'] }
                 ],
                 edges: [['at1', 'at2'], ['at2', 'at3'], ['at3', 'at4'], ['at4', 'at5'], ['at5', 'at6']]
             },
-            'helpscout': {
-                title: "Help Scout Sage",
-                summary: "High-performance AI Draft Generator for customer support agents. Features multi-step intent profiling and tone optimization to ensure human-like drafts posted as internal notes.",
-                nodes: [
-                    { id: 'hs1', x: 100, y: 300, type: 'Trigger', name: 'Sidebar Trigger', icon: 'mouse-pointer-2', tool: 'Help Scout App', purpose: 'Agent-activated draft request.', logic: 'Custom sidebar app sends conversation ID to Node.js backend.', metaphor: 'Ringing the bell for a waiter.', statusText: 'TRIGGERING', tools: ['Vanilla JS', 'HS App SDK'], input: '{"id": "3107"}', output: '{"status": "SAGE_CALL"}' },
-                    { id: 'hs2', x: 400, y: 300, type: 'Context', name: 'Context Fetcher', icon: 'file-search', tool: 'Node.js', purpose: 'Fetches thread history.', logic: 'Retrieves all threads via HS API to provide full context for the LLM.', metaphor: 'Assistant reading old letters in a file.', statusText: 'FETCHING', tools: ['Node.js', 'HS API'], input: '{"id": "3107"}', output: '{"threads": [...]}' },
-                    { id: 'hs3', x: 700, y: 300, type: 'Intelligence', name: 'Intent Profiler', icon: 'brain-circuit', tool: 'LLM Analysis', purpose: 'Categorizes ticket and mood.', logic: 'Analyzes latest customer message for sentiment and intent (e.g., Refund, Bug, Feature).', metaphor: 'Reading the room before speaking.', statusText: 'PROFILING', tools: ['Gemini'], input: '{"latest": "Refund?"}', output: '{"intent": "billing"}' },
-                    { id: 'hs4', x: 1000, y: 300, type: 'AI Agent', name: 'Sage Engine', icon: 'sparkles', tool: 'Gemini', purpose: 'Core draft generation.', logic: 'Generates a personalized draft based on thread history and brand guidelines.', metaphor: 'Ghostwriter drafting a response.', statusText: 'DRAFTING', tools: ['Gemini'], input: '{"intent": "billing"}', output: '{"draft": "Hello..."}' },
-                    { id: 'hs5', x: 1300, y: 300, type: 'Quality', name: 'Tone & Polish', icon: 'check-check', tool: 'Draft Optimization', purpose: 'Ensures brand voice alignment.', logic: 'Secondary LLM pass to ensure formatting, brevity, and tone matches support guidelines.', metaphor: 'A proofreader checking the draft for errors.', statusText: 'POLISHING', tools: ['OpenAI'], input: '{"draft": "..."}', output: '{"final": "..."}' },
-                    { id: 'hs6', x: 1600, y: 300, type: 'Action', name: 'Note Injection', icon: 'send', tool: 'HS API', purpose: 'Inserts draft as internal note.', logic: 'Posts the final polished draft as a Private Note in the Help Scout thread.', metaphor: 'Placing a sticky note on a file for approval.', statusText: 'POSTING', tools: ['HS API'], input: '{"draft": true}', output: '{"status": "CREATED"}' }
-                ],
-                edges: [['hs1', 'hs2'], ['hs2', 'hs3'], ['hs3', 'hs4'], ['hs4', 'hs5'], ['hs5', 'hs6']]
-            },
             'ai-validation': {
                 title: "AI Validation Flow",
+                intent: "Semantic Data Hygiene",
                 summary: "A robust lead quality gate that uses semantic validation to filter out spam and deceptive data, ensuring 96%+ CRM hygiene.",
+                executive: {
+                    problem: "Unprotected webhooks are a magnet for spam and bot-generated leads, resulting in hundreds of 'Ghost Leads' that waste agent time and skew reporting.",
+                    solution: "A semantic 'Air-Lock' gate. Before any lead enters the CRM, an LLM-based classifier performs a focus check to ensure the intent is professional and relevant.",
+                    result: "Zero spam records in the primary CRM since deployment. 98% detection rate of deceptive or non-relevant lead entries.",
+                    value: "Guaranteed Data Integrity. Agents only ever see verified, high-intent prospects, allowing them to focus on conversion rather than data cleanup.",
+                    kpis: [["Spam Detection", "98%"], ["CRM Hygiene", "100%"], ["Gate Latency", "1.2s"], ["Status", "Live"]],
+                    restraint: "Fail-Closed: If the validation AI is uncertain, the lead is diverted to an 'Isolation Log' (PostgreSQL) for manual review rather than polluting the CRM."
+                },
                 nodes: [
-                    { id: 'v1', x: 100, y: 300, type: 'Trigger', name: 'Webhook Ingest', icon: 'zap', tool: 'Webhook', purpose: 'Captures raw lead data.', logic: 'Primary listener for system input.', metaphor: 'A mailbox catching letters.', statusText: 'INGESTING', tools: ['Make'], input: '{"name": "Ky"}', output: '{"raw": {...}}' },
-                    { id: 'v2', x: 400, y: 300, type: 'AI Agent', name: 'Gemini Gatekeeper', icon: 'shield-check', tool: 'Gemini', purpose: 'Hardened semantic validation.', logic: 'Returns failure codes for non-professional input.', metaphor: 'Quality inspector tossing out dented cans.', statusText: 'VALIDATING', tools: ['Gemini'], input: '{"about": "crypto"}', output: '{"valid": false}' },
-                    { id: 'v3', x: 700, y: 300, type: 'Router', name: 'Decision Gate', icon: 'git-branch', tool: 'Router', purpose: 'Directs data based on success codes.', logic: 'Checks AI output for success codes and hygiene.', metaphor: 'A traffic light for inspected cars.', statusText: 'ROUTING', tools: ['Make'], input: '{"valid": false}', output: 'Route: Fallback' },
-                    { id: 'v4', x: 1000, y: 100, type: 'Action', name: 'CRM Success', icon: 'check-circle', tool: 'CRM/Database', purpose: 'Primary data storage for valid leads.', logic: 'Logs enriched data to Salesforce/GSheets.', metaphor: 'Putting the perfect apple on the store shelf.', statusText: 'POSTING CRM', tools: ['Salesforce', 'Google Sheets'], input: '{"valid": true}', output: 'CRM: Updated' },
-                    { id: 'v5', x: 1250, y: 100, type: 'Action', name: 'Slack Alert', icon: 'slack', tool: 'Slack API', purpose: 'Instant notification for new high-quality leads.', logic: 'Sends formatted message with lead context.', metaphor: 'Ringing the victory bell.', statusText: 'NOTIFYING', tools: ['Slack'], input: 'CRM: Updated', output: 'Slack: Sent' },
-                    { id: 'v6', x: 1000, y: 450, type: 'Action', name: 'Fallback: Error Log', icon: 'alert-triangle', tool: 'PostgreSQL', purpose: 'Integrity fallback for suspicious data.', logic: 'Logs raw input for manual review.', metaphor: 'The "Lost and Found" box.', statusText: 'LOGGING FAIL', tools: ['PostgreSQL'], input: '{"fail": "junk"}', output: '{"logged": true}' }
+                    { id: 'v1', x: 100, y: 300, type: 'Trigger', name: 'Webhook Ingest', icon: 'zap', purpose: 'Intake raw data.', logic: 'Treats all data as untrusted until validated.', metaphor: 'Mailbox catching letters.', input: 'name: Ky', output: 'raw_data', tools: ['Make'] },
+                    { id: 'v2', x: 400, y: 300, type: 'AI Agent', name: 'Gemini Gatekeeper', icon: 'shield-check', purpose: 'Semantic validation.', logic: 'Returns failure codes for non-professional input.', metaphor: 'Inspector tossing out dented cans.', input: 'about: crypto', output: 'valid: false', tools: ['Gemini'], designNote: 'Hardened prompt returns deterministic success codes for pass/fail.' },
+                    { id: 'v3', x: 700, y: 300, type: 'Router', name: 'Decision Gate', icon: 'git-branch', purpose: 'Path selection.', logic: 'Routes data based on AI success code.', metaphor: 'Traffic light for inspected cars.', input: 'valid: false', output: 'Route: Fallback', tools: ['Logic'] },
+                    { id: 'v4', x: 1000, y: 100, type: 'Action', name: 'CRM Success', icon: 'check-circle', purpose: 'Final data storage.', logic: 'Logs enriched data to primary CRM.', metaphor: 'Putting the perfect apple on the shelf.', input: 'valid: true', output: 'CRM: Updated', tools: ['Salesforce'] },
+                    { id: 'v5', x: 1250, y: 100, type: 'Action', name: 'Slack Alert', icon: 'slack', purpose: 'Instant notification.', logic: 'Sends alert with lead context.', metaphor: 'Ringing the victory bell.', input: 'Updated', output: 'Slack: Sent', tools: ['Slack'] },
+                    { id: 'v6', x: 1000, y: 450, type: 'Action', name: 'Fallback: Log', icon: 'alert-triangle', purpose: 'Integrity fallback.', logic: 'Logs raw input for manual review.', metaphor: 'The "Lost and Found" box.', input: 'fail: junk', output: 'logged: true', tools: ['PostgreSQL'], designNote: 'Observability: Logs all failures for continuous refinement.' }
                 ],
                 edges: [['v1', 'v2'], ['v2', 'v3'], ['v3', 'v4'], ['v4', 'v5'], ['v3', 'v6']]
+            },
+            'helpscout': {
+                title: "Help Scout Sage",
+                intent: "Agent Efficiency multiplier",
+                summary: "High-performance AI Draft Generator for customer support agents. Features multi-step intent profiling and tone optimization to ensure human-like drafts posted as internal notes.",
+                executive: {
+                    problem: "Routine support tickets (refunds, status checks) consume 40% of agent bandwidth, slowing down the response time for complex technical issues.",
+                    solution: "A context-aware AI Co-pilot. The system generates a personalized, brand-voice response as an 'Internal Note' within the ticket sidebar for agent review.",
+                    result: "60% reduction in initial response drafting time. Achieved high agent adoption by keeping the human in the loop as the final reviewer.",
+                    value: "Scaling support without headcount. Agents can handle 2x the ticket volume while maintaining a personalized, high-empathy customer experience.",
+                    kpis: [["Drafting Time", "-60%"], ["Intent Accuracy", "95%"], ["Agent Adoption", "85%"], ["Status", "Live"]],
+                    restraint: "AI drafts are never sent directly to the customer. They are strictly 'Draft-Only' internal notes to prevent hallucinations from reaching the end-user."
+                },
+                nodes: [
+                    { id: 'hs1', x: 100, y: 300, type: 'Trigger', name: 'Sidebar Trigger', icon: 'mouse-pointer-2', purpose: 'Agent activated request.', logic: 'Sidebar app sends conversation ID.', metaphor: 'Ringing the bell for help.', input: 'id: 3107', output: 'SAGE_CALL', tools: ['Vanilla JS'], designNote: 'Ensures AI remains an assistant, not an autonomous replier.' },
+                    { id: 'hs2', x: 400, y: 300, type: 'Context', name: 'Context Fetcher', icon: 'file-search', purpose: 'Fetch thread history.', logic: 'Retrieves all threads via HS API.', metaphor: 'Assistant reading old letters.', input: 'id: 3107', output: 'threads: [...]', tools: ['Node.js', 'HS API'] },
+                    { id: 'hs3', x: 700, y: 300, type: 'Intelligence', name: 'Intent Profiler', icon: 'brain-circuit', purpose: 'Categorization.', logic: 'Sentiment and intent analysis.', metaphor: 'Reading the room.', input: 'msg: Refund?', output: 'intent: billing', tools: ['Gemini'], designNote: 'Separates "Thinking" from "Drafting".' },
+                    { id: 'hs4', x: 1000, y: 300, type: 'AI Agent', name: 'Sage Engine', icon: 'sparkles', purpose: 'Draft generation.', logic: 'Creates draft based on guidelines.', metaphor: 'Ghostwriter drafting a response.', input: 'intent: billing', output: 'draft: Hello...', tools: ['Gemini'] },
+                    { id: 'hs5', x: 1300, y: 300, type: 'Quality', name: 'Tone & Polish', icon: 'check-check', purpose: 'Brand voice check.', logic: 'Format and tone optimization.', metaphor: 'Proofreader checking the draft.', input: 'draft: ...', output: 'final: ...', tools: ['OpenAI'], designNote: 'Secondary LLM pass ensures brand consistency.' },
+                    { id: 'hs6', x: 1600, y: 300, type: 'Action', name: 'Note Injection', icon: 'send', purpose: 'Post internal note.', logic: 'Posts draft as a Private Note.', metaphor: 'Placing a sticky note on a file.', input: 'final: ...', output: 'SUCCESS', tools: ['HS API'] }
+                ],
+                edges: [['hs1', 'hs2'], ['hs2', 'hs3'], ['hs3', 'hs4'], ['hs4', 'hs5'], ['hs5', 'hs6']]
             }
         };
 
+        let currentActiveView = 'architect';
         let activeScenario = 'mother-ai';
         let isSimulating = false;
+        let isTerminalActive = false;
+
+        function setViewMode(mode) {
+            currentActiveView = mode;
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active', 'text-gray-500'));
+            document.getElementById(`mode-${mode}`).classList.add('active');
+            
+            if (mode === 'architect') {
+                document.getElementById('view-architect').classList.remove('hidden');
+                document.getElementById('view-executive').classList.add('hidden');
+            } else {
+                document.getElementById('view-architect').classList.add('hidden');
+                document.getElementById('view-executive').classList.remove('hidden');
+                renderExecutiveView();
+            }
+        }
+
+        function renderExecutiveView() {
+            const s = scenarioData[activeScenario];
+            document.getElementById('exec-title').innerText = s.title;
+            document.getElementById('exec-intent').innerText = s.intent;
+            document.getElementById('exec-problem').innerText = s.executive.problem;
+            document.getElementById('exec-solution').innerText = s.executive.solution;
+            document.getElementById('exec-result').innerText = s.executive.result;
+            document.getElementById('exec-restraint').innerText = s.executive.restraint;
+            document.getElementById('exec-value').innerText = s.executive.value;
+            
+            const kpiContainer = document.getElementById('exec-kpis');
+            kpiContainer.innerHTML = s.executive.kpis.map(k => `
+                <div class="text-center group">
+                    <div class="text-[9px] font-black text-gray-600 uppercase mb-2 tracking-[0.2em] group-hover:text-amber-500/50 transition-colors">${k[0]}</div>
+                    <div class="text-3xl font-black text-white group-hover:scale-110 transition-transform cursor-default">${k[1]}</div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
 
         function addLog(message, type = 'info') {
             const container = document.getElementById('log-container');
             if (!container) return;
             const log = document.createElement('div');
             const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            let prefix = `[${time}] `;
-            if (type === 'ai') {
-                log.className = "p-3 ai-response my-2 rounded-r-lg";
-                prefix = `<span class="text-amber-500 font-bold tracking-widest text-[8px] block mb-1">SYSTEM_AI_AGENT</span>`;
-            } else if (type === 'success') log.className = "text-green-400";
+            if (type === 'success') log.className = "text-green-400";
             else if (type === 'process') log.className = "text-amber-400 font-bold";
             else if (type === 'system') log.className = "text-blue-400";
-            else if (type === 'user') log.className = "text-amber-500 font-bold";
             else if (type === 'error') log.className = "text-red-400 font-bold";
-            else log.className = "text-gray-500";
-            log.innerHTML = `${prefix} ${message}`;
+            log.innerHTML = `<span class="opacity-20 mr-2 tracking-tighter">${time}</span> ${message}`;
             container.appendChild(log);
             container.scrollTop = container.scrollHeight;
         }
 
         function toggleTerminal(force) {
             const terminal = document.getElementById('live-terminal');
-            const btn = document.getElementById('term-toggle-btn');
-            const isHidden = terminal.style.opacity === '0';
-            const newState = (force !== undefined) ? force : isHidden;
-            if (newState) {
-                terminal.style.opacity = '1'; terminal.classList.remove('pointer-events-none', 'translate-y-10');
+            const btn = document.getElementById('term-btn');
+            
+            if (force !== undefined) isTerminalActive = force;
+            else isTerminalActive = !isTerminalActive;
+
+            if (isTerminalActive) {
+                terminal.style.opacity = '1'; 
+                terminal.classList.remove('pointer-events-none', 'translate-y-10');
                 btn.classList.add('bg-amber-500/10', 'border-amber-500/50', 'text-amber-500');
             } else {
-                terminal.style.opacity = '0'; terminal.classList.add('pointer-events-none', 'translate-y-10');
+                terminal.style.opacity = '0'; 
+                terminal.classList.add('pointer-events-none', 'translate-y-10');
                 btn.classList.remove('bg-amber-500/10', 'border-amber-500/50', 'text-amber-500');
-            }
-        }
-
-        document.getElementById('terminal-input').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                const val = this.value.trim();
-                if (!val) return;
-                if (val.startsWith('/')) handleCommand(val.substring(1));
-                else { addLog(`INJECTED: "${val}"`, 'user'); startSimulation(val); }
-                this.value = '';
-            }
-        });
-
-        function handleCommand(cmd) {
-            const scenario = scenarioData[activeScenario];
-            switch(cmd.toLowerCase()) {
-                case 'help': addLog(`Commands: /summarize, /status, /clear, /hide`, 'system'); break;
-                case 'summarize': addLog(scenario.summary, 'ai'); break;
-                case 'status': addLog(`Latency: 8ms | DB: CONNECTED`, 'system'); break;
-                case 'clear': document.getElementById('log-container').innerHTML = ''; break;
-                case 'hide': toggleTerminal(false); break;
             }
         }
 
@@ -426,12 +567,14 @@
             if (isSimulating) stopSimulation();
             activeScenario = id;
             const data = scenarioData[id];
-            if (!data) return;
             document.getElementById('scenario-title').innerText = data.title;
             document.querySelectorAll('nav button').forEach(btn => btn.className = "w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 text-gray-400 text-sm font-medium flex items-center justify-between transition-all group");
             const activeBtn = document.getElementById(`btn-${id}`);
             if(activeBtn) activeBtn.className = "w-full text-left px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/50 text-amber-500 text-sm font-bold flex items-center justify-between group";
+            
+            if (currentActiveView === 'executive') renderExecutiveView();
             renderCanvas();
+            addLog(`CONTEXT SWITCH: ${data.title}`, 'system');
         }
 
         function renderCanvas() {
@@ -447,7 +590,7 @@
                 const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
                 line.setAttribute("d", `M ${x1} ${y1} C ${x1 + (x2-x1)/2} ${y1}, ${x1 + (x2-x1)/2} ${y2}, ${x2} ${y2}`);
                 line.setAttribute("id", `path-${activeScenario}-${idx}`);
-                line.setAttribute("stroke", "#374151"); line.setAttribute("stroke-width", "2");
+                line.setAttribute("stroke", "#1f2937"); line.setAttribute("stroke-width", "2");
                 line.setAttribute("fill", "none"); line.setAttribute("class", "line-flow");
                 svgLayer.appendChild(line);
             });
@@ -463,56 +606,42 @@
             lucide.createIcons();
         }
 
-        async function startSimulation(manualPayload = null) {
+        async function startSimulation() {
             if (isSimulating) return;
-            isSimulating = true; toggleTerminal(true);
+            if (currentActiveView !== 'architect') setViewMode('architect');
+            isSimulating = true;
+            toggleTerminal(true);
             
-            const p = manualPayload ? manualPayload.toLowerCase() : '';
-            const chaosKeywords = ['fail', 'error', 'junk', 'spam', 'bad', 'paid', 'won', 'shih', 'ssad', 'hsueh'];
-            const isChaos = chaosKeywords.some(k => p.includes(k));
+            const inputVal = document.getElementById('terminal-input').value.toLowerCase();
+            const isChaos = ['fail', 'won', 'spam', 'crypto'].some(k => inputVal.includes(k));
             
-            addLog(`SYSTEM: INITIATING ${isChaos ? '[CHAOS_TEST]' : '[STANDARD_RUN]'}`, 'system');
+            addLog(`INITIATING: ${isChaos ? '[CHAOS_DIAGNOSTIC]' : '[SYSTEM_TRACE]'}`, 'process');
             const data = scenarioData[activeScenario];
             const svgLayer = document.getElementById('svg-layer');
             const packet = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             packet.setAttribute("r", "5"); packet.setAttribute("class", "data-packet" + (isChaos ? " error-packet" : ""));
             svgLayer.appendChild(packet);
 
-            const executionPath = [];
-            if (activeScenario === 'ai-validation' && isChaos) {
-                executionPath.push(['v1', 'v2'], ['v2', 'v3'], ['v3', 'v6']);
-            } else if (activeScenario === 'ai-validation' && !isChaos) {
-                executionPath.push(['v1', 'v2'], ['v2', 'v3'], ['v3', 'v4'], ['v4', 'v5']);
-            } else if (activeScenario === 'zapier-debug' && isChaos) {
-                executionPath.push(['z1', 'z2'], ['z2', 'z3'], ['z3', 'z4']);
-            } else {
-                executionPath.push(...data.edges);
-            }
-
-            for (let i = 0; i < executionPath.length; i++) {
+            for (let i = 0; i < data.edges.length; i++) {
                 if (!isSimulating) break;
-                const edge = executionPath[i];
+                const edge = data.edges[i];
                 const sourceNode = data.nodes.find(n => n.id === edge[0]);
                 const targetNode = data.nodes.find(n => n.id === edge[1]);
-                const pathId = data.edges.findIndex(e => e[0] === edge[0] && e[1] === edge[1]);
-                const path = document.getElementById(`path-${activeScenario}-${pathId}`);
+                const path = document.getElementById(`path-${activeScenario}-${i}`);
                 
                 if (sourceNode) {
                     const nodeEl = document.getElementById(`node-${sourceNode.id}`);
                     nodeEl.classList.add('processing');
-                    if(isChaos && i > 0) nodeEl.classList.add('failed');
-                    openDrawer(sourceNode, (i === 0 && manualPayload) ? manualPayload : sourceNode.input);
+                    openDrawer(sourceNode);
                     addLog(`[EXEC] ${sourceNode.name}`, 'process');
-                    await new Promise(r => setTimeout(r, 800));
+                    await new Promise(r => setTimeout(r, 600));
                     
-                    if (isChaos && sourceNode.id === 'z4') {
-                        addLog(`[HALT] Filter Rule 2: CRM Status = "Deal won!". STOPPING.`, 'error');
-                    } else if (isChaos && sourceNode.id === 'v3') {
-                        addLog(`[ALERT] Validation Failure code detected. Routing to Fallback.`, 'error');
-                    } else {
-                        addLog(`[SUCCESS] Verified.`, 'success');
+                    if (isChaos && (sourceNode.id === 'z4' || sourceNode.id === 'v3' || sourceNode.id === 'v2')) {
+                        addLog(`[HALT] Safety gate triggered. Integrity preserved.`, 'error');
+                        nodeEl.classList.add('failed');
+                        nodeEl.classList.remove('processing');
+                        break;
                     }
-                    
                     nodeEl.classList.remove('processing');
                 }
                 if (path) {
@@ -521,7 +650,7 @@
                     await new Promise(resolve => {
                         function animate(time) {
                             if (!isSimulating) return resolve();
-                            const p = Math.min((time - start) / 800, 1);
+                            const p = Math.min((time - start) / 600, 1);
                             const pt = path.getPointAtLength(p * length);
                             packet.setAttribute("cx", pt.x); packet.setAttribute("cy", pt.y);
                             if (p < 1) requestAnimationFrame(animate); else resolve();
@@ -529,14 +658,14 @@
                         requestAnimationFrame(animate);
                     });
                 }
-                if (i === executionPath.length - 1 && targetNode) {
-                    const finalNodeEl = document.getElementById(`node-${targetNode.id}`);
-                    finalNodeEl.classList.add('processing');
-                    openDrawer(targetNode);
-                    addLog(`[FINAL] ${targetNode.name}: Terminal.`, 'process');
-                    await new Promise(r => setTimeout(r, 800));
-                    addLog(isChaos ? `[CHAOS] Simulation finished at Catch Gate.` : `[SYSTEM] Pipeline run complete.`, isChaos ? 'error' : 'system');
-                    finalNodeEl.classList.remove('processing');
+
+                if (i === data.edges.length - 1 && targetNode) {
+                     const finalNodeEl = document.getElementById(`node-${targetNode.id}`);
+                     finalNodeEl.classList.add('processing');
+                     openDrawer(targetNode);
+                     addLog(`[FINAL] ${targetNode.name}: Terminal.`, 'success');
+                     await new Promise(r => setTimeout(r, 600));
+                     finalNodeEl.classList.remove('processing');
                 }
             }
             stopSimulation();
@@ -546,22 +675,52 @@
             isSimulating = false;
             document.querySelectorAll('.data-packet').forEach(p => p.remove());
             document.querySelectorAll('.node-card').forEach(n => n.classList.remove('processing', 'failed'));
+            addLog(`TRACE COMPLETE.`, 'system');
         }
 
         function openDrawer(node, customInput = null) {
             document.getElementById('drawer-name').innerText = node.name;
-            document.getElementById('drawer-purpose').innerText = node.purpose;
+            document.getElementById('drawer-type').innerText = node.type;
             document.getElementById('drawer-logic').innerText = node.logic;
             document.getElementById('drawer-metaphor').innerText = node.metaphor;
+            document.getElementById('drawer-purpose').innerText = node.purpose || "The primary objective of this system step.";
             document.getElementById('drawer-input').innerText = customInput || node.input;
-            document.getElementById('drawer-output').innerText = node.output;
-            document.getElementById('drawer-tools').innerHTML = (node.tools || []).map(tool => `<span class="px-2 py-1 bg-white/5 rounded text-[10px] text-gray-400 font-bold border border-white/5">${tool}</span>`).join('');
+            document.getElementById('drawer-output').innerText = node.output || "No output samples defined for this trace.";
+            document.getElementById('drawer-tools').innerHTML = (node.tools || []).map(t => `<span class="px-2 py-1 bg-white/5 rounded text-[10px] text-gray-400 font-bold border border-white/5 uppercase">${t}</span>`).join('');
             document.getElementById('drawer-icon').innerHTML = `<i data-lucide="${node.icon}" class="w-8 h-8"></i>`;
-            document.getElementById('drawer').classList.remove('translate-x-full'); lucide.createIcons();
+            
+            const whySec = document.getElementById('drawer-why-section');
+            if (node.designNote) {
+                document.getElementById('drawer-design-note').innerText = node.designNote;
+                whySec.classList.remove('hidden');
+            } else whySec.classList.add('hidden');
+
+            const conSec = document.getElementById('drawer-constraints-section');
+            if (node.constraints && node.constraints.length > 0) {
+                document.getElementById('drawer-constraints').innerHTML = node.constraints.map(c => `<span class="px-2 py-1 bg-white/5 border border-white/5 rounded text-[8px] font-bold text-gray-500 uppercase tracking-widest">${c}</span>`).join('');
+                conSec.classList.remove('hidden');
+            } else conSec.classList.add('hidden');
+
+            document.getElementById('drawer').classList.remove('translate-x-full'); 
+            lucide.createIcons();
         }
 
         function closeDrawer() { document.getElementById('drawer').classList.add('translate-x-full'); }
-        window.onload = () => loadScenario('mother-ai');
+
+        window.onload = () => {
+            loadScenario('mother-ai');
+            lucide.createIcons();
+        };
+
+        document.getElementById('terminal-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const val = this.value.trim();
+                if (!val) return;
+                addLog(`INJECTED: "${val}"`, 'process');
+                startSimulation();
+                this.value = '';
+            }
+        });
     </script>
 </body>
 </html>
