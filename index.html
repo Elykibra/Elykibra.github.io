@@ -24,7 +24,7 @@
             background: rgba(31, 41, 55, 0.9);
             backdrop-filter: blur(12px);
             border: 1px solid #374151;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s, box-shadow 0.3s;
         }
         .node-card.processing {
             border-color: #FBBF24;
@@ -92,7 +92,14 @@
             #sidebar-overlay.hidden-overlay { opacity: 0; pointer-events: none; }
         }
 
-        #view-architect { overscroll-behavior: contain; }
+        #view-architect { 
+            overscroll-behavior: contain;
+            cursor: grab;
+            user-select: none;
+        }
+        #view-architect:active {
+            cursor: grabbing;
+        }
 
         .hero-gradient {
             background: radial-gradient(circle at top center, rgba(251, 191, 36, 0.05), transparent 70%);
@@ -178,11 +185,10 @@
             <div class="pt-6 border-t border-gray-800 space-y-4">
                 <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 text-amber-500/50">Connectivity</h3>
                 
-                <!-- Updated Download CV Button with correct filename reference -->
-                <a href="Kyle%20Tolilic%20Resume.pdf" download="Kyle_Tolilic_Resume.pdf" class="flex items-center justify-between w-full px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500 text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-gray-900 transition-all group mb-2">
+                <a href="YOUR_GOOGLE_DRIVE_SHARE_LINK_HERE" target="_blank" class="flex items-center justify-between w-full px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500 text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-gray-900 transition-all group mb-2">
                     <span class="flex items-center gap-2">
-                        <i data-lucide="file-text" class="w-4 h-4"></i>
-                        Download CV
+                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                        View Full CV
                     </span>
                     <i data-lucide="download" class="w-3 h-3 opacity-50 group-hover:opacity-100"></i>
                 </a>
@@ -304,10 +310,10 @@
             </div>
         </div>
 
-        <div id="view-architect" class="hidden flex-grow canvas-grid relative overflow-auto cursor-grab active:cursor-grabbing scroll-smooth">
-            <div class="relative w-[1800px] md:w-[2400px] h-[1000px] md:h-[1200px]">
+        <div id="view-architect" class="hidden flex-grow canvas-grid relative overflow-auto">
+            <div class="relative w-[1800px] md:w-[2400px] h-[1000px] md:h-[1200px] pointer-events-none">
                 <svg id="svg-layer" class="absolute top-0 left-0 w-full h-full pointer-events-none z-0"></svg>
-                <div id="node-layer" class="absolute top-0 left-0 w-full h-full z-10"></div>
+                <div id="node-layer" class="absolute top-0 left-0 w-full h-full z-10 pointer-events-auto"></div>
             </div>
             
             <div id="live-terminal" class="fixed md:absolute bottom-6 left-4 right-4 md:left-6 md:right-6 h-48 md:h-56 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl z-30 overflow-hidden flex flex-col transition-all duration-300 shadow-2xl opacity-0 pointer-events-none translate-y-10">
@@ -467,12 +473,12 @@
                     restraint: "Automation is limited to metadata to preserve architectural integrity; manual confirmation required for code writes."
                 },
                 nodes: [
-                    { id: 'm1', x: 100, y: 300, type: 'Input', name: 'Event Listener', icon: 'eye', purpose: 'Detects file changes via GitPython.', logic: 'Summarizes history to optimize context window for LLMs.', metaphor: 'A watchman at the gate writing in a notebook.', input: 'git_diff: app.py', output: 'Context: Summarized', tools: ['GitPython'] },
-                    { id: 'm2', x: 400, y: 300, type: 'Core', name: 'Mother Core', icon: 'cpu', purpose: 'Central orchestrator IDE.', logic: 'Directs traffic and manages Tkinter frame transitions.', metaphor: 'The Librarian knowing where every book is.', input: 'Summarized Data', output: 'Action: Reflect', tools: ['Python', 'Tkinter'] },
-                    { id: 'm3', x: 700, y: 300, type: 'Memory', name: 'Project Memory', icon: 'save', purpose: 'Local context storage.', logic: 'Stores session history in timestamped YAML logs.', metaphor: 'The project-specific notebook.', input: 'Reflection Data', output: 'Local State: Updated', tools: ['PyYAML'] },
-                    { id: 'm4', x: 700, y: 100, type: 'Agent', name: 'Echo Engine', icon: 'message-circle', purpose: 'Meta-cognitive oversight.', logic: 'Recursive agent adjusts behavior based on accumulated insights.', metaphor: 'An assistant talking you through the plan.', input: 'Goal: Scale', output: 'Advice: Add Buffer', tools: ['Gemini 1.5'] },
-                    { id: 'm5', x: 1000, y: 100, type: 'Gateway', name: 'Zapier Gateway', icon: 'zap', purpose: 'External sync.', logic: 'Syncs milestones to external CRM/Slack.', metaphor: 'The diplomat sending letters.', input: 'Event: Milestone', output: 'External: Success', tools: ['Zapier'] },
-                    { id: 'm6', x: 1000, y: 300, type: 'Global', name: 'World Memory', icon: 'database', purpose: 'Global knowledge bank.', logic: 'Stabilizes insights across cross-project heuristics.', metaphor: 'The Master Encyclopedia.', input: 'Insight: API failure', output: 'Heuristic: Stable', tools: ['PostgreSQL'] }
+                    { id: 'm1', x: 100, y: 300, type: 'Input', name: 'Context Siphon', icon: 'eye', purpose: 'Detects high-value file changes via GitPython to minimize LLM token bloat.', logic: 'git_diff.stdout.splitlines()\nfilter(is_relevant_file)\nsummarize_changes(llm_minimal)', metaphor: 'A digital cartographer mapping only the changes in the terrain.', input: '{ "file": "app.py", "diff": "+20, -5" }', output: '{ "summary": "Fixed logic in Step 4" }', tools: ['GitPython', 'Python'] },
+                    { id: 'm2', x: 400, y: 300, type: 'Core', name: 'Orchestrator Kernel', icon: 'cpu', purpose: 'The central frame-state manager of the Tkinter-based IDE.', logic: 'while(True):\n  event = await_intake()\n  if(event.type == "Code"):\n    dispatch(m4_echo_engine)\n  else:\n    update_ui_state(event)', metaphor: 'A librarian who remembers every book ever pulled off the shelf.', input: '{ "event": "code_save" }', output: '{ "state": "Updated" }', tools: ['Python', 'Tkinter'] },
+                    { id: 'm3', x: 700, y: 300, type: 'Memory', name: 'State Persistence', icon: 'save', purpose: 'Enforce context persistence via dual-mode storage (JSON Config/YAML Logs).', logic: 'save_to_json("active_config.json")\nappend_to_yaml("history_log.yaml", timestamp=now)', metaphor: 'A black box flight recorder for developer thoughts.', input: '{ "reflection": "API key moved to env" }', output: '{ "write": "SUCCESS" }', tools: ['PyYAML', 'JSON'] },
+                    { id: 'm4', x: 700, y: 100, type: 'Agent', name: 'Echo Engine', icon: 'message-circle', purpose: 'Synthesize meta-cognitive heuristics to adjust AI behavior over time.', logic: 'query_recent_history(limit=5)\ngenerate_heuristic_bridge()\nupdate_prompt_mask()', metaphor: 'An assistant who finishes your sentences because they know your habits.', input: '{ "task": "refactor" }', output: '{ "advice": "Use decorator pattern" }', tools: ['Gemini 1.5'] },
+                    { id: 'm5', x: 1000, y: 100, type: 'Gateway', name: 'External Sync', icon: 'zap', purpose: 'Synchronize internal project milestones with external CRM or Slack hooks.', logic: 'if(milestone_reached):\n  payload = craft_webhook()\n  POST(zapier_hook_url, payload)', metaphor: 'The diplomat relaying status reports to the high command.', input: '{ "milestone": "Prod Deployment" }', output: '{ "status": "200 OK" }', tools: ['Zapier', 'Webhooks'] },
+                    { id: 'm6', x: 1000, y: 300, type: 'Global', name: 'Heuristic Bank', icon: 'database', purpose: 'Stabilize cross-project insights into a permanent SQL knowledge base.', logic: 'INSERT INTO insights (project_id, logic_pattern, success_rate)\nON CONFLICT DO UPDATE', metaphor: 'The Master Encyclopedia of engineering lessons learned.', input: '{ "pattern": "Async retries" }', output: '{ "db_id": 492 }', tools: ['PostgreSQL'] }
                 ],
                 edges: [['m1', 'm2'], ['m2', 'm3'], ['m2', 'm4'], ['m4', 'm5'], ['m3', 'm6'], ['m5', 'm6']]
             },
@@ -489,11 +495,11 @@
                     restraint: "Fail-Closed: System halts if CRM API is unresponsive to prevent accidental sends."
                 },
                 nodes: [
-                    { id: 'z1', x: 150, y: 300, type: 'Trigger', name: 'Stripe Alert', icon: 'zap', purpose: 'Capture signal.', logic: 'Captures charge ID; treated as untrusted signal.', metaphor: 'A snapshot of a moving train.', input: 'charge: failed', output: 'signal', tools: ['Stripe'] },
-                    { id: 'z2', x: 450, y: 300, type: 'Buffer', name: '24h Delay', icon: 'clock', purpose: 'Allow self-correction.', logic: 'Essential friction to allow Stripe to retry charges.', metaphor: 'Waiting for a letter before replying.', input: 'signal', output: 'resumed', tools: ['Zapier'] },
-                    { id: 'z3', x: 750, y: 300, type: 'Lookup', name: 'CRM Live Check', icon: 'search', purpose: 'Refresh truth.', logic: 'Querying live Deal Status (Step 11.5).', metaphor: 'Calling the owner to ask if they paid.', input: 'email: k@...', output: 'Status: Paid', tools: ['CRM API'] },
-                    { id: 'z4', x: 1050, y: 300, type: 'Router', name: 'Halt Gate', icon: 'filter', purpose: 'Prevent misfire.', logic: 'If Status == Paid, kill the automation immediately.', metaphor: 'Checking the ticket before letting someone on.', input: 'Paid', output: 'HALT', tools: ['Filter'] },
-                    { id: 'z5', x: 1350, y: 300, type: 'Action', name: 'Follow-up Email', icon: 'mail', purpose: 'Engagement.', logic: 'Sends email only if Filter passes.', metaphor: 'Delivering confirmed mail.', input: 'Unpaid', output: 'Email Sent', tools: ['Gmail API'] }
+                    { id: 'z1', x: 150, y: 300, type: 'Trigger', name: 'Initial Signal', icon: 'zap', purpose: 'Ingest untrusted failure signals from payment processors.', logic: 'on_webhook_receive("charge.failed")\nparse_charge_id()\nemit_process_start()', metaphor: 'Hearing a distant alarm that might be a false positive.', input: '{ "charge": "fail", "id": "ch_123" }', output: '{ "trusted": false }', tools: ['Stripe'] },
+                    { id: 'z2', x: 450, y: 300, type: 'Buffer', name: 'Temporal Buffer', icon: 'clock', purpose: 'Introduce necessary friction to allow asynchronous retries to settle.', logic: 'sleep(3600 * 24)\nverify_current_time_window()', metaphor: 'Checking the caller ID before picking up the phone.', input: '{ "delay": "24h" }', output: '{ "ready": true }', tools: ['Zapier'] },
+                    { id: 'z3', x: 750, y: 300, type: 'Lookup', name: 'Step 11.5 Truth Sync', icon: 'search', purpose: 'Enforce strict data integrity via live CRM query before taking action.', logic: 'query_crm(contact_id)\nif(deal_status == "Paid"):\n  abort_workflow()\nelse:\n  continue_to_comms()', metaphor: 'Calling the store manager to see if the check actually cleared.', input: '{ "query": "Status" }', output: '{ "truth": "Paid" }', tools: ['CRM API'] },
+                    { id: 'z4', x: 1050, y: 300, type: 'Router', name: 'Airlock Gate', icon: 'filter', purpose: 'Automated logic branch to prevent miscommunication.', logic: 'if(payload.truth == "Paid"):\n  STOP()\nelse:\n  PASS()', metaphor: 'The security gate that only opens for people without a ticket.', input: '{ "truth": "Paid" }', output: 'TERMINATED', tools: ['Filter'] },
+                    { id: 'z5', x: 1350, y: 300, type: 'Action', name: 'Safe Comms', icon: 'mail', purpose: 'Execute engagement with 100% state confidence.', logic: 'send_personalized_email()\nlog_outreach_in_crm()', metaphor: 'Delivering mail to an address that was double-checked today.', input: '{ "action": "Email" }', output: '{ "sent": true }', tools: ['Gmail API'] }
                 ],
                 edges: [['z1', 'z2'], ['z2', 'z3'], ['z3', 'z4'], ['z4', 'z5']]
             },
@@ -510,12 +516,12 @@
                     restraint: "Fallback: Leads diverted to isolation logs if AI is uncertain."
                 },
                 nodes: [
-                    { id: 'v1', x: 100, y: 300, type: 'Trigger', name: 'Webhook Intake', icon: 'zap', purpose: 'Raw ingestion.', logic: 'Untrusted intake from public forms.', metaphor: 'Mailbox catching all letters.', input: 'raw_json', output: 'raw_lead', tools: ['Make'] },
-                    { id: 'v2', x: 400, y: 300, type: 'AI Agent', name: 'Gemini Gatekeeper', icon: 'shield-check', purpose: 'Semantic check.', logic: 'Evaluates if text matches professional focus guidelines.', metaphor: 'Inspector reading for prohibited content.', input: 'junk text', output: 'fail_code', tools: ['Gemini'] },
-                    { id: 'v3', x: 700, y: 300, type: 'Router', name: 'Decision Gate', icon: 'git-branch', purpose: 'Path selection.', logic: 'Routes based on AI-generated success codes.', metaphor: 'Traffic light for inspected cars.', input: 'fail_code', output: 'isolation', tools: ['Logic'] },
-                    { id: 'v4', x: 1000, y: 100, type: 'Action', name: 'CRM Success', icon: 'database', purpose: 'Final storage.', logic: 'Maps enriched data to structured CRM fields.', metaphor: 'Placing approved item on shelf.', input: 'valid', output: 'lead_id', tools: ['Salesforce'] },
-                    { id: 'v5', x: 1250, y: 100, type: 'Action', name: 'Slack Alert', icon: 'slack', purpose: 'Notification.', logic: 'Sends alert with lead context.', metaphor: 'Ringing the victory bell.', input: 'lead_id', output: 'Alert Sent', tools: ['Slack'] },
-                    { id: 'v6', x: 1000, y: 450, type: 'Action', name: 'Fallback: Log', icon: 'alert-triangle', purpose: 'Safety.', logic: 'Logs raw input for manual audit.', metaphor: 'The Lost and Found box.', input: 'fail', output: 'logged', tools: ['PostgreSQL'] }
+                    { id: 'v1', x: 100, y: 300, type: 'Trigger', name: 'Raw Ingestion', icon: 'zap', purpose: 'Centralize untrusted input from public-facing webhooks.', logic: 'catch_hook()\nvalidate_json_schema()\nemit_raw_payload()', metaphor: 'The sorting room at a post office.', input: '{ "name": "...", "note": "junk" }', output: '{ "schema": "Valid" }', tools: ['Make'] },
+                    { id: 'v2', x: 400, y: 300, type: 'AI Agent', name: 'Semantic Filter', icon: 'shield-check', purpose: 'Apply qualitative data analysis to determine lead professionality.', logic: 'analyze_text_intent(payload.note)\nscore_on_scale(1, 10)\nif(score < 7): mark_junk()', metaphor: 'An expert reading every letter to see if it’s real business or junk mail.', input: '{ "text": "Pls help" }', output: '{ "intent": "Spam", "score": 2 }', tools: ['Gemini'] },
+                    { id: 'v3', x: 700, y: 300, type: 'Router', name: 'Aesthetic Router', icon: 'git-branch', purpose: 'Branch execution paths based on semantic scoring.', logic: 'if(score >= 7): path_success()\nelse: path_isolation()', metaphor: 'A train conductor switching tracks based on the cargo.', input: '{ "score": 2 }', output: 'Branch: Isolation', tools: ['Logic'] },
+                    { id: 'v4', x: 1000, y: 100, type: 'Action', name: 'High-Fidelity Write', icon: 'database', purpose: 'Ingest verified data into the system of record.', logic: 'map_to_fields()\nPOST_to_CRM()\nverify_write_success()', metaphor: 'Placing a certified file into the vault.', input: '{ "verified": true }', output: '{ "record_id": 991 }', tools: ['Salesforce'] },
+                    { id: 'v5', x: 1250, y: 100, type: 'Action', name: 'Success Alert', icon: 'slack', purpose: 'Notify human operators of high-intent arrivals.', logic: 'format_slack_message()\npush_notification()', metaphor: 'Ringing the victory bell in the office.', input: '{ "id": 991 }', output: '{ "alert": "Sent" }', tools: ['Slack'] },
+                    { id: 'v6', x: 1000, y: 450, type: 'Action', name: 'Isolation Log', icon: 'alert-triangle', purpose: 'Preserve junk data for periodic audit without polluting the CRM.', logic: 'INSERT INTO audit_logs (payload, reason)\nmark_processed()', metaphor: 'The lost and found box for suspicious items.', input: '{ "reason": "Low Score" }', output: '{ "logged": true }', tools: ['PostgreSQL'] }
                 ],
                 edges: [['v1', 'v2'], ['v2', 'v3'], ['v3', 'v4'], ['v4', 'v5'], ['v3', 'v6']]
             },
@@ -532,12 +538,12 @@
                     restraint: "Manual Gate: Triggering is manual to ensure budget alignment."
                 },
                 nodes: [
-                    { id: 'at1', x: 100, y: 300, type: 'Trigger', name: 'Manual Trigger', icon: 'zap', purpose: 'Cost control gate.', logic: 'Triggered upon territory verification.', metaphor: 'Opening the valve when ready.', input: 'START', output: 'START', tools: ['Notion'] },
-                    { id: 'at2', x: 400, y: 300, type: 'Scraper', name: 'Relevance Scout', icon: 'search', purpose: 'Acquisition.', logic: 'Web acquisition of firm data.', metaphor: 'Scouting locations in a city.', input: 'params', output: 'raw_leads', tools: ['Relevance AI'] },
-                    { id: 'at3', x: 700, y: 300, type: 'Buffer', name: 'Staging Buffer', icon: 'layers', purpose: 'Staging.', logic: 'Storage to prevent CRM API flooding.', metaphor: 'Holding area before inspection.', input: 'raw_leads', output: 'staged', tools: ['GSheets'] },
-                    { id: 'at4', x: 1000, y: 300, type: 'Logic', name: '5-Layer Dedupe', icon: 'filter', purpose: 'Hygiene.', logic: 'Python check on Name, Email, Firm, Web, and Phone.', metaphor: 'Security guard checking five IDs.', input: 'staged', output: 'unique_lead', tools: ['Python'] },
-                    { id: 'at5', x: 1300, y: 300, type: 'AI Agent', name: 'Focus Grader', icon: 'shield-check', purpose: 'Qualification.', logic: 'Grades leads HIGH/MED/LOW focus via Gemini.', metaphor: 'Specialist sorting mail.', input: 'unique_lead', output: 'focus: HIGH', tools: ['Gemini'] },
-                    { id: 'at6', x: 1600, y: 300, type: 'Action', name: 'GPT Drafter', icon: 'pen-tool', purpose: 'Personalization.', logic: 'Drafts customized outreach.', metaphor: 'Ghostwriter drafting reply.', input: 'HIGH', output: 'Draft Created', tools: ['OpenAI'] }
+                    { id: 'at1', x: 100, y: 300, type: 'Trigger', name: 'Control Gate', icon: 'zap', purpose: 'Enforce budget control through manual initiation.', logic: 'if(operator_authenticated):\n  trigger_pipeline()\n  log_start_event()', metaphor: 'Opening the main valve when the pressure is right.', input: 'START_CMD', output: 'INITIATED', tools: ['Notion'] },
+                    { id: 'at2', x: 400, y: 300, type: 'Scraper', name: 'Relevance Scout', icon: 'search', purpose: 'Acquire high-probability targets based on territory params.', logic: 'query_scrapers(geo="US", niche="Immigration")\nfilter_missing_data()\nemit_raw_list()', metaphor: 'Scouting for specific landmarks in a new city.', input: '{ "niche": "Immigration" }', output: '[{ "firm": "..." }]', tools: ['Relevance AI'] },
+                    { id: 'at3', x: 700, y: 300, type: 'Buffer', name: 'Staging Area', icon: 'layers', purpose: 'Batch ingestion to prevent CRM rate-limiting.', logic: 'write_batch(list, size=25)\nset_ready_flag()', metaphor: 'The staging area for trucks before they enter the warehouse.', input: '25 records', output: 'Staged', tools: ['GSheets'] },
+                    { id: 'at4', x: 1000, y: 300, type: 'Logic', name: '5-Layer Dedupe', icon: 'filter', purpose: 'Maintain absolute database hygiene via exhaustive uniqueness checks.', logic: 'check(Email, Domain, Phone, FirmName, LinkedIn)\nif(match_found): purge_record()\nelse: pass_to_enrichment()', metaphor: 'A specialized security guard checking five different IDs.', input: 'Staged record', output: 'Unique record', tools: ['Python'] },
+                    { id: 'at5', x: 1300, y: 300, type: 'AI Agent', name: 'Focus Classifier', icon: 'shield-check', purpose: 'Automated lead qualification through semantic profiling.', logic: 'classify_focus(website_text)\nif("Immigration" in focus): score=HIGH\nelse: score=LOW', metaphor: 'A specialist sorting mail by urgency and importance.', input: '{ "web": "immigration.com" }', output: '{ "focus": "HIGH" }', tools: ['Gemini'] },
+                    { id: 'at6', x: 1600, y: 300, type: 'Action', name: 'Persona Drafter', icon: 'pen-tool', purpose: 'Scaling personalization without losing the human touch.', logic: 'draft_personalized_outreach(focus, firm_name)\nsave_to_drafts()', metaphor: 'A ghostwriter drafting a custom reply for your approval.', input: '{ "focus": "HIGH" }', output: 'DRAFT_SUCCESS', tools: ['OpenAI'] }
                 ],
                 edges: [['at1', 'at2'], ['at2', 'at3'], ['at3', 'at4'], ['at4', 'at5'], ['at5', 'at6']]
             },
@@ -554,12 +560,12 @@
                     restraint: "Draft-Only: AI acts strictly as ghostwriter for agent review."
                 },
                 nodes: [
-                    { id: 'hs1', x: 100, y: 300, type: 'Trigger', name: 'Agent Call', icon: 'mouse-pointer-2', purpose: 'Agent activated.', logic: 'Sidebar app requests draft via Node.js Express.', metaphor: 'Raising hand for help.', input: 'thread_id', output: 'req', tools: ['Node.js', 'Express'] },
-                    { id: 'hs2', x: 400, y: 300, type: 'Fetch', name: 'History Sync', icon: 'file-search', purpose: 'Fetch history.', logic: 'Retrieving all thread history via HS API.', metaphor: 'Assistant reading correspondence.', input: 'thread_id', output: 'history', tools: ['HS API'] },
-                    { id: 'hs3', x: 700, y: 300, type: 'Intelligence', name: 'Intent Profiler', icon: 'brain-circuit', purpose: 'Categorization.', logic: 'Sentiment and intent analysis via Gemini 1.5.', metaphor: 'Reading the room.', input: 'msg: Refund?', output: 'intent: billing', tools: ['Gemini'] },
-                    { id: 'hs4', x: 1000, y: 300, type: 'AI Agent', name: 'Sage Engine', icon: 'sparkles', purpose: 'Draft generation.', logic: 'Creates draft based on guidelines.', metaphor: 'Ghostwriter drafting response.', input: 'billing', output: 'draft_text', tools: ['Gemini'] },
-                    { id: 'hs5', x: 1300, y: 300, type: 'Quality', name: 'Tone Polish', icon: 'check-check', purpose: 'Brand check.', logic: 'Tone and format optimization.', metaphor: 'Proofreader checking draft.', input: 'draft', output: 'final', tools: ['OpenAI'] },
-                    { id: 'hs6', x: 1600, y: 300, type: 'Action', name: 'Note Injection', icon: 'send', purpose: 'Post note.', logic: 'Injects draft as private internal note.', metaphor: 'Placing sticky note on file.', input: 'final', output: 'SUCCESS', tools: ['HS API'] }
+                    { id: 'hs1', x: 100, y: 300, type: 'Trigger', name: 'Draft Request', icon: 'mouse-pointer-2', purpose: 'Capture intent from support agents via sidebar app.', logic: 'on_button_click()\nPOST(express_endpoint, thread_id)', metaphor: 'Raising your hand when you need an assistant’s help.', input: '{ "thread_id": 102 }', output: '{ "req": "ACCEPTED" }', tools: ['Node.js', 'Express'] },
+                    { id: 'hs2', x: 400, y: 300, type: 'Fetch', name: 'History Assembler', icon: 'file-search', purpose: 'Reconstruct full conversational context for accurate drafting.', logic: 'GET(HS_API, thread_history)\nconcatenate_messages(limit=10)\nemit_context()', metaphor: 'A lawyer reading through the entire case history.', input: '{ "id": 102 }', output: '{ "history": "..." }', tools: ['HS API'] },
+                    { id: 'hs3', x: 700, y: 300, type: 'Intelligence', name: 'Intent Analyzer', icon: 'brain-circuit', purpose: 'Identify core ticket issues to ensure prompt relevancy.', logic: 'detect_sentiment(history)\ndetect_issue_category()\nemit_profile()', metaphor: 'Reading between the lines to understand the customer’s mood.', input: '{ "history": "Refund pls" }', output: '{ "intent": "billing" }', tools: ['Gemini'] },
+                    { id: 'hs4', x: 1000, y: 300, type: 'AI Agent', name: 'Draft Architect', icon: 'sparkles', purpose: 'Generate professional, empathetic drafts using internal guidelines.', logic: 'generate_draft(intent, brand_voice)\nvalidate_against_policy()', metaphor: 'A ghostwriter following your specific brand guidelines.', input: '{ "intent": "billing" }', output: '{ "draft": "Hello..." }', tools: ['Gemini'] },
+                    { id: 'hs5', x: 1300, y: 300, type: 'Quality', name: 'Tone Normalizer', icon: 'check-check', purpose: 'Ensure drafting consistency across diverse agent styles.', logic: 'refine_tone(draft, target="Friendly")\nstrip_hallucinations()', metaphor: 'A professional proofreader giving the draft a final polish.', input: '{ "draft": "..." }', output: '{ "polished": "..." }', tools: ['OpenAI'] },
+                    { id: 'hs6', x: 1600, y: 300, type: 'Action', name: 'Note Injection', icon: 'send', purpose: 'Seamlessly provide draft to agent without customer visibility.', logic: 'POST(HS_API, private_note=polished)\nemit_agent_notif()', metaphor: 'Sliding a helpful sticky note onto the agent’s desk.', input: '{ "note": "..." }', output: '{ "success": true }', tools: ['HS API'] }
                 ],
                 edges: [['hs1', 'hs2'], ['hs2', 'hs3'], ['hs3', 'hs4'], ['hs4', 'hs5'], ['hs5', 'hs6']]
             },
@@ -576,10 +582,10 @@
                     restraint: "Strict decoupling of logic from data persistence."
                 },
                 nodes: [
-                    { id: 'ae1', x: 100, y: 300, type: 'Trigger', name: 'Command Intake', icon: 'keyboard', purpose: 'User intake.', logic: 'Regex parsing of player intent and state checks.', metaphor: 'Referee listening to move.', input: '!attack', output: 'intent', tools: ['Python'] },
-                    { id: 'ae2', x: 400, y: 300, type: 'Core', name: 'Battle Engine', icon: 'swords', purpose: 'Calculate logic.', logic: 'Determines outcomes across 30+ modular files.', metaphor: 'Rolling dice behind screen.', input: 'intent', output: 'results', tools: ['Python'] },
-                    { id: 'ae3', x: 700, y: 300, type: 'DB', name: 'SQLite Storage', icon: 'database', purpose: 'Persistence.', logic: 'Transactional updates to player profiles.', metaphor: 'Writing on character sheet.', input: 'results', output: 'updated', tools: ['SQLite'] },
-                    { id: 'ae4', x: 1000, y: 300, type: 'Broadcast', name: 'UI Feedback', icon: 'message-circle', purpose: 'Discord update.', logic: 'Returning feedback to Discord interface.', metaphor: 'Announcing result to crowd.', input: 'updated', output: 'msg', tools: ['discord.py'] }
+                    { id: 'ae1', x: 100, y: 300, type: 'Trigger', name: 'Command Lexer', icon: 'keyboard', purpose: 'Translate unstructured chat commands into actionable game state logic.', logic: 'regex_match(user_msg)\nif(match): dispatch_to_module()\nelse: reply_help()', metaphor: 'The referee interpreting a player’s spoken move.', input: '"!attack dragon"', output: '{ "cmd": "ATTACK", "tgt": "dragon" }', tools: ['Python'] },
+                    { id: 'ae2', x: 400, y: 300, type: 'Core', name: 'Game Engine', icon: 'swords', purpose: 'The primary logic hub managing interactions across 30+ modular files.', logic: 'calculate_battle_math(p_stats, m_stats)\ndetermine_outcome()\nemit_update()', metaphor: 'The set of rules determining what happens after the dice are rolled.', input: '{ "cmd": "ATTACK" }', output: '{ "res": "Win", "xp": 50 }', tools: ['Python'] },
+                    { id: 'ae3', x: 700, y: 300, type: 'DB', name: 'Persistence Hub', icon: 'database', purpose: 'Maintain durable state transitions for thousands of data events.', logic: 'conn.execute("UPDATE players SET xp = xp + ? WHERE id = ?", (xp, p_id))\nconn.commit()', metaphor: 'Writing the new results onto the character sheet in permanent ink.', input: '{ "xp": 50 }', output: '{ "db_commit": "OK" }', tools: ['SQLite'] },
+                    { id: 'ae4', x: 1000, y: 300, type: 'Broadcast', name: 'UI Responder', icon: 'message-circle', purpose: 'Deliver real-time feedback to players in the Discord environment.', logic: 'format_discord_embed(results)\nsend_to_channel(channel_id)', metaphor: 'Announcing the result of the battle to the stadium crowd.', input: '{ "res": "Win" }', output: 'Discord Embed Sent', tools: ['discord.py'] }
                 ],
                 edges: [['ae1', 'ae2'], ['ae2', 'ae3'], ['ae3', 'ae4']]
             }
@@ -590,6 +596,47 @@
         let isSimulating = false;
         let isTerminalActive = false;
         let isMobileMenuOpen = false;
+
+        // Panning State
+        const architectView = document.getElementById('view-architect');
+        let isPanning = false;
+        let panStart = { x: 0, y: 0, sL: 0, sT: 0 };
+
+        function initPanning() {
+            architectView.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.node-card') || e.target.closest('button') || e.target.closest('#live-terminal')) return;
+                isPanning = true;
+                panStart = { x: e.clientX, y: e.clientY, sL: architectView.scrollLeft, sT: architectView.scrollTop };
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isPanning) return;
+                const dx = e.clientX - panStart.x;
+                const dy = e.clientY - panStart.y;
+                architectView.scrollLeft = panStart.sL - dx;
+                architectView.scrollTop = panStart.sT - dy;
+            });
+
+            window.addEventListener('mouseup', () => { isPanning = false; });
+
+            architectView.addEventListener('touchstart', (e) => {
+                if (e.target.closest('.node-card') || e.target.closest('button')) return;
+                const touch = e.touches[0];
+                isPanning = true;
+                panStart = { x: touch.clientX, y: touch.clientY, sL: architectView.scrollLeft, sT: architectView.scrollTop };
+            }, { passive: true });
+
+            architectView.addEventListener('touchmove', (e) => {
+                if (!isPanning) return;
+                const touch = e.touches[0];
+                const dx = touch.clientX - panStart.x;
+                const dy = touch.clientY - panStart.y;
+                architectView.scrollLeft = panStart.sL - dx;
+                architectView.scrollTop = panStart.sT - dy;
+            }, { passive: true });
+
+            architectView.addEventListener('touchend', () => { isPanning = false; });
+        }
 
         function toggleMobileMenu() {
             isMobileMenuOpen = !isMobileMenuOpen;
@@ -809,7 +856,13 @@
         }
 
         function closeDrawer() { document.getElementById('drawer').classList.add('translate-x-full'); }
-        window.onload = () => { setViewMode('landing'); lucide.createIcons(); };
+        
+        window.onload = () => { 
+            setViewMode('landing'); 
+            lucide.createIcons();
+            initPanning();
+        };
+
         document.getElementById('terminal-input').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 const val = this.value.trim();
