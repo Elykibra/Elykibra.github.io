@@ -14,64 +14,92 @@
             font-family: 'Inter', sans-serif;
             background-color: #0b0f1a;
             color: #E5E7EB;
-            overflow: hidden; /* Prevent body scroll, use container scroll */
+            overflow: hidden;
         }
         .canvas-grid {
             background-image: radial-gradient(#2d3748 1px, transparent 1px);
             background-size: 30px 30px;
         }
         .node-card {
-            background: rgba(31, 41, 55, 0.8);
-            backdrop-filter: blur(8px);
+            background: rgba(31, 41, 55, 0.9);
+            backdrop-filter: blur(12px);
             border: 1px solid #374151;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .node-card:hover {
             border-color: #FBBF24;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(251, 191, 36, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(251, 191, 36, 0.1);
         }
         .line-flow {
-            stroke-dasharray: 10;
-            animation: flow 20s linear infinite;
+            stroke-dasharray: 8;
+            animation: flow 30s linear infinite;
         }
         @keyframes flow {
-            from { stroke-dashoffset: 200; }
+            from { stroke-dashoffset: 500; }
             to { stroke-dashoffset: 0; }
         }
         .mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #111827; }
         ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
     </style>
 </head>
 <body class="antialiased h-screen flex flex-col md:flex-row">
 
-    <!-- Left Sidebar (Contact & Info) -->
+    <!-- Left Sidebar -->
     <aside class="w-full md:w-80 bg-gray-900 border-r border-gray-800 p-6 flex flex-col h-full z-20">
         <div class="mb-8">
-            <h1 class="text-2xl font-black text-white tracking-tight uppercase text-center md:text-left">Kyle Tolilic</h1>
-            <p class="text-amber-500 font-bold text-xs mt-1 uppercase tracking-widest text-center md:text-left">System Architect & Developer</p>
+            <h1 class="text-2xl font-black text-white tracking-tight uppercase">Kyle Tolilic</h1>
+            <p class="text-amber-500 font-bold text-xs mt-1 uppercase tracking-widest">System Architect & Developer</p>
         </div>
 
         <nav class="space-y-6 flex-grow overflow-y-auto">
             <div>
-                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Scenarios</h3>
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 text-center md:text-left">Intelligence Systems</h3>
                 <div class="space-y-2">
-                    <button onclick="loadScenario('ai-validation')" id="btn-ai-validation" class="w-full text-left px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/50 text-amber-500 text-sm font-bold flex items-center justify-between group">
-                        <span>AI Validation Flow</span>
-                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    <button onclick="loadScenario('mother-ai')" id="btn-mother-ai" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
+                        <span>Mother AI Orchestrator</span>
+                        <i data-lucide="cpu" class="w-4 h-4"></i>
                     </button>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 text-center md:text-left">Game Systems</h3>
+                <div class="space-y-2">
+                    <button onclick="loadScenario('aethelgard')" id="btn-aethelgard" class="w-full text-left px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/50 text-amber-500 text-sm font-bold flex items-center justify-between group transition-all">
+                        <span>Aethelgard RPG</span>
+                        <i data-lucide="gamepad-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 text-center md:text-left">Diagnostic Reports</h3>
+                <div class="space-y-2">
+                    <button onclick="loadScenario('zapier-debug')" id="btn-zapier-debug" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
+                        <span>Failed Payment Debug</span>
+                        <i data-lucide="bug" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 text-center md:text-left">Built Scenarios</h3>
+                <div class="space-y-2">
                     <button onclick="loadScenario('attorney')" id="btn-attorney" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
-                        <span>Attorney Pipeline</span>
-                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        <span>Attorney Pipeline v2.0</span>
+                        <i data-lucide="briefcase" class="w-4 h-4"></i>
                     </button>
                     <button onclick="loadScenario('helpscout')" id="btn-helpscout" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
                         <span>Help Scout Sage</span>
-                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        <i data-lucide="message-square" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="loadScenario('ai-validation')" id="btn-ai-validation" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
+                        <span>AI Validation Flow</span>
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
                     </button>
                 </div>
             </div>
@@ -86,13 +114,17 @@
                     <i data-lucide="github" class="w-4 h-4"></i>
                     <span>Elykibra</span>
                 </a>
+                <a href="https://www.linkedin.com/in/kyle-tolilic" target="_blank" class="flex items-center space-x-3 text-sm text-gray-400 hover:text-amber-500 transition-colors">
+                    <i data-lucide="linkedin" class="w-4 h-4"></i>
+                    <span>LinkedIn</span>
+                </a>
             </div>
         </nav>
 
         <div class="mt-auto pt-6 border-t border-gray-800">
             <div class="bg-gray-800/50 p-3 rounded-lg border border-gray-700">
-                <p class="text-[10px] text-gray-500 leading-tight">
-                    This portfolio is built as an interactive system map. Select nodes to inspect the architecture.
+                <p class="text-[10px] text-gray-500 leading-tight italic">
+                    State-Driven Systems: From RPG loops to enterprise pipelines. Word: blue.
                 </p>
             </div>
         </div>
@@ -100,44 +132,35 @@
 
     <!-- Main Workspace -->
     <main class="flex-grow relative overflow-hidden flex flex-col bg-[#0b0f1a]">
-        
-        <!-- Workspace Header -->
         <header class="p-4 bg-gray-900/50 backdrop-blur-md border-b border-gray-800 flex justify-between items-center z-10">
             <div class="flex items-center space-x-3">
-                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                <h2 id="scenario-title" class="text-sm font-bold text-white uppercase tracking-wider">AI Validation Workflow</h2>
+                <div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse" id="status-pulse"></div>
+                <h2 id="scenario-title" class="text-sm font-bold text-white uppercase tracking-wider uppercase">Aethelgard: The Guild's Path</h2>
             </div>
             <div class="flex items-center space-x-4">
-                <span class="text-[10px] mono text-gray-500">v3.0.0-production</span>
+                <span class="text-[10px] mono text-gray-500 uppercase tracking-tighter" id="system-status">Engine: Python 3.10 | SQLite DB</span>
                 <button class="bg-gray-800 hover:bg-gray-700 p-1.5 rounded text-gray-400 transition-colors">
-                    <i data-lucide="settings" class="w-4 h-4"></i>
+                    <i data-lucide="maximize" class="w-4 h-4"></i>
                 </button>
             </div>
         </header>
 
-        <!-- The Canvas -->
-        <div id="canvas-container" class="flex-grow canvas-grid relative overflow-auto p-20 cursor-grab active:cursor-grabbing">
-            <!-- SVG Layer for Lines -->
-            <svg id="svg-layer" class="absolute top-0 left-0 w-[2000px] h-[1000px] pointer-events-none z-0">
-                <!-- Lines will be injected here -->
-            </svg>
-
-            <!-- Node Layer -->
-            <div id="node-layer" class="relative z-10 w-[2000px] h-[1000px]">
-                <!-- Nodes will be injected here -->
+        <!-- Canvas Area -->
+        <div id="canvas-container" class="flex-grow canvas-grid relative overflow-auto cursor-grab active:cursor-grabbing">
+            <div class="relative w-[2400px] h-[1200px]">
+                <svg id="svg-layer" class="absolute top-0 left-0 w-full h-full pointer-events-none z-0"></svg>
+                <div id="node-layer" class="absolute top-0 left-0 w-full h-full z-10"></div>
             </div>
         </div>
 
         <!-- Inspection Drawer -->
-        <div id="drawer" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-[#0f172a] border-l border-white/10 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col">
+        <div id="drawer" class="fixed top-0 right-0 h-full w-full md:w-[520px] bg-[#0f172a] border-l border-white/10 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col">
             <div class="p-6 border-b border-white/5 flex justify-between items-center bg-gray-900/50">
-                <div class="flex items-center space-x-3">
-                    <div id="drawer-icon" class="p-2 bg-amber-500/20 rounded-lg text-amber-500">
-                        <!-- Icon -->
-                    </div>
+                <div class="flex items-center space-x-4">
+                    <div id="drawer-icon" class="p-3 bg-amber-500/20 rounded-xl text-amber-500 border border-amber-500/20"></div>
                     <div>
-                        <h3 id="drawer-name" class="text-lg font-bold text-white">Node Name</h3>
-                        <p id="drawer-type" class="text-[10px] uppercase tracking-widest text-gray-500">Trigger Step</p>
+                        <h3 id="drawer-name" class="text-xl font-bold text-white">Node Name</h3>
+                        <p id="drawer-type" class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Step Type</p>
                     </div>
                 </div>
                 <button onclick="closeDrawer()" class="p-2 hover:bg-white/5 rounded-full text-gray-400 transition-all">
@@ -145,49 +168,67 @@
                 </button>
             </div>
 
-            <div class="p-8 space-y-8 overflow-y-auto flex-grow scrollbar-hide">
+            <div class="p-8 space-y-8 overflow-y-auto flex-grow">
                 <section>
-                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <i data-lucide="info" class="w-3 h-3"></i> Purpose
+                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i data-lucide="target" class="w-3 h-3"></i> System Goal
                     </h4>
-                    <p id="drawer-purpose" class="text-sm text-gray-300 leading-relaxed font-medium">Description of the step.</p>
+                    <p id="drawer-purpose" class="text-sm text-gray-300 leading-relaxed font-medium"></p>
                 </section>
 
                 <section>
-                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <i data-lucide="cpu" class="w-3 h-3"></i> Logic & Transformation
+                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i data-lucide="terminal" class="w-3 h-3"></i> Application Logic
                     </h4>
-                    <div id="drawer-logic" class="bg-black/30 border border-white/5 rounded-lg p-4 text-xs text-gray-400 leading-relaxed mono whitespace-pre-wrap">
-                        Code or logic flow here.
+                    <div id="drawer-logic" class="bg-black/40 border border-white/5 rounded-xl p-5 text-xs text-gray-300 leading-relaxed mono whitespace-pre-wrap border-l-2 border-l-amber-500/50"></div>
+                </section>
+
+                <section id="node-js-section" class="hidden">
+                    <h4 class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i data-lucide="file-code" class="w-3 h-3"></i> Code Context
+                    </h4>
+                    <div id="drawer-code" class="bg-blue-500/5 border border-blue-500/20 rounded-xl p-5 text-xs text-blue-300/80 mono whitespace-pre-wrap italic"></div>
+                </section>
+
+                <section id="drawer-links-section" class="hidden">
+                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <i data-lucide="link" class="w-3 h-3"></i> Project Assets
+                    </h4>
+                    <div id="drawer-links" class="grid grid-cols-1 gap-2">
+                        <!-- Links -->
                     </div>
                 </section>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-gray-900/50 p-4 rounded-xl border border-white/5">
-                        <h4 class="text-[10px] font-bold text-amber-500 uppercase mb-2">Tools</h4>
-                        <div id="drawer-tools" class="flex flex-wrap gap-2">
-                            <!-- Tools -->
-                        </div>
+                    <div class="bg-gray-900/50 p-5 rounded-2xl border border-white/5">
+                        <h4 class="text-[10px] font-bold text-amber-500 uppercase mb-3">Modular Cog</h4>
+                        <div id="drawer-tools" class="flex flex-wrap gap-2"></div>
                     </div>
-                    <div class="bg-gray-900/50 p-4 rounded-xl border border-white/5">
-                        <h4 class="text-[10px] font-bold text-green-500 uppercase mb-2">Status</h4>
+                    <div class="bg-gray-900/50 p-5 rounded-2xl border border-white/5">
+                        <h4 class="text-[10px] font-bold text-green-500 uppercase mb-3">Availability</h4>
                         <div class="flex items-center space-x-2">
-                            <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                            <span class="text-xs text-gray-300 font-bold">Operational</span>
+                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            <span class="text-xs text-gray-200 font-bold uppercase tracking-tighter">Alpha Stage</span>
                         </div>
                     </div>
                 </div>
 
                 <section>
-                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Data Trace (I/O)</h4>
+                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">State Interaction Trace</h4>
                     <div class="space-y-4">
-                        <div class="space-y-1">
-                            <span class="text-[10px] mono text-blue-400">INPUT_STREAM</span>
-                            <pre id="drawer-input" class="bg-black p-4 rounded-lg text-[10px] text-blue-300 overflow-x-auto mono border border-blue-500/20"></pre>
+                        <div class="bg-black/60 rounded-xl border border-blue-500/20 overflow-hidden">
+                            <div class="bg-blue-500/10 px-3 py-1.5 border-b border-blue-500/20 flex justify-between items-center">
+                                <span class="text-[9px] font-bold text-blue-400 mono">USER_INPUT</span>
+                                <i data-lucide="message-square" class="w-3 h-3 text-blue-400 opacity-50"></i>
+                            </div>
+                            <pre id="drawer-input" class="p-4 text-[10px] text-blue-300/80 overflow-x-auto mono"></pre>
                         </div>
-                        <div class="space-y-1">
-                            <span class="text-[10px] mono text-purple-400">OUTPUT_RESULT</span>
-                            <pre id="drawer-output" class="bg-black p-4 rounded-lg text-[10px] text-purple-300 overflow-x-auto mono border border-purple-500/20"></pre>
+                        <div class="bg-black/60 rounded-xl border border-purple-500/20 overflow-hidden">
+                            <div class="bg-purple-500/10 px-3 py-1.5 border-b border-purple-500/20 flex justify-between items-center">
+                                <span class="text-[9px] font-bold text-purple-400 mono">UI_RENDER (EMBED)</span>
+                                <i data-lucide="layout" class="w-3 h-3 text-purple-400 opacity-50"></i>
+                            </div>
+                            <pre id="drawer-output" class="p-4 text-[10px] text-purple-300/80 overflow-x-auto mono"></pre>
                         </div>
                     </div>
                 </section>
@@ -197,50 +238,112 @@
 
     <script>
         const scenarioData = {
+            'aethelgard': {
+                title: "Aethelgard: The Guild's Path",
+                links: [
+                    { name: 'Bot Source Code', url: 'https://github.com/Elykibra/discord-adventure-bot', icon: 'github' },
+                    { name: 'Technical Design Case Study', url: 'https://www.behance.net/gallery/235945913/Aethelgard-Technical-Design-Scalability-Case-Study', icon: 'external-link' }
+                ],
+                nodes: [
+                    { id: 'a1', x: 150, y: 300, type: 'Input', name: 'Slash Command', icon: 'terminal', tool: 'discord.py', purpose: 'Capture player intent (e.g., /explore, /battle). The system must parse commands while respecting the global Day/Night cycle.', logic: 'Command Listener: cog_handler.py\nValidates if player has enough "Day Energy" to perform the requested action.', code: '@tree.command(name="explore")\nasync def explore(interaction):\n    if player.energy < 10:\n        return await interaction.response.send_message("Exhausted!")', tools: ['Python', 'Discord API'], input: '/explore [Oskhaven Outpost]', output: 'Status: PROCEEDING' },
+                    { id: 'a2', x: 450, y: 300, type: 'State', name: 'Session Controller', icon: 'user-check', tool: 'Logic Cog', purpose: 'The primary quality gate. Checks persistent stats (HP, Hunger, Energy) from the database before allowing game-loop entry.', logic: 'Constraint Check: If Hunger > 90, apply "Starvation" debuff to combat stats. If Energy < 1, block world travel.', code: '// State Check Logic\nif (hp <= 0) return "Fainted";\nif (hunger >= 100) return "Blocked";', tools: ['Python Logic'], input: '{"HP": 44, "Hunger": 94}', output: '{"can_proceed": true}' },
+                    { id: 'a3', x: 750, y: 300, type: 'World', name: 'Encounter Engine', icon: 'map', tool: 'Gloom System', purpose: 'Deterministic world logic. Determines encounters based on the 10-town travel system and player rank (Novice to Master).', logic: 'RNG Guardrails: Difficulty scales with player rank. "The Gloom" multiplier adjusts drop rates for rare materials.', tools: ['Python', 'RNG Controller'], input: 'Location: Whisperwood Grove', output: 'Encounter: Gloom-Touched Fungus' },
+                    { id: 'a4', x: 1050, y: 300, type: 'Database', name: 'Persistent Storage', icon: 'database', tool: 'SQLite / PG', purpose: 'Logs all world events and player state. Transitioned from SQLite to PostgreSQL for better scalability.', logic: 'CRUD Operations: Updates player rank, inventory, and pet evolution stage after every successful encounter.', code: 'UPDATE players SET exp = exp + 10, energy = energy - 10 WHERE id = ?', tools: ['SQLite', 'SQLAlchemy'], input: 'Exp: +10, Energy: -10', output: 'DB COMMIT SUCCESS' },
+                    { id: 'a5', x: 1350, y: 300, type: 'UI', name: 'Visual Dispatcher', icon: 'layout', tool: 'Embed Renderer', purpose: 'Translates complex state data into high-fidelity Discord Embeds using AI-generated assets.', logic: 'Dynamic Rendering: Assembles stats, gear, and location-specific images (1920x1080 px) into a cohesive response.', tools: ['Discord.py Embeds', 'Pillow'], input: '{"Location": "Oskhaven", "HP": 29/44}', output: 'Rendered Discord Embed' }
+                ],
+                edges: [['a1', 'a2'], ['a2', 'a3'], ['a3', 'a4'], ['a4', 'a5']]
+            },
+            'mother-ai': {
+                title: "Mother AI Orchestration Ecosystem",
+                links: [
+                    { name: 'Source Code', url: 'https://github.com/Elykibra/project-orchestrator-template', icon: 'github' },
+                    { name: 'Case Study', url: 'https://www.behance.net/gallery/235950315/AI-Context-Management-Workflow-Automation-System', icon: 'external-link' },
+                    { name: 'LinkedIn Profile', url: 'https://www.linkedin.com/in/kyle-tolilic', icon: 'linkedin' }
+                ],
+                nodes: [
+                    { id: 'm1', x: 450, y: 300, type: 'Core', name: 'Mother Core (Brain)', icon: 'cpu', tool: 'Python/Tkinter', purpose: 'The central orchestration layer. Manages task distribution, global state loading, and manages the dual-persistence model (YAML/PostgreSQL).', logic: 'Controller: app_controller.py\nFeatures: Scrolled Text console redirection for real-time meta-debugging.', code: '// Persistence Model\nStructured files (YAML) for local project state.\nPostgreSQL for high-volume world event logging.', tools: ['Python', 'PostgreSQL', 'ttkthemes'], input: 'Event: Project Commit Detected', output: 'Action: Trigger RCS Module' },
+                    { id: 'm2', x: 150, y: 300, type: 'Perception', name: 'Event Listener', icon: 'eye', tool: 'Git/FileWatcher', purpose: 'Detects systemic changes, Git diffs, and project history logs to feed the perception layer.', logic: 'Summarizes and truncates history to optimize the context window for the LLM agents.', tools: ['Git API', 'YAML Parser'], input: 'Git Diff: modified app_controller.py', output: 'Context: Summarized Change Data' },
+                    { id: 'm3', x: 450, y: 100, type: 'Reflection', name: 'RCS Modules', icon: 'refresh-ccw', tool: 'Gemini/GPT-4o', purpose: 'Reflective Checkpoint System (RCS). Specialized agents that observe and evaluate their own performance.', logic: 'Performs recursive feedback loops. If score < 0.8, re-reflects. This prevents halluncination through self-critique.', code: '// Reflection Logic\nif (rcs_score < confidence_threshold) {\n  trigger_secondary_reflection(data);\n}', tools: ['Gemini 1.5 Pro', 'OpenAI API'], input: 'Goal: Optimize Memory Cleanup', output: 'Reflection: Logic suggests 250KB limit.' },
+                    { id: 'm4', x: 750, y: 300, type: 'Memory', name: 'World Memory', icon: 'database', tool: 'Knowledge Base', purpose: 'A global distilled knowledge bank where local insights are generalized into stable heuristics.', logic: 'Stabilization/Decay: Insights become STABLE after 5 reinforcements. Metrics decay over 60 days if not reinforced.', code: '// Memory Decay Logic\nif (insight.reinforcements >= 5 && metric >= 0.9) {\n  status = "STABLE";\n}', tools: ['PostgreSQL', 'world_memory_service.py'], input: 'Insight: API failure on rate limit', output: 'Heuristic: Add 334ms delay to all Notion reqs' },
+                    { id: 'm5', x: 450, y: 500, type: 'Cognition', name: 'True Echo Engine', icon: 'sparkles', tool: 'Self-Adapting LLM', purpose: 'The conversational layer that adjusts its logic and interaction style based on World Memory insights.', logic: 'Transitions from API dependency to local heuristic reasoning through "Reflective Synthesis Loops."', tools: ['Echo Learnings', 'RCS Synthesis'], input: 'World Data: Frequent rate limit errors', output: 'Adjustment: Logic now defaults to restricted flow.' }
+                ],
+                edges: [['m2', 'm1'], ['m1', 'm3'], ['m3', 'm2'], ['m3', 'm4'], ['m4', 'm5'], ['m5', 'm1']]
+            },
+            'zapier-debug': {
+                title: "Failed Payment Fix (Zapier)",
+                nodes: [
+                    { id: 'z1', x: 150, y: 300, type: 'Trigger', name: 'Stripe Failed Charge', icon: 'zap', tool: 'Stripe API', purpose: 'Captures the initial failure event. The bug starts here because this data becomes "STALE" after the 24-hour delay.', logic: 'Original Problem: Step 1 data (failed) was used for Step 12 logic, ignoring any payments made during the delay.', code: '// Stale Snapshot Logic\nconst initialStatus = trigger.data.status; // "failed"\n// 24 hours pass...\n// initialStatus is STILL "failed" even if paid.', tools: ['Stripe Webhook'], input: '{"charge_status": "failed", "customer": "ssadman"}', output: '{"charge_status": "failed"}' },
+                    { id: 'z2', x: 450, y: 300, type: 'Delay', name: '24-Hour Buffer', icon: 'clock', tool: 'Zapier Delay', purpose: 'Provides the customer time to retry the payment. This is the "Data Incubator" where data contradictions occur.', logic: 'During this 24-hour pause, the CRM status might change to "Deal won!", but Zapier Step 1 data does NOT refresh.', tools: ['Delay by Zapier'], input: '{"delay": "24h"}', output: '{"status": "resumed"}' },
+                    { id: 'z3', x: 750, y: 300, type: 'Fix', name: 'CRM Live Lookup', icon: 'search', tool: 'Visa CRM API', purpose: 'THE SOLUTION: Added Step 11.5 to perform a fresh inquiry into the CRM status AFTER the delay.', logic: 'Refreshes the "Source of Truth." Instead of relying on Step 1, we pull current "Deal Status" directly from the CRM.', code: '// Step 11.5: Refresh Data\nconst currentRecord = await crm.getRecord(email);\nconst liveStatus = currentRecord.status; // "Deal won!"', tools: ['CRM API', 'Step 11.5 Fix'], input: '{"email": "ssadman@test.com"}', output: '{"Deal Status": "Deal won!"}' },
+                    { id: 'z4', x: 1050, y: 300, type: 'Router', name: 'Multi-Rule Filter', icon: 'filter', tool: 'Zapier Filter', purpose: 'The final quality gate using two rules to prevent incorrect emails.', logic: 'Rule 1: CRM Record must exist.\nRule 2: Deal Status must NOT contain "Deal won!".\nIf Rule 2 fails (meaning they paid), the Zap STOPS.', code: '// Perfected Filter Logic\nif (exists && status !== "Deal won!") {\n  continue();\n} else {\n  stop(); // Correctly halts for paid users\n}', tools: ['Filter by Zapier'], input: '{"Status": "Deal won!"}', output: 'FAILS / STOPS (Correct)' },
+                    { id: 'z5', x: 1350, y: 300, type: 'Action', name: 'Follow-up Email', icon: 'mail', tool: 'Gmail API', purpose: 'The final action that was previously firing incorrectly. Now only fires for truly pending users.', logic: 'Only reached for leads whose live CRM status remains "initiated/in review" after 24 hours.', tools: ['Gmail API'], input: '{"to": "pending_user@test.com"}', output: '{"sent": true}' }
+                ],
+                edges: [['z1', 'z2'], ['z2', 'z3'], ['z3', 'z4'], ['z4', 'z5']]
+            },
+            'attorney': {
+                title: "Attorney Nurturing Pipeline v2.0",
+                links: [
+                    { name: 'Notion Database', url: 'https://www.notion.so/promo-panda/26ac503ebc858000bddcfee1b940dd8b', icon: 'layout' }
+                ],
+                nodes: [
+                    { id: 'n1', x: 150, y: 300, type: 'Trigger', name: 'Manual Notion Trigger', icon: 'zap', tool: 'Notion Button', purpose: 'Phase 1 initiation. Uses a Notion Button + Webhook to control daily search volume.', logic: 'Manual Mechanism: Prevents high costs of 24/7 background scraping.', code: '// Notion API mapping\nconst trigger = await axios.post(ZAPIER_WEBHOOK_URL, {...});', tools: ['Notion Button', 'Webhooks'], input: '{"action": "START_PHASE_1", "limit": 25}', output: '{"status": "SCOUT_BOT_ACTIVATED"}' },
+                    { id: 'n2', x: 450, y: 300, type: 'Logic', name: 'Relevance AI Scout Bot', icon: 'search', tool: 'Relevance AI', purpose: 'Conducts Google searches and deep scrapes attorney websites for practice areas.', logic: 'Phase 1 Data Acquisition: Extracts Name, Firm, Email, Website, and Practice Areas.', tools: ['Relevance AI', 'Google Search API'], input: '{"query": "Immigration Attorneys NYC"}', output: '{"profiles": [25 items]}' },
+                    { id: 'n3', x: 750, y: 300, type: 'Queue', name: 'Intermediary Queue', icon: 'layers', tool: 'Google Sheets', purpose: 'Added in v2.0 to act as a visible, stable buffer between Relevance AI and Notion.', logic: 'Stability Patch: Eliminates unreliable direct connections and batch failures.', tools: ['Google Sheets', 'Zapier'], input: '{"batch": [25 profiles]}', output: '{"queued_count": 25, "status": "STABLE"}' },
+                    { id: 'n4', x: 1050, y: 300, type: 'Logic', name: '5-Layer Deduplication', icon: 'filter', tool: 'Python / Zapier', purpose: 'Increased duplicate detection from 3 to 5 layers with weighted scoring.', logic: '96%+ Accuracy Check: Weighted scoring catches firm variations and edge cases.', code: '// Python Score Logic\nif name_match: score += 0.4\nif email_match: score += 0.6', tools: ['Python', 'Zapier Logic'], input: '{"email": "kyle@legal.com"}', output: '{"is_unique": true}' },
+                    { id: 'n5', x: 1350, y: 300, type: 'AI Agent', name: 'Gemini Flash 2.0 Classify', icon: 'brain-circuit', tool: 'Gemini Flash', purpose: 'Grades lead focus as HIGH/MEDIUM/LOW based on practice area relevance.', tools: ['Gemini Flash 2.0', 'Notion'], input: '{"practice_areas": ["EB-1"]}', output: '{"focus": "HIGH"}' },
+                    { id: 'n6', x: 1650, y: 300, type: 'Action', name: 'Notion CRM & GPT-4o', icon: 'database', tool: 'GPT-4o / Notion', purpose: 'Final CRM upload and personalized outreach drafting.', tools: ['GPT-4o', 'Notion API'], input: '{"focus": "HIGH"}', output: '{"status": "DRAFT_SAVED"}' }
+                ],
+                edges: [['n1', 'n2'], ['n2', 'n3'], ['n3', 'n4'], ['n4', 'n5'], ['n5', 'n6']]
+            },
+            'helpscout': {
+                title: "Help Scout Sage (Manual Mode)",
+                links: [
+                    { name: 'Source Code', url: 'https://github.com/Elykibra/helpscout-sage-app', icon: 'github' }
+                ],
+                nodes: [
+                    { id: 'h1', x: 150, y: 300, type: 'Trigger', name: 'Agent Sidebar Click', icon: 'mouse-pointer-2', tool: 'Help Scout', purpose: 'Transitioned from constant background operation to agent-triggered "Manual Mode" to reduce unpredictable processing costs.', logic: 'On-demand trigger: Sends the conversation ID to the Node.js backend.', tools: ['Vanilla JS', 'Help Scout Sidebar API'], input: '{"action": "CLICK"}', output: '{"status": "TRIGGERING SAGE"}' },
+                    { id: 'h2', x: 450, y: 300, type: 'Context', name: 'Context Retrieval', icon: 'file-search', tool: 'DigitalOcean', purpose: 'Enriches the request by fetching the full conversation history.', tools: ['Node.js', 'Express', 'Help Scout API'], input: '{"id": "3107675947"}', output: '{"threads": [...]}' },
+                    { id: 'h3', x: 750, y: 300, type: 'AI Agent', name: 'Sage Draft Engine', icon: 'sparkles', tool: 'Gemini / Relevance', purpose: 'Generates a contextually aware draft.', tools: ['Gemini 1.5 Pro', 'Relevance AI'], input: '{"latestMsg": "..."}', output: '{"draft": "Hello! ..."}' },
+                    { id: 'h4', x: 1050, y: 300, type: 'Action', name: 'Draft Injection', icon: 'send', tool: 'Help Scout API', purpose: 'Injects the AI draft back into Help Scout for review.', tools: ['Help Scout API'], input: '{"text": "...", "draft": true}', output: '{"status": "201 Created"}' }
+                ],
+                edges: [['h1', 'h2'], ['h2', 'h3'], ['h3', 'h4']]
+            },
             'ai-validation': {
                 title: "AI Validation Workflow",
                 nodes: [
-                    { id: 'av1', x: 100, y: 250, type: 'Trigger', name: 'Webhook Ingest', icon: 'zap', tool: 'Webhook', purpose: 'Captures raw inbound lead data (Name, Email, About Me).', logic: 'Primary listener for external form submissions or ad platform triggers.', tools: ['Make Webhooks'], input: '{"name": "Ky", "email": "ky@bad", "aboutMe": "I love crypto tokens"}', output: '{"name": "Ky", "email": "ky@bad", "aboutMe": "I love crypto tokens"}' },
-                    { id: 'av2', x: 400, y: 250, type: 'AI Agent', name: 'Gemini Gatekeeper', icon: 'brain-circuit', tool: 'Google Gemini', purpose: 'Analyzes input quality and forces specific failure codes if quality is poor.', logic: 'Uses a Hardened Smart Prompt defining specific rejection criteria: \n- Name < 3 chars\n- Email lacks @ or .\n- Content is generic spam/financial speculation.', tools: ['Gemini 1.5 Pro', 'Structured Output'], input: '{"aboutMe": "I love crypto tokens"}', output: '{"Profession": "INVALID_INPUT", "Industry": "JUNK_DATA"}' },
-                    { id: 'av3', x: 700, y: 250, type: 'Router', name: 'Final Decision Gate', icon: 'git-branch', tool: 'Filter Logic', purpose: 'Checks AI output for success codes and contact hygiene.', logic: 'Semantic Guardrail: If Profession != "INVALID_INPUT" AND Industry != "JUNK_DATA", route to Success.', tools: ['Make Router'], input: '{"Profession": "INVALID_INPUT"}', output: 'Route to Failure' },
-                    { id: 'av4', x: 1000, y: 150, type: 'Action', name: 'Success Path', icon: 'database', tool: 'CRM / Slack', purpose: 'Logs high-quality enriched data to the primary database.', logic: 'Only reached if AI validates the lead as high-intent and formatted correctly.', tools: ['Slack', 'Google Sheets'], input: '{"score": 0.98, "valid": true}', output: 'Notified Team' },
-                    { id: 'av5', x: 1000, y: 350, type: 'Action', name: 'Fallback Path', icon: 'alert-triangle', tool: 'Error Log', purpose: 'Ensures no data is lost by logging low-quality inputs for manual review.', logic: 'Captures timestamp and raw input of filtered-out leads to prevent data leakage.', tools: ['PostgreSQL', 'Google Sheets'], input: '{"reason": "junk_data"}', output: 'Logged to Review' }
+                    { id: 'av1', x: 150, y: 300, type: 'Trigger', name: 'Webhook Ingest', icon: 'zap', tool: 'Webhook', purpose: 'Captures raw inbound lead data.', tools: ['Make Webhooks'], input: '{"name": "Ky"}', output: '{"name": "Ky"}' },
+                    { id: 'av2', x: 450, y: 300, type: 'AI Agent', name: 'Gemini Gatekeeper', icon: 'shield-check', tool: 'Google Gemini', purpose: 'Analyzes input quality and forces failure codes for junk data.', tools: ['Gemini 1.5 Pro'], input: '{"aboutMe": "crypto"}', output: '{"Profession": "INVALID_INPUT"}' },
+                    { id: 'av3', x: 750, y: 300, type: 'Router', name: 'Decision Gate', icon: 'git-branch', tool: 'Filter Logic', purpose: 'Checks AI output for semantic and hygiene guardrails.', tools: ['Make Router'], input: '{"Profession": "INVALID_INPUT"}', output: 'Route to Fallback' },
+                    { id: 'av4', x: 1050, y: 200, type: 'Action', name: 'Success Path', icon: 'database', tool: 'CRM / Slack', tools: ['Slack'], input: '{"valid": true}', output: 'Notified Team' },
+                    { id: 'av5', x: 1050, y: 400, type: 'Action', name: 'Fallback Path', icon: 'alert-triangle', tool: 'Error Log', tools: ['PostgreSQL'], input: '{"reason": "junk_data"}', output: 'Logged to Review' }
                 ],
                 edges: [['av1', 'av2'], ['av2', 'av3'], ['av3', 'av4'], ['av3', 'av5']]
-            },
-            'attorney': {
-                title: "Attorney Nurturing Pipeline",
-                nodes: [
-                    { id: 'n1', x: 100, y: 250, type: 'Trigger', name: 'Lead Webhook', icon: 'zap', tool: 'Zapier', purpose: 'Ingests new leads from Typeform and Facebook Lead Ads.', logic: 'Validates payload schema and strips tracking parameters before injection.', tools: ['Zapier', 'Webhooks'], input: '{"raw_email": "Kyle@example.com", "msg": "EB-1 Help"}', output: '{"email": "kyle@example.com", "intent": "EB-1"}' },
-                    { id: 'n2', x: 400, y: 250, type: 'Logic', name: 'Data Normalizer', icon: 'code-2', tool: 'Python', purpose: 'Standardizes phone numbers and checks for duplicate entries.', logic: 'Uses regex for international phone formatting and queries PostgreSQL for existing lead_id.', tools: ['Python', 'PostgreSQL'], input: '{"phone": "09457392267"}', output: '{"phone_intl": "+639457392267", "is_new": true}' },
-                    { id: 'n3', x: 700, y: 250, type: 'AI Agent', name: 'Qualify Engine', icon: 'brain-circuit', tool: 'GPT-4o', purpose: 'Analyzes the specific legal case to determine high-value eligibility.', logic: 'Sends case text to Relevance AI with a custom prompt to extract "Urgency" and "USCIS Criteria" scores.', tools: ['OpenAI', 'Relevance AI'], input: '{"intent": "EB-1", "bio": "Software dev with 3 patents"}', output: '{"score": 0.92, "priority": "High"}' },
-                    { id: 'n4', x: 1000, y: 150, type: 'Action', name: 'CRM Dispatch', icon: 'database', tool: 'Notion', purpose: 'Creates a visual card in the Attorney Sales gallery.', logic: 'Map internal lead objects to Notion Properties API schema.', tools: ['Notion API'], input: '{"priority": "High"}', output: '{"status": "201 Created", "id": "notion_882"}' },
-                    { id: 'n5', x: 1000, y: 350, type: 'Action', name: 'Slack Notify', icon: 'slack', tool: 'Slack', purpose: 'Alerts the team of high-priority leads immediately.', logic: 'Triggers a Slack Block Kit message with action buttons (Approve/Reject).', tools: ['Slack API', 'Make'], input: '{"name": "Kyle", "score": 0.92}', output: '{"msg_ts": "1623...822"}' }
-                ],
-                edges: [['n1', 'n2'], ['n2', 'n3'], ['n3', 'n4'], ['n3', 'n5']]
-            },
-            'helpscout': {
-                title: "Help Scout Sage",
-                nodes: [
-                    { id: 'h1', x: 100, y: 250, type: 'Trigger', name: 'New Ticket', icon: 'mail', tool: 'Help Scout', purpose: 'Monitors incoming support conversations.', logic: 'Webhook listener triggered on "convo.created" event.', tools: ['Help Scout API'], input: '{"subject": "Refund Request"}', output: '{"convo_id": "8122"}' },
-                    { id: 'h2', x: 400, y: 250, type: 'Context', name: 'User Profile Sync', icon: 'users', tool: 'DigitalOcean', purpose: 'Enriches the ticket with user purchase history.', logic: 'Queries production DB to find active subscriptions and LTV (Life-Time Value).', tools: ['Node.js', 'SQL'], input: '{"email": "user@test.com"}', output: '{"plan": "Pro", "LTV": "$1,200"}' },
-                    { id: 'h3', x: 700, y: 250, type: 'AI Agent', name: 'Sage Draft Gen', icon: 'sparkles', tool: 'Gemini', purpose: 'Drafts a helpful response based on internal docs.', logic: 'Retrieves relevant documentation snippets using Vector Search, then prompts LLM to draft reply.', tools: ['Gemini', 'Pinecone'], input: '{"issue": "Refund", "plan": "Pro"}', output: '{"draft": "Hello! As a Pro user, your refund is..."}' },
-                    { id: 'h4', x: 1000, y: 250, type: 'Action', name: 'Draft Injection', icon: 'send', tool: 'Help Scout', purpose: 'Pushes the draft back to Help Scout as an internal note.', logic: 'Uses Help Scout Conversation API to post a non-visible draft for agents to review.', tools: ['Help Scout API'], input: '{"draft": "..."}', output: '{"status": "success"}' }
-                ],
-                edges: [['h1', 'h2'], ['h2', 'h3'], ['h3', 'h4']]
             }
         };
 
-        let activeScenario = 'ai-validation';
+        let activeScenario = 'aethelgard';
 
         function loadScenario(id) {
             activeScenario = id;
             const data = scenarioData[id];
-            
-            // Update UI
             document.getElementById('scenario-title').innerText = data.title;
             
-            // Update Buttons
+            // Pulse color
+            const pulse = document.getElementById('status-pulse');
+            if (id === 'zapier-debug') {
+                pulse.className = "w-2 h-2 rounded-full bg-red-500 animate-pulse";
+                document.getElementById('system-status').innerText = "Diagnostic: Fix Validated 100%";
+            } else if (id === 'mother-ai') {
+                pulse.className = "w-2 h-2 rounded-full bg-blue-500 animate-pulse";
+                document.getElementById('system-status').innerText = "Cognitive Engine: ACTIVE | Heuristic Mode";
+            } else if (id === 'aethelgard') {
+                pulse.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+                document.getElementById('system-status').innerText = "Engine: Python 3.10 | SQLite DB";
+            } else {
+                pulse.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse";
+                document.getElementById('system-status').innerText = "Status: Operational";
+            }
+
             document.querySelectorAll('nav button').forEach(btn => {
                 btn.className = "w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group";
             });
@@ -254,55 +357,58 @@
             const data = scenarioData[activeScenario];
             const nodeLayer = document.getElementById('node-layer');
             const svgLayer = document.getElementById('svg-layer');
-            
+            const NODE_WIDTH = 192; 
+            const NODE_HEIGHT = 140; 
+
             nodeLayer.innerHTML = '';
             svgLayer.innerHTML = '';
 
-            // Draw Lines first
             data.edges.forEach(edge => {
                 const source = data.nodes.find(n => n.id === edge[0]);
                 const target = data.nodes.find(n => n.id === edge[1]);
+                if (!source || !target) return;
+
+                const x1 = source.x + NODE_WIDTH;
+                const y1 = source.y + (NODE_HEIGHT / 2);
+                const x2 = target.x;
+                const y2 = target.y + (NODE_HEIGHT / 2);
                 
                 const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                const x1 = source.x + 192; // Adjust for node width (48 * 4px)
-                const y1 = source.y + 50;  // Adjust for node center
-                const x2 = target.x;
-                const y2 = target.y + 50;
-                
-                // Bezier curve
                 const cp1x = x1 + (x2 - x1) / 2;
                 const cp2x = x1 + (x2 - x1) / 2;
                 
                 line.setAttribute("d", `M ${x1} ${y1} C ${cp1x} ${y1}, ${cp2x} ${y2}, ${x2} ${y2}`);
-                line.setAttribute("stroke", "#374151");
+                
+                let strokeColor = "#374151";
+                if (activeScenario === 'zapier-debug') strokeColor = "#4a5568";
+                if (activeScenario === 'mother-ai') strokeColor = "#2563eb80";
+                if (activeScenario === 'aethelgard') strokeColor = "#d9770680";
+                
+                line.setAttribute("stroke", strokeColor);
                 line.setAttribute("stroke-width", "2");
                 line.setAttribute("fill", "none");
                 line.setAttribute("class", "line-flow");
-                
                 svgLayer.appendChild(line);
             });
 
-            // Draw Nodes
             data.nodes.forEach(node => {
                 const div = document.createElement('div');
-                div.className = "absolute node-card w-48 p-4 rounded-xl cursor-pointer shadow-xl z-10";
+                div.className = "absolute node-card w-48 p-4 rounded-xl cursor-pointer shadow-xl z-10 flex flex-col h-[140px]";
                 div.style.left = `${node.x}px`;
                 div.style.top = `${node.y}px`;
                 div.onclick = () => openDrawer(node);
 
                 div.innerHTML = `
-                    <div class="flex flex-col h-full">
-                        <span class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">${node.type}</span>
-                        <div class="flex items-center space-x-3 mb-4">
-                            <div class="p-2 bg-gray-800 rounded-lg">
-                                <i data-lucide="${node.icon}" class="w-5 h-5 text-gray-300"></i>
-                            </div>
-                            <h4 class="text-xs font-bold text-white leading-tight">${node.name}</h4>
+                    <span class="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">${node.type}</span>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="p-2 bg-gray-800 rounded-lg text-gray-300">
+                            <i data-lucide="${node.icon}" class="w-5 h-5"></i>
                         </div>
-                        <div class="mt-auto pt-3 border-t border-gray-700/50 flex justify-between items-center">
-                            <span class="text-[9px] mono text-gray-400">${node.tool}</span>
-                            <i data-lucide="external-link" class="w-2.5 h-2.5 text-gray-600"></i>
-                        </div>
+                        <h4 class="text-xs font-bold text-white leading-tight">${node.name}</h4>
+                    </div>
+                    <div class="mt-auto pt-3 border-t border-gray-700/50 flex justify-between items-center">
+                        <span class="text-[9px] mono text-gray-400 font-bold tracking-tighter uppercase">${node.tool}</span>
+                        <i data-lucide="chevron-right" class="w-2.5 h-2.5 text-gray-600"></i>
                     </div>
                 `;
                 nodeLayer.appendChild(div);
@@ -313,17 +419,42 @@
 
         function openDrawer(node) {
             const drawer = document.getElementById('drawer');
-            
-            // Populate
             document.getElementById('drawer-name').innerText = node.name;
-            document.getElementById('drawer-type').innerText = `${node.type} Step`;
+            document.getElementById('drawer-type').innerText = `${node.type} Logic/Sub-System`;
             document.getElementById('drawer-purpose').innerText = node.purpose;
             document.getElementById('drawer-logic').innerText = node.logic;
             document.getElementById('drawer-input').innerText = node.input;
             document.getElementById('drawer-output').innerText = node.output;
             
+            const codeSection = document.getElementById('node-js-section');
+            if(node.code) {
+                codeSection.classList.remove('hidden');
+                document.getElementById('drawer-code').innerText = node.code;
+            } else {
+                codeSection.classList.add('hidden');
+            }
+
+            const linksSection = document.getElementById('drawer-links-section');
+            const linksContainer = document.getElementById('drawer-links');
+            const scenarioLinks = scenarioData[activeScenario].links;
+
+            if (scenarioLinks && scenarioLinks.length > 0) {
+                linksSection.classList.remove('hidden');
+                linksContainer.innerHTML = scenarioLinks.map(link => `
+                    <a href="${link.url}" target="_blank" class="flex items-center justify-between p-3 bg-gray-900/50 border border-white/5 rounded-xl hover:border-amber-500/50 hover:bg-amber-500/5 transition-all group">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="${link.icon || 'external-link'}" class="w-4 h-4 text-gray-400 group-hover:text-amber-500"></i>
+                            <span class="text-xs font-bold text-gray-300 group-hover:text-white">${link.name}</span>
+                        </div>
+                        <i data-lucide="arrow-up-right" class="w-3 h-3 text-gray-600 group-hover:text-amber-500"></i>
+                    </a>
+                `).join('');
+            } else {
+                linksSection.classList.add('hidden');
+            }
+
             const iconContainer = document.getElementById('drawer-icon');
-            iconContainer.innerHTML = `<i data-lucide="${node.icon}" class="w-6 h-6"></i>`;
+            iconContainer.innerHTML = `<i data-lucide="${node.icon}" class="w-8 h-8"></i>`;
 
             const toolsContainer = document.getElementById('drawer-tools');
             toolsContainer.innerHTML = node.tools.map(tool => 
@@ -338,11 +469,9 @@
             document.getElementById('drawer').classList.add('translate-x-full');
         }
 
-        // Initialize
         window.onload = () => {
-            loadScenario('ai-validation');
+            loadScenario('aethelgard');
             
-            // Basic Pan behavior simulation
             const container = document.getElementById('canvas-container');
             let isDown = false;
             let startX, startY, scrollLeft, scrollTop;
