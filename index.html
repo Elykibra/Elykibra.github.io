@@ -31,9 +31,15 @@
             box-shadow: 0 0 30px rgba(251, 191, 36, 0.2);
             transform: translateY(-4px) scale(1.02);
         }
-        .node-card.failed {
-            border-color: #EF4444;
-            box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
+        .node-card.failed-node {
+            border-color: #EF4444 !important;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.4) !important;
+            animation: shake 0.4s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
         .line-flow {
             stroke-dasharray: 8;
@@ -122,6 +128,17 @@
             0% { filter: hue-rotate(0deg); }
             100% { filter: hue-rotate(360deg); }
         }
+
+        .status-pill {
+            font-size: 7px;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        .status-prod { background: #065f46; color: #34d399; }
+        .status-beta { background: #92400e; color: #fbbf24; }
+        .status-rnd { background: #1e40af; color: #60a5fa; }
     </style>
 </head>
 <body class="antialiased h-screen flex flex-col md:flex-row">
@@ -144,7 +161,7 @@
                 <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Intelligence Systems</h3>
                 <div class="space-y-2">
                     <button onclick="loadScenario('mother-ai')" id="btn-mother-ai" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
-                        <span>Mother AI Orchestrator</span>
+                        <span class="flex items-center gap-2">Mother AI <span class="status-pill status-rnd">R&D</span></span>
                         <i data-lucide="cpu" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -154,11 +171,11 @@
                 <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Diagnostic Reports</h3>
                 <div class="space-y-2">
                     <button onclick="loadScenario('zapier-debug')" id="btn-zapier-debug" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
-                        <span>Failed Payment Debug</span>
+                        <span class="flex items-center gap-2">Payment Debug <span class="status-pill status-prod">Live</span></span>
                         <i data-lucide="bug" class="w-4 h-4"></i>
                     </button>
                     <button onclick="loadScenario('ai-validation')" id="btn-ai-validation" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
-                        <span>AI Validation Flow</span>
+                        <span class="flex items-center gap-2">AI Validation <span class="status-pill status-prod">Live</span></span>
                         <i data-lucide="shield-check" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -168,15 +185,15 @@
                 <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Production Pipelines</h3>
                 <div class="space-y-2">
                     <button onclick="loadScenario('attorney')" id="btn-attorney" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
-                        <span>Attorney Pipeline v2.0</span>
+                        <span class="flex items-center gap-2">Attorney v2.0 <span class="status-pill status-prod">Live</span></span>
                         <i data-lucide="briefcase" class="w-4 h-4"></i>
                     </button>
                     <button onclick="loadScenario('helpscout')" id="btn-helpscout" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
-                        <span>Help Scout Sage</span>
+                        <span class="flex items-center gap-2">Help Scout Sage <span class="status-pill status-beta">Beta</span></span>
                         <i data-lucide="message-square" class="w-4 h-4"></i>
                     </button>
                     <button onclick="loadScenario('aethelgard')" id="btn-aethelgard" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
-                        <span>Aethelgard RPG</span>
+                        <span class="flex items-center gap-2">Aethelgard RPG <span class="status-pill status-rnd">Legacy</span></span>
                         <i data-lucide="swords" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -185,7 +202,6 @@
             <div class="pt-6 border-t border-gray-800 space-y-4">
                 <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 text-amber-500/50">Connectivity</h3>
                 
-                <!-- Updated CV Link to use the file you uploaded to GitHub -->
                 <a href="Kyle_Tolilic_Resume.pdf" download="Kyle_Tolilic_Resume.pdf" class="flex items-center justify-between w-full px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500 text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-gray-900 transition-all group mb-2">
                     <span class="flex items-center gap-2">
                         <i data-lucide="file-text" class="w-4 h-4"></i>
@@ -214,6 +230,15 @@
                     </a>
                 </div>
             </div>
+
+            <!-- Subtle Version and Visit Counter -->
+            <div class="mt-auto pt-6 border-t border-gray-800/50">
+                <div id="visit-counter-container" class="flex flex-col items-center justify-center opacity-20 hover:opacity-100 transition-opacity cursor-pointer group" onclick="toggleSecretStats()">
+                    <span id="visit-label" class="text-[9px] mono uppercase tracking-tighter text-gray-600 hidden group-hover:block animate-pulse">Invocations Tracked</span>
+                    <span id="visit-count" class="text-[10px] mono font-bold text-amber-500/80 hidden">---</span>
+                    <span id="version-tag" class="text-[9px] mono text-gray-700">v2.5.1-stable</span>
+                </div>
+            </div>
         </nav>
     </aside>
 
@@ -225,18 +250,30 @@
                     <button onclick="toggleMobileMenu()" class="md:hidden p-2 -ml-2 text-gray-400 hover:text-amber-500 transition-all">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
-                    <h2 id="scenario-title" class="text-xs md:text-sm font-bold text-white uppercase tracking-wider truncate max-w-[140px] md:max-w-none">Scenario Name</h2>
+                    <div class="flex flex-col">
+                        <h2 id="scenario-title" class="text-xs md:text-sm font-bold text-white uppercase tracking-wider truncate max-w-[140px] md:max-w-none">Scenario Name</h2>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                            <span class="text-[8px] mono text-gray-500 uppercase font-black">System Nominal</span>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="h-6 w-px bg-gray-800 hidden md:block"></div>
                 
                 <div class="flex p-1 bg-black/40 rounded-lg border border-white/5 flex-shrink-0">
-                    <button onclick="setViewMode('architect')" id="mode-architect" class="toggle-btn active px-3 md:px-5 py-2 rounded text-[9px] md:text-[10px] uppercase tracking-widest transition-all">Architect View</button>
-                    <button onclick="setViewMode('executive')" id="mode-executive" class="toggle-btn px-3 md:px-5 py-2 rounded text-[9px] md:text-[10px] uppercase tracking-widest transition-all text-gray-500">Executive Summary</button>
+                    <button onclick="setViewMode('architect')" id="mode-architect" class="toggle-btn active px-3 md:px-5 py-2 rounded text-[9px] md:text-[10px] uppercase tracking-widest transition-all">Architect</button>
+                    <button onclick="setViewMode('executive')" id="mode-executive" class="toggle-btn px-3 md:px-5 py-2 rounded text-[9px] md:text-[10px] uppercase tracking-widest transition-all text-gray-500">Executive</button>
                 </div>
             </div>
 
             <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                <div class="flex items-center gap-2 px-3 py-1 bg-black/40 border border-white/5 rounded-full mr-2">
+                    <span class="text-[8px] font-black uppercase text-gray-500">Chaos Mode</span>
+                    <button onclick="toggleChaosMode()" id="chaos-toggle" class="w-8 h-4 bg-gray-700 rounded-full relative transition-all">
+                        <div id="chaos-knob" class="absolute left-1 top-1 w-2 h-2 bg-white rounded-full transition-all"></div>
+                    </button>
+                </div>
                 <button onclick="toggleTerminal()" id="term-btn" class="flex items-center gap-2 px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-full text-gray-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:border-amber-500/50 hover:text-white transition-all">
                     <i data-lucide="terminal" class="w-3 h-3"></i>
                     <span>Console</span>
@@ -327,7 +364,7 @@
                 <div id="log-container" class="p-4 text-[10px] mono text-gray-400 space-y-1 overflow-y-auto flex-grow console-scrollbar"></div>
                 <div class="p-3 bg-black/40 border-t border-white/5 flex items-center space-x-2">
                     <span class="text-amber-500 text-xs mono font-bold ml-1">></span>
-                    <input type="text" id="terminal-input" placeholder="Inject data (e.g. 'fail')..." class="bg-transparent border-none text-amber-500 text-xs mono w-full focus:ring-0 placeholder:text-gray-700" autocomplete="off">
+                    <input type="text" id="terminal-input" placeholder="Type 'help' for commands..." class="bg-transparent border-none text-amber-500 text-xs mono w-full focus:ring-0 placeholder:text-gray-700" autocomplete="off">
                 </div>
             </div>
         </div>
@@ -459,6 +496,53 @@
         </footer>
     </main>
 
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, increment, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        async function initVisitCounter() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token).catch(() => signInAnonymously(auth));
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                onAuthStateChanged(auth, async (user) => {
+                    if (!user) return;
+                    const statsDoc = doc(db, 'artifacts', appId, 'public', 'data', 'site_stats', 'global');
+                    if (!sessionStorage.getItem('visited')) {
+                        await setDoc(statsDoc, { visit_count: increment(1) }, { merge: true }).catch(err => console.error("Permission error on write:", err));
+                        sessionStorage.setItem('visited', 'true');
+                    }
+                    onSnapshot(statsDoc, (snapshot) => {
+                        const data = snapshot.data();
+                        if (data && data.visit_count) {
+                            const countEl = document.getElementById('visit-count');
+                            if (countEl) countEl.innerText = data.visit_count.toLocaleString();
+                        }
+                    }, (error) => {
+                        console.error("Stats listener failed:", error);
+                    });
+                });
+            } catch (err) {
+                console.error("Visit counter initialization failed:", err);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initVisitCounter();
+        });
+    </script>
+
     <script>
         const scenarioData = {
             'mother-ai': {
@@ -507,7 +591,7 @@
             'ai-validation': {
                 title: "AI Validation Flow",
                 intent: "Semantic Data Hygiene",
-                summary: "A lead quality gate performing semantic validation to ensure only professional data enters the CRM.",
+                summary: "Lead quality gate performing semantic validation to ensure only professional data enters the CRM.",
                 executive: {
                     problem: "Unprotected webhooks resulting in 'Ghost Leads' that waste agent capacity.",
                     solution: "A semantic 'Air-Lock' gate performing an LLM professional focus check.",
@@ -597,6 +681,26 @@
         let isSimulating = false;
         let isTerminalActive = false;
         let isMobileMenuOpen = false;
+        let isChaosMode = false;
+
+        // Visit Stats Logic
+        let showSecretStats = false;
+        function toggleSecretStats() {
+            showSecretStats = !showSecretStats;
+            const count = document.getElementById('visit-count');
+            const label = document.getElementById('visit-label');
+            const version = document.getElementById('version-tag');
+            
+            if (showSecretStats) {
+                count.classList.remove('hidden');
+                label.classList.remove('hidden');
+                version.innerText = 'system_id: root';
+            } else {
+                count.classList.add('hidden');
+                label.classList.add('hidden');
+                version.innerText = 'v2.5.1-stable';
+            }
+        }
 
         // Panning State
         const architectView = document.getElementById('view-architect');
@@ -651,6 +755,21 @@
                 sidebar.classList.remove('open');
                 overlay.classList.remove('visible');
                 overlay.classList.add('hidden-overlay');
+            }
+        }
+
+        function toggleChaosMode() {
+            isChaosMode = !isChaosMode;
+            const knob = document.getElementById('chaos-knob');
+            const btn = document.getElementById('chaos-toggle');
+            if (isChaosMode) {
+                knob.style.left = '18px';
+                btn.style.backgroundColor = '#EF4444';
+                addLog('CHAOS MODE: ENABLED. SYSTEM INSTABILITY SIMULATED.', 'error');
+            } else {
+                knob.style.left = '4px';
+                btn.style.backgroundColor = '#374151';
+                addLog('DETERMINISTIC MODE: ENABLED. SYSTEM STABILIZED.', 'system');
             }
         }
 
@@ -805,16 +924,31 @@
                 const edge = data.edges[i];
                 const sourceNode = data.nodes.find(n => n.id === edge[0]);
                 const path = document.getElementById(`path-${activeScenario}-${i}`);
+                
+                // CHAOS LOGIC: 30% chance of failure on any core/agent node
+                const willFail = isChaosMode && Math.random() < 0.3 && (sourceNode.type === 'Core' || sourceNode.type === 'Agent');
+
                 if (sourceNode) {
                     const nodeEl = document.getElementById(`node-${sourceNode.id}`);
                     if (nodeEl) {
                         nodeEl.classList.add('processing');
                         openDrawer(sourceNode);
-                        addLog(`[STEP] ${sourceNode.name}`, 'process');
+                        addLog(`[STEP] ${sourceNode.name}`, willFail ? 'error' : 'process');
                     }
                     await new Promise(r => setTimeout(r, 600));
+                    
+                    if (willFail) {
+                        nodeEl.classList.remove('processing');
+                        nodeEl.classList.add('failed-node');
+                        packet.setAttribute("class", "data-packet error-packet");
+                        addLog(`CRITICAL ERROR: Exception caught in ${sourceNode.name}. Circuit broken.`, 'error');
+                        isSimulating = false;
+                        break;
+                    }
+
                     if (nodeEl) nodeEl.classList.remove('processing');
                 }
+
                 if (path) {
                     const length = path.getTotalLength();
                     const start = performance.now();
@@ -830,14 +964,20 @@
                     });
                 }
             }
-            stopSimulation();
+            if (isSimulating) addLog(`SUCCESS: Trace complete. Data parity verified.`, 'success');
+            isSimulating = false;
+            // Clear packets after delay
+            setTimeout(() => {
+                document.querySelectorAll('.data-packet').forEach(p => p.remove());
+                document.querySelectorAll('.node-card').forEach(n => n.classList.remove('failed-node'));
+            }, 3000);
         }
 
         function stopSimulation() {
             isSimulating = false;
             document.querySelectorAll('.data-packet').forEach(p => p.remove());
-            document.querySelectorAll('.node-card').forEach(n => n.classList.remove('processing', 'failed'));
-            addLog(`TRACE COMPLETE.`, 'system');
+            document.querySelectorAll('.node-card').forEach(n => n.classList.remove('processing', 'failed-node'));
+            addLog(`SIMULATION INTERRUPTED.`, 'system');
         }
 
         function openDrawer(node, customInput = null) {
@@ -862,14 +1002,36 @@
             setViewMode('landing'); 
             lucide.createIcons();
             initPanning();
+            addLog('SYSTEM: Kernel initialized. Welcome, Architect.', 'system');
         };
 
         document.getElementById('terminal-input').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                const val = this.value.trim();
+                const val = this.value.trim().toLowerCase();
                 if (!val) return;
-                addLog(`INPUT: "${val}"`, 'process');
-                startSimulation();
+                
+                addLog(`> ${val}`, 'info');
+                
+                if (val === 'help') {
+                    addLog('AVAILABLE COMMANDS:', 'system');
+                    addLog(' - help: Show this menu', 'info');
+                    addLog(' - trace: Start simulation of current view', 'info');
+                    addLog(' - chaos: Toggle edge-case simulation', 'info');
+                    addLog(' - clear: Wipe console history', 'info');
+                    addLog(' - landing: Return to home view', 'info');
+                } else if (val === 'clear') {
+                    document.getElementById('log-container').innerHTML = '';
+                    addLog('Console cleared.', 'system');
+                } else if (val === 'trace') {
+                    startSimulation();
+                } else if (val === 'chaos') {
+                    toggleChaosMode();
+                } else if (val === 'landing') {
+                    setViewMode('landing');
+                } else {
+                    addLog(`COMMAND NOT FOUND: ${val}. Type 'help' for assistance.`, 'error');
+                }
+
                 this.value = '';
             }
         });
