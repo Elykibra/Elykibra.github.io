@@ -259,14 +259,17 @@
             </div>
 
             <div class="mt-auto pt-6 border-t border-gray-800/50">
-                <!-- Improved Interaction Container -->
-                <div id="visit-counter-container" class="flex flex-col items-center justify-center py-4 px-2 bg-white/0 hover:bg-white/5 rounded-2xl transition-all cursor-pointer group select-none" onclick="toggleSecretStats()">
+                <!-- Improved Interaction Container with clearer states -->
+                <div id="visit-counter-container" class="flex flex-col items-center justify-center py-4 px-2 bg-white/0 hover:bg-white/5 rounded-2xl transition-all cursor-pointer group select-none relative" onclick="toggleSecretStats()" title="Toggle System Monitor">
                     <div class="flex items-center gap-1.5 mb-1">
-                        <div class="w-1 h-1 bg-green-500 rounded-full animate-pulse"></div>
+                        <div id="connection-pulse" class="w-1.5 h-1.5 bg-gray-600 rounded-full transition-colors duration-500"></div>
                         <span id="version-tag" class="text-[9px] mono text-gray-500 group-hover:text-gray-300">v2.5.1-stable</span>
                     </div>
-                    <span id="visit-label" class="text-[9px] font-black uppercase tracking-[0.2em] text-amber-500/50 hidden group-hover:block animate-pulse">System Heartbeat</span>
-                    <div id="visit-count" class="text-xs font-black text-amber-500 hidden mt-1">---</div>
+                    <span id="visit-label" class="text-[9px] font-black uppercase tracking-[0.2em] text-amber-500/50 hidden group-hover:block">System Heartbeat</span>
+                    <div id="visit-count" class="text-xs font-black text-amber-500 hidden mt-1 flex items-center gap-2">
+                        <span id="count-value">SYNCHRONIZING</span>
+                        <span class="w-1 h-1 bg-amber-500 rounded-full animate-ping"></span>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -489,7 +492,7 @@
                     <input type="text" id="terminal-input" placeholder="Type 'help' for commands..." class="bg-transparent border-none text-amber-500 text-xs mono w-full focus:ring-0 placeholder:text-gray-700" autocomplete="off">
                 </div>
             </div>
-        </div>
+        </main>
 
         <!-- Executive View -->
         <div id="view-executive" class="hidden flex-grow overflow-y-auto bg-[#0b0f1a] p-5 md:p-12 flex flex-col items-center">
@@ -609,6 +612,8 @@
 
         async function initVisitCounter() {
             try {
+                const pulseEl = document.getElementById('connection-pulse');
+                
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token).catch(() => signInAnonymously(auth));
                 } else {
@@ -617,19 +622,31 @@
                 
                 onAuthStateChanged(auth, async (user) => {
                     if (!user) return;
+                    
+                    // Connection established
+                    if(pulseEl) pulseEl.style.backgroundColor = '#10B981'; // Green
+                    
                     const statsDoc = doc(db, 'artifacts', appId, 'public', 'data', 'site_stats', 'global');
+                    
                     if (!sessionStorage.getItem('visited')) {
                         await setDoc(statsDoc, { visit_count: increment(1) }, { merge: true }).catch(err => console.error("Permission error on write:", err));
                         sessionStorage.setItem('visited', 'true');
                     }
+                    
                     onSnapshot(statsDoc, (snapshot) => {
                         const data = snapshot.data();
-                        if (data && data.visit_count) {
-                            const countEl = document.getElementById('visit-count');
-                            if (countEl) countEl.innerText = data.visit_count.toLocaleString();
+                        const countEl = document.getElementById('count-value');
+                        if (data && data.visit_count !== undefined && countEl) {
+                            countEl.innerText = data.visit_count.toLocaleString();
+                            const pulse = document.getElementById('connection-pulse');
+                            if(pulse) pulse.classList.add('animate-ping');
+                            setTimeout(() => pulse && pulse.classList.remove('animate-ping'), 1000);
                         }
                     }, (error) => {
                         console.error("Stats listener failed:", error);
+                        const countEl = document.getElementById('count-value');
+                        if(countEl) countEl.innerText = "OFFLINE";
+                        if(pulseEl) pulseEl.style.backgroundColor = '#EF4444'; // Red
                     });
                 });
             } catch (err) {
