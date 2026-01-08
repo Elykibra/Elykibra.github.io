@@ -3,594 +3,1055 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dungeon Party</title>
+    <title>Kyle Tolilic - Automation Engineer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-        
+        /* Global Reset for a "Flat" App feel */
+        * {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        *::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
+        }
+
         body {
-            font-family: 'Press Start 2P', cursive;
-            background-color: #1a1a1a;
-            color: #e5e5e5;
-            touch-action: none; /* Prevent scroll on mobile tap */
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f1a;
+            color: #E5E7EB;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
         }
 
-        .pixel-border {
-            box-shadow: 
-                -4px 0 0 0 #e5e5e5,
-                4px 0 0 0 #e5e5e5,
-                0 -4px 0 0 #e5e5e5,
-                0 4px 0 0 #e5e5e5;
-            margin: 4px;
+        .canvas-grid {
+            background-image: radial-gradient(#2d3748 1px, transparent 1px);
+            background-size: 30px 30px;
         }
 
-        .btn-pixel {
-            position: relative;
-            display: inline-block;
-            padding: 15px 30px;
-            background: #4a4a4a;
-            color: white;
-            text-transform: uppercase;
-            border: none;
-            cursor: pointer;
-            box-shadow: inset -4px -4px 0px 0px rgba(0,0,0,0.5), inset 4px 4px 0px 0px rgba(255,255,255,0.2);
-            transition: all 0.1s;
+        .node-card {
+            background: rgba(31, 41, 55, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid #374151;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .node-card.processing {
+            border-color: #FBBF24;
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.2);
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        .node-card.failed-node {
+            border-color: #EF4444 !important;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.4) !important;
+            animation: shake 0.4s ease-in-out, glitch-color 0.2s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes glitch-color {
+            0% { border-color: #EF4444; }
+            50% { border-color: #ffffff; }
+            100% { border-color: #EF4444; }
+        }
+
+        .line-flow {
+            stroke-dasharray: 8;
+            animation: flow 30s linear infinite;
+        }
+
+        @keyframes flow {
+            from { stroke-dashoffset: 500; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        .data-packet {
+            fill: #FBBF24;
+            filter: drop-shadow(0 0 8px #FBBF24);
+            transition: fill 0.3s;
+        }
+
+        .data-packet.error-packet {
+            fill: #EF4444;
+            filter: drop-shadow(0 0 8px #EF4444);
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        #terminal-input:focus { outline: none; }
+
+        .toggle-btn.active {
+            background-color: #FBBF24;
+            color: #0b0f1a;
+            font-weight: 800;
+        }
+
+        .exec-card, .landing-card, .project-card-brief, .process-step-card {
+            background: linear-gradient(145deg, rgba(31, 41, 55, 0.4), rgba(15, 23, 42, 0.6));
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .landing-card:hover, .project-card-brief:hover {
+            border-color: #FBBF24;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
         }
         
-        .btn-pixel:active {
-            transform: translateY(2px);
-            box-shadow: inset -2px -2px 0px 0px rgba(0,0,0,0.5), inset 2px 2px 0px 0px rgba(255,255,255,0.2);
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                height: 100%;
+                width: 85%;
+                transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 20px 0 50px rgba(0,0,0,0.5);
+                z-index: 100;
+            }
+            #sidebar.open { left: 0; }
+            #sidebar-overlay.visible { opacity: 1; pointer-events: auto; }
+            #sidebar-overlay.hidden-overlay { opacity: 0; pointer-events: none; }
         }
 
-        .btn-pixel.primary { background: #3b82f6; }
-        .btn-pixel.secondary { background: #10b981; }
-        .btn-pixel.danger { background: #ef4444; }
-
-        .char-card {
-            border: 4px solid #333;
-            cursor: pointer;
-            transition: all 0.2s;
+        #view-architect { 
+            overscroll-behavior: contain;
+            cursor: grab;
+            user-select: none;
+            overflow: hidden; /* Truly flat - no scrollbars */
         }
-        .char-card:hover { transform: scale(1.05); }
-        .char-card.selected {
-            border-color: #fbbf24; /* Amber-400 */
-            background: #333;
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+        
+        #view-architect:active {
+            cursor: grabbing;
         }
 
-        canvas {
-            image-rendering: pixelated; /* Sharp pixels */
-            width: 100%;
-            height: 100%;
+        #canvas-wrapper {
+            transition: transform 0.1s ease-out;
+            transform-origin: 0 0;
         }
 
-        #dpad button {
-            width: 60px;
-            height: 60px;
-            background: rgba(255,255,255,0.1);
-            border: 2px solid #555;
-            border-radius: 8px;
-            color: white;
-            font-size: 20px;
+        .hero-gradient {
+            background: radial-gradient(circle at top center, rgba(251, 191, 36, 0.05), transparent 70%);
         }
-        #dpad button:active { background: rgba(255,255,255,0.3); }
+
+        .glow-pulse {
+            position: absolute;
+            inset: -2px;
+            border-radius: 0.75rem;
+            background: linear-gradient(45deg, #FBBF24, transparent, #FBBF24);
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s;
+        }
+        .processing .glow-pulse {
+            opacity: 0.4;
+            animation: rotateGlow 2s linear infinite;
+        }
+        @keyframes rotateGlow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .status-pill {
+            font-size: 7px;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        .status-prod { background: #065f46; color: #34d399; }
+        .status-beta { background: #92400e; color: #fbbf24; }
+        .status-rnd { background: #1e40af; color: #60a5fa; }
     </style>
 </head>
-<body class="h-screen w-screen overflow-hidden flex flex-col items-center justify-center p-4">
+<body class="antialiased flex flex-col md:flex-row">
 
-    <div id="app" class="relative z-20 w-full max-w-2xl h-full flex flex-col justify-center">
-        
-        <!-- HEADER -->
-        <div id="header" class="text-center mb-4 shrink-0">
-            <h1 class="text-xl md:text-2xl text-yellow-400 mb-2 text-shadow">DUNGEON SYNC</h1>
+    <div id="sidebar-overlay" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden-overlay md:hidden z-40"></div>
+
+    <aside id="sidebar" class="w-full md:w-80 bg-gray-900 border-r border-gray-800 p-6 flex flex-col h-full z-50">
+        <div class="mb-8 flex items-center justify-between">
+            <div onclick="setViewMode('landing')" class="cursor-pointer group">
+                <h1 class="text-2xl font-black text-white tracking-tight uppercase group-hover:text-amber-500 transition-colors">Kyle Tolilic</h1>
+                <p class="text-amber-500 font-bold text-xs mt-1 uppercase tracking-widest">Automation Engineer</p>
+            </div>
+            <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-gray-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
         </div>
 
-        <!-- ERROR MESSAGE -->
-        <div id="error-display" class="hidden mb-4 p-2 bg-red-900/90 border-2 border-red-500 text-red-200 text-xs text-center fixed top-4 left-4 right-4 z-50"></div>
-
-        <!-- VIEW: LOADING -->
-        <div id="view-loading" class="text-center">
-            <p class="animate-pulse text-blue-300">Connecting to Nethernet...</p>
-        </div>
-
-        <!-- VIEW: MAIN MENU -->
-        <div id="view-menu" class="hidden flex flex-col gap-6 items-center">
-            <div class="pixel-border p-8 bg-gray-800 text-center w-full max-w-md">
-                <p id="user-display" class="text-xs text-blue-300 mb-8 truncate"></p>
-                <div class="flex flex-col gap-4">
-                    <button id="btn-create-menu" class="btn-pixel primary">Create Party</button>
-                    <button id="btn-join-menu" class="btn-pixel secondary">Join Party</button>
+        <nav class="space-y-6 flex-grow overflow-y-auto pr-2">
+            <div>
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Intelligence Systems</h3>
+                <div class="space-y-2">
+                    <button onclick="loadScenario('mother-ai')" id="btn-mother-ai" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
+                        <span class="flex items-center gap-2">Mother AI <span class="status-pill status-rnd">R&D</span></span>
+                        <i data-lucide="cpu" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </div>
-        </div>
 
-        <!-- VIEW: CHARACTER SELECT -->
-        <div id="view-character-select" class="hidden w-full flex justify-center">
-            <div class="pixel-border p-6 bg-gray-800 w-full max-w-md">
-                <h2 class="text-center mb-6 text-yellow-400 text-sm">CHOOSE YOUR HERO</h2>
-                
-                <div id="char-grid" class="grid grid-cols-2 gap-4 mb-6">
-                    <!-- Injected by JS -->
-                </div>
-
-                <div class="text-center mb-6 h-12">
-                    <p id="char-desc-name" class="text-yellow-400 text-xs mb-1">Select a Class</p>
-                    <p id="char-desc-stats" class="text-gray-400 text-[10px]">...</p>
-                </div>
-
-                <div class="flex gap-4">
-                    <button id="btn-back-char" class="btn-pixel w-1/2 text-xs">Back</button>
-                    <button id="btn-confirm-char" class="btn-pixel secondary w-1/2 text-xs">Confirm</button>
+            <div>
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Diagnostic Reports</h3>
+                <div class="space-y-2">
+                    <button onclick="loadScenario('zapier-debug')" id="btn-zapier-debug" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
+                        <span class="flex items-center gap-2">Payment Debug <span class="status-pill status-prod">Live</span></span>
+                        <i data-lucide="bug" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="loadScenario('ai-validation')" id="btn-ai-validation" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
+                        <span class="flex items-center gap-2">AI Validation <span class="status-pill status-prod">Live</span></span>
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </div>
-        </div>
 
-        <!-- VIEW: JOIN INPUT -->
-        <div id="view-join-input" class="hidden w-full flex justify-center">
-            <div class="pixel-border p-6 bg-gray-800 w-full max-w-md">
-                <h2 class="text-center mb-6 text-yellow-400">Enter Room Code</h2>
-                <input type="text" id="input-room-code" maxlength="4" placeholder="ABCD" 
-                    class="w-full bg-gray-900 border-2 border-gray-600 p-4 text-center text-xl tracking-[0.5em] text-white uppercase mb-6 focus:outline-none focus:border-blue-500">
-                <div class="flex gap-4">
-                    <button id="btn-back-join" class="btn-pixel w-1/2">Back</button>
-                    <button id="btn-confirm-join" class="btn-pixel secondary w-1/2">Connect</button>
+            <div>
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Production Pipelines</h3>
+                <div class="space-y-2">
+                    <button onclick="loadScenario('attorney')" id="btn-attorney" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
+                        <span class="flex items-center gap-2">Attorney v2.0 <span class="status-pill status-prod">Live</span></span>
+                        <i data-lucide="briefcase" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="loadScenario('helpscout')" id="btn-helpscout" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
+                        <span class="flex items-center gap-2">Help Scout Sage <span class="status-pill status-beta">Beta</span></span>
+                        <i data-lucide="message-square" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="loadScenario('aethelgard')" id="btn-aethelgard" class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-800 border border-transparent text-gray-400 text-sm font-medium flex items-center justify-between transition-all group">
+                        <span class="flex items-center gap-2">Aethelgard RPG <span class="status-pill status-rnd">Legacy</span></span>
+                        <i data-lucide="swords" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </div>
-        </div>
 
-        <!-- VIEW: LOBBY -->
-        <div id="view-lobby" class="hidden w-full flex justify-center">
-            <div class="pixel-border p-6 bg-gray-800 w-full max-w-md">
-                <div class="flex justify-between items-center mb-6 border-b-2 border-gray-600 pb-4">
-                    <div>
-                        <span class="text-xs text-gray-400 block mb-1">ROOM CODE</span>
-                        <span id="display-room-code" class="text-2xl text-yellow-400 tracking-widest cursor-pointer">????</span>
+            <div class="pt-6 border-t border-gray-800 space-y-4">
+                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 text-amber-500/50">Connectivity</h3>
+                <a href="Kyle_Tolilic_Resume.pdf" download="Kyle_Tolilic_Resume.pdf" class="flex items-center justify-between w-full px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500 text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-gray-900 transition-all group mb-2">
+                    <span class="flex items-center gap-2">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                        Download CV
+                    </span>
+                    <i data-lucide="download" class="w-3 h-3 opacity-50 group-hover:opacity-100"></i>
+                </a>
+                <a href="mailto:ktolilic@gmail.com" class="flex items-center space-x-3 text-sm text-gray-400 hover:text-amber-500 transition-colors">
+                    <i data-lucide="mail" class="w-4 h-4"></i>
+                    <span>ktolilic@gmail.com</span>
+                </a>
+                <a href="tel:+639457392267" class="flex items-center space-x-3 text-sm text-gray-400 hover:text-amber-500 transition-colors">
+                    <i data-lucide="phone" class="w-4 h-4"></i>
+                    <span>+63 945 739 2267</span>
+                </a>
+                <div class="flex items-center space-x-4 pt-2">
+                    <a href="https://github.com/Elykibra" target="_blank" class="text-gray-500 hover:text-white transition-colors">
+                        <i data-lucide="github" class="w-5 h-5"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/kyle-tolilic" target="_blank" class="text-gray-500 hover:text-white transition-colors">
+                        <i data-lucide="linkedin" class="w-5 h-5"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-auto pt-6 border-t border-gray-800/50">
+                <!-- Secret Status Module with Latency -->
+                <div id="visit-counter-container" class="flex flex-col items-center justify-center py-4 px-2 bg-white/0 hover:bg-white/5 rounded-2xl transition-all cursor-pointer group select-none relative" onclick="toggleSecretStats()" title="Toggle System Monitor">
+                    <div class="flex items-center gap-1.5 mb-1">
+                        <div id="connection-pulse" class="w-1.5 h-1.5 bg-gray-600 rounded-full transition-colors duration-500"></div>
+                        <span id="version-tag" class="text-[9px] mono text-gray-500 group-hover:text-gray-300">v2.5.1-stable</span>
                     </div>
-                    <div id="lobby-status" class="text-xs bg-green-900 text-green-300 px-2 py-1">WAITING</div>
+                    <span id="visit-label" class="text-[9px] font-black uppercase tracking-[0.2em] text-amber-500/50 hidden group-hover:block">System Heartbeat</span>
+                    <div id="visit-count" class="text-xs font-black text-amber-500 hidden mt-1 flex flex-col items-center gap-1">
+                        <div class="flex items-center gap-2">
+                            <span id="count-value">SYNCHRONIZING</span>
+                            <span class="w-1 h-1 bg-amber-500 rounded-full animate-ping"></span>
+                        </div>
+                        <span id="latency-value" class="text-[8px] mono text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-tighter">Sync: ---ms</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="flex-grow relative overflow-hidden flex flex-col bg-[#0b0f1a]">
+        
+        <header id="main-header" class="hidden p-3 md:p-4 bg-gray-900/80 backdrop-blur-md border-b border-gray-800 flex flex-col md:flex-row gap-4 justify-between items-center z-20">
+            <div class="flex items-center w-full md:w-auto justify-between md:justify-start gap-4">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2 -ml-2 text-gray-400 hover:text-amber-500 transition-all">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                    <div class="flex flex-col">
+                        <h2 id="scenario-title" class="text-xs md:text-sm font-bold text-white uppercase tracking-wider truncate max-w-[140px] md:max-w-none">Scenario Name</h2>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                            <span class="text-[8px] mono text-gray-500 uppercase font-black">System Nominal</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-6 w-px bg-gray-800 hidden md:block"></div>
+                <div class="flex p-1 bg-black/40 rounded-lg border border-white/5 flex-shrink-0">
+                    <button onclick="setViewMode('architect')" id="mode-architect" class="toggle-btn active px-3 md:px-5 py-2 rounded text-[9px] md:text-[10px] uppercase tracking-widest transition-all">Architect</button>
+                    <button onclick="setViewMode('executive')" id="mode-executive" class="toggle-btn px-3 md:px-5 py-2 rounded text-[9px] md:text-[10px] uppercase tracking-widest transition-all text-gray-500">Executive</button>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                <div class="flex items-center gap-2 px-3 py-1 bg-black/40 border border-white/5 rounded-full mr-2">
+                    <span class="text-[8px] font-black uppercase text-gray-500">Chaos Mode</span>
+                    <button onclick="toggleChaosMode()" id="chaos-toggle" class="w-8 h-4 bg-gray-700 rounded-full relative transition-all">
+                        <div id="chaos-knob" class="absolute left-1 top-1 w-2 h-2 bg-white rounded-full transition-all"></div>
+                    </button>
+                </div>
+                <button onclick="toggleTerminal()" id="term-btn" class="flex items-center gap-2 px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-full text-gray-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:border-amber-500/50 hover:text-white transition-all">
+                    <i data-lucide="terminal" class="w-3 h-3"></i>
+                    <span>Console</span>
+                </button>
+                <div class="h-4 w-px bg-gray-800"></div>
+                <button onclick="startSimulation()" id="sim-btn" class="flex items-center gap-2 px-4 py-1.5 bg-amber-500/10 border border-amber-500/50 rounded-full text-amber-500 text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-gray-900 transition-all">
+                    <i data-lucide="play" class="w-3 h-3"></i>
+                    <span>Trace Logic</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Landing View -->
+        <div id="view-landing" class="flex-grow overflow-y-auto hero-gradient flex flex-col items-center p-6 md:p-12">
+            <div class="max-w-6xl w-full space-y-20 animate-in fade-in slide-in-from-bottom-4 duration-1000 py-12">
+                
+                <!-- Hero Section -->
+                <div class="text-center space-y-8">
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full text-amber-500 text-[10px] font-black uppercase tracking-[0.2em]">
+                            <i data-lucide="shield-check" class="w-3 h-3 animate-pulse"></i>
+                            <span>Operational Excellence Protocol v2.5</span>
+                        </div>
+                    </div>
+                    <h1 class="text-4xl md:text-8xl font-black text-white tracking-tighter uppercase leading-none">
+                        Replacing Manual Drift with <span class="text-amber-500">Pure Logic</span>.
+                    </h1>
+                    <p class="text-gray-400 md:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
+                        Bridging the gap between manual operations and engineering excellence. I build high-fidelity, API-driven systems that manage high-stakes data and AI contexts with industrial reliability.
+                    </p>
                 </div>
 
-                <div class="mb-6">
-                    <h3 class="text-xs text-blue-300 mb-4">PARTY MEMBERS</h3>
-                    <div id="player-list" class="space-y-3"></div>
+                <!-- Strategic Impact Dashboard -->
+                <div class="bg-gray-900/50 border border-white/5 p-8 md:p-12 rounded-[2.5rem] relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-8 opacity-5">
+                        <i data-lucide="bar-chart-3" class="w-32 h-32 text-amber-500"></i>
+                    </div>
+                    <div class="relative z-10 space-y-12">
+                        <div class="text-center md:text-left">
+                            <h3 class="text-[10px] font-black text-amber-500 uppercase tracking-[0.4em] mb-2">Executive Summary</h3>
+                            <h2 class="text-2xl font-black text-white uppercase tracking-tight">The Quantifiable Value of Automation</h2>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                            <div class="space-y-2">
+                                <div class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Time Reclaimed</div>
+                                <div class="text-4xl font-black text-white">40h+</div>
+                                <div class="text-[10px] text-gray-600 font-medium">Weekly manual effort eliminated</div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Logic Accuracy</div>
+                                <div class="text-4xl font-black text-amber-500">99.9%</div>
+                                <div class="text-[10px] text-gray-600 font-medium">Deterministic data integrity</div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Context Decay</div>
+                                <div class="text-4xl font-black text-white">0.0</div>
+                                <div class="text-[10px] text-gray-600 font-medium">Recursive AI memory persistence</div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="text-[9px] font-black text-gray-500 uppercase tracking-widest">System Latency</div>
+                                <div class="text-4xl font-black text-white">&lt;2s</div>
+                                <div class="text-[10px] text-gray-600 font-medium">Real-time API orchestration</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="host-controls" class="hidden border-t-2 border-gray-600 pt-4 mt-4">
-                    <button id="btn-start-game" class="btn-pixel secondary w-full mb-2">Enter Dungeon</button>
+                <!-- Featured Systems Grid -->
+                <div class="space-y-12">
+                    <div class="text-center space-y-3">
+                        <h3 class="text-[10px] font-black text-amber-500 uppercase tracking-[0.4em]">The Lab</h3>
+                        <h2 class="text-3xl font-black text-white uppercase tracking-tight">Active Automation Traces</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div onclick="loadScenario('mother-ai')" class="project-card-brief p-8 rounded-[2rem] cursor-pointer group">
+                            <div class="flex justify-between items-start mb-8">
+                                <div class="p-4 bg-gray-900 rounded-2xl border border-white/5 group-hover:border-amber-500/50 transition-all">
+                                    <i data-lucide="cpu" class="w-8 h-8 text-amber-500"></i>
+                                </div>
+                                <span class="status-pill status-rnd">Active R&D</span>
+                            </div>
+                            <h3 class="text-xl font-black text-white uppercase mb-2">Mother AI</h3>
+                            <p class="text-xs text-gray-400 leading-relaxed mb-6">A custom Python IDE solving "Context Decay" through recursive memory synthesized from Git diffs and YAML history.</p>
+                            <div class="flex items-center text-[10px] font-black text-amber-500 uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+                                <span>Inspect Pipeline</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+                            </div>
+                        </div>
+
+                        <div onclick="loadScenario('attorney')" class="project-card-brief p-8 rounded-[2rem] cursor-pointer group">
+                            <div class="flex justify-between items-start mb-8">
+                                <div class="p-4 bg-gray-900 rounded-2xl border border-white/5 group-hover:border-amber-500/50 transition-all">
+                                    <i data-lucide="briefcase" class="w-8 h-8 text-amber-500"></i>
+                                </div>
+                                <span class="status-pill status-prod">Deployed</span>
+                            </div>
+                            <h3 class="text-xl font-black text-white uppercase mb-2">Attorney v2.0</h3>
+                            <p class="text-xs text-gray-400 leading-relaxed mb-6">A 28-step acquisition system utilizing 5-layer Python deduplication and semantic focus-grading to scale outreach.</p>
+                            <div class="flex items-center text-[10px] font-black text-amber-500 uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+                                <span>Inspect Pipeline</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+                            </div>
+                        </div>
+
+                        <div onclick="loadScenario('helpscout')" class="project-card-brief p-8 rounded-[2rem] cursor-pointer group">
+                            <div class="flex justify-between items-start mb-8">
+                                <div class="p-4 bg-gray-900 rounded-2xl border border-white/5 group-hover:border-amber-500/50 transition-all">
+                                    <i data-lucide="message-square" class="w-8 h-8 text-amber-500"></i>
+                                </div>
+                                <span class="status-pill status-beta">Live Beta</span>
+                            </div>
+                            <h3 class="text-xl font-black text-white uppercase mb-2">HS Sage</h3>
+                            <p class="text-xs text-gray-400 leading-relaxed mb-6">Express-based AI Co-pilot fetching full thread history to generate internal notes for agents, reducing resolution time by 60%.</p>
+                            <div class="flex items-center text-[10px] font-black text-amber-500 uppercase tracking-widest group-hover:translate-x-2 transition-transform">
+                                <span>Inspect Pipeline</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="guest-controls" class="hidden border-t-2 border-gray-600 pt-4 mt-4">
-                    <p class="text-xs text-center animate-pulse">Waiting for host...</p>
+                <!-- Strategic Toolchain -->
+                <div class="space-y-10 pt-10 border-t border-white/5">
+                    <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-[0.4em] text-center">Production Infrastructure</h4>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <div class="px-6 py-3 bg-gray-900 border border-white/5 rounded-2xl text-[10px] font-bold text-gray-400 flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 bg-amber-500 rounded-full"></span> Python / Java
+                        </div>
+                        <div class="px-6 py-3 bg-gray-900 border border-white/5 rounded-2xl text-[10px] font-bold text-gray-400 flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Node.js / SQL
+                        </div>
+                        <div class="px-6 py-3 bg-gray-900 border border-white/5 rounded-2xl text-[10px] font-bold text-gray-400 flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Zapier / Make
+                        </div>
+                        <div class="px-6 py-3 bg-gray-900 border border-white/5 rounded-2xl text-[10px] font-bold text-gray-400 flex items-center gap-3">
+                            <span class="w-1.5 h-1.5 bg-purple-500 rounded-full"></span> OpenAI / Gemini API
+                        </div>
+                    </div>
                 </div>
-                <button id="btn-leave-lobby" class="btn-pixel danger w-full mt-4 text-xs">Leave</button>
+
+                <!-- Final CTA -->
+                <div class="py-20 text-center">
+                    <h2 class="text-4xl font-black text-white uppercase tracking-tighter mb-8">Ready to Scale Efficiency?</h2>
+                    <div class="flex flex-wrap justify-center gap-6">
+                        <a href="mailto:ktolilic@gmail.com" class="px-10 py-5 bg-amber-500 rounded-2xl text-black font-black uppercase text-xs tracking-widest hover:scale-105 hover:shadow-[0_0_30px_rgba(251,191,36,0.4)] transition-all">Initiate Protocol</a>
+                        <button onclick="setViewMode('architect')" class="px-10 py-5 bg-gray-900 border border-white/10 rounded-2xl text-white font-black uppercase text-xs tracking-widest hover:bg-white/5 transition-all">Browse Architecture</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- VIEW: GAME -->
-        <div id="view-game" class="hidden flex-col h-full items-center">
-            <div class="relative w-full max-w-md aspect-square bg-black pixel-border mb-2 overflow-hidden">
-                <canvas id="game-canvas" width="400" height="400"></canvas>
-                <!-- Loading overlay for guests waiting for map -->
-                <div id="game-loading" class="absolute inset-0 bg-black/80 flex items-center justify-center hidden">
-                    <span class="text-yellow-400 animate-pulse">Syncing Map...</span>
-                </div>
+        <!-- Architect View -->
+        <div id="view-architect" class="hidden flex-grow canvas-grid relative">
+            <div id="canvas-wrapper" class="relative w-[3000px] h-[2000px] pointer-events-none">
+                <svg id="svg-layer" class="absolute top-0 left-0 w-full h-full pointer-events-none z-0"></svg>
+                <div id="node-layer" class="absolute top-0 left-0 w-full h-full z-10 pointer-events-auto"></div>
             </div>
             
-            <div class="flex justify-between w-full max-w-md px-2 items-center">
-                <p class="text-[10px] text-gray-400">Arrows/WASD to move</p>
-                <button id="btn-exit-game" class="text-[10px] text-red-400 hover:text-red-200 uppercase">Exit Run</button>
+            <div class="fixed bottom-24 right-6 flex flex-col gap-2 z-40">
+                <div class="bg-gray-900/80 backdrop-blur-md border border-white/10 p-1 rounded-xl flex flex-col gap-1 shadow-2xl">
+                    <button onclick="changeZoom(0.1)" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-amber-500 hover:bg-white/5 rounded-lg transition-all" title="Zoom In">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                    </button>
+                    <div id="zoom-level" class="text-[9px] font-bold text-center text-gray-500 mono py-1">100%</div>
+                    <button onclick="changeZoom(-0.1)" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-amber-500 hover:bg-white/5 rounded-lg transition-all" title="Zoom Out">
+                        <i data-lucide="minus" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <button onclick="resetZoom()" class="w-10 h-10 bg-gray-900/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-gray-400 hover:text-amber-500 rounded-xl shadow-2xl transition-all" title="Reset View">
+                    <i data-lucide="maximize" class="w-4 h-4"></i>
+                </button>
             </div>
 
-            <!-- Mobile Controls -->
-            <div id="dpad" class="mt-4 grid grid-cols-3 gap-2 md:hidden">
-                <div></div>
-                <button id="btn-up">▲</button>
-                <div></div>
-                <button id="btn-left">◀</button>
-                <button id="btn-down">▼</button>
-                <button id="btn-right">▶</button>
+            <div id="live-terminal" class="fixed md:absolute bottom-6 left-4 right-4 md:left-6 md:right-6 h-48 md:h-56 bg-black/95 backdrop-blur-xl border border-white/10 rounded-xl z-30 overflow-hidden flex flex-col transition-all duration-300 shadow-2xl opacity-0 pointer-events-none translate-y-10">
+                <div class="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/5">
+                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-500">System Trace Log</span>
+                    <button onclick="toggleTerminal(false)" class="text-gray-500 hover:text-white">
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>
+                </div>
+                <div id="log-container" class="p-4 text-[10px] mono text-gray-400 space-y-1 overflow-y-auto flex-grow"></div>
+                <div class="p-3 bg-black/40 border-t border-white/5 flex items-center space-x-2">
+                    <span class="text-amber-500 text-xs mono font-bold ml-1">></span>
+                    <input type="text" id="terminal-input" placeholder="Type 'help' for commands..." class="bg-transparent border-none text-amber-500 text-xs mono w-full focus:ring-0 placeholder:text-gray-700" autocomplete="off">
+                </div>
             </div>
         </div>
 
-    </div>
+        <!-- Executive View -->
+        <div id="view-executive" class="hidden flex-grow overflow-y-auto bg-[#0b0f1a] p-5 md:p-12 flex flex-col items-center">
+            <div class="max-w-4xl w-full space-y-8 md:space-y-12 pb-20">
+                <div class="space-y-4 border-l-4 border-amber-500 pl-4 md:pl-8">
+                    <h2 class="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter leading-tight" id="exec-title">Title</h2>
+                    <div class="flex flex-wrap items-center gap-2 md:gap-3">
+                        <span class="px-3 py-1 bg-amber-500/10 text-amber-500 text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-full border border-amber-500/20" id="exec-intent">Intent</span>
+                        <span class="text-gray-600 text-[9px] md:text-[10px] font-bold uppercase tracking-widest">Engineering Case Study</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+                    <div class="exec-card p-6 md:p-8 rounded-2xl md:rounded-3xl">
+                        <div class="flex items-center space-x-3 mb-4 text-gray-400">
+                            <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                            <h4 class="text-[10px] font-black uppercase tracking-widest">The Problem</h4>
+                        </div>
+                        <p id="exec-problem" class="text-xs md:text-sm text-gray-300 leading-relaxed font-medium"></p>
+                    </div>
+                    <div class="exec-card p-6 md:p-8 rounded-2xl md:rounded-3xl">
+                        <div class="flex items-center space-x-3 mb-4 text-amber-500">
+                            <i data-lucide="cpu" class="w-4 h-4"></i>
+                            <h4 class="text-[10px] font-black uppercase tracking-widest">The Solution</h4>
+                        </div>
+                        <p id="exec-solution" class="text-xs md:text-sm text-gray-300 leading-relaxed font-medium"></p>
+                    </div>
+                    <div class="exec-card p-6 md:p-8 rounded-2xl md:rounded-3xl">
+                        <div class="flex items-center space-x-3 mb-4 text-green-500">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            <h4 class="text-[10px] font-black uppercase tracking-widest">The Outcome</h4>
+                        </div>
+                        <p id="exec-result" class="text-xs md:text-sm text-gray-300 leading-relaxed font-medium"></p>
+                    </div>
+                </div>
+                <div class="bg-gray-900/50 border border-white/5 p-6 md:p-10 rounded-2xl md:rounded-[3rem] relative overflow-hidden">
+                    <h4 class="text-[9px] md:text-[11px] font-black text-amber-500 uppercase mb-8 md:mb-10 tracking-[0.2em] text-center">System Performance Metrics</h4>
+                    <div id="exec-kpis" class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12 relative z-10"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                    <div class="space-y-6">
+                        <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                            <i data-lucide="shield-alert" class="w-3 h-3"></i> Engineering Constraints
+                        </h4>
+                        <div id="exec-restraint" class="bg-black/20 p-6 md:p-8 rounded-2xl md:rounded-3xl border border-white/5 text-xs md:text-sm text-gray-400 italic leading-relaxed"></div>
+                    </div>
+                    <div class="space-y-6">
+                        <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                            <i data-lucide="target" class="w-3 h-3"></i> Functional Impact
+                        </h4>
+                        <div id="exec-value" class="bg-amber-500/5 p-6 md:p-8 rounded-2xl md:rounded-3xl border border-amber-500/10 text-xs md:text-sm text-amber-100/70 leading-relaxed"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <!-- FIREBASE MODULES -->
+        <!-- Node Details Drawer -->
+        <div id="drawer" class="fixed top-0 right-0 h-full w-full md:w-[520px] bg-[#0f172a] border-l border-white/10 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-[60] flex flex-col">
+            <div class="p-5 md:p-6 border-b border-white/5 flex justify-between items-center bg-gray-900/50">
+                <div class="flex items-center space-x-4">
+                    <div id="drawer-icon" class="p-3 bg-amber-500/20 rounded-xl text-amber-500 border border-amber-500/20"></div>
+                    <div>
+                        <h3 id="drawer-name" class="text-lg md:text-xl font-bold text-white">Node Name</h3>
+                        <p id="drawer-type" class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Step Type</p>
+                    </div>
+                </div>
+                <button onclick="closeDrawer()" class="p-2 hover:bg-white/5 rounded-full text-gray-400 transition-all">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="p-6 md:p-8 space-y-8 overflow-y-auto flex-grow">
+                <section class="bg-amber-500/5 border border-amber-500/20 p-5 rounded-2xl">
+                    <h4 class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="lightbulb" class="w-3 h-3"></i> Conceptual metaphor</h4>
+                    <p id="drawer-metaphor" class="text-sm text-amber-100/90 leading-relaxed italic"></p>
+                </section>
+                <section>
+                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="target" class="w-3 h-3"></i> Engineering Goal</h4>
+                    <p id="drawer-purpose" class="text-sm text-gray-300 leading-relaxed font-medium"></p>
+                </section>
+                <section>
+                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2"><i data-lucide="terminal" class="w-3 h-3"></i> Logic Loop</h4>
+                    <div id="drawer-logic" class="bg-black/40 border border-white/5 rounded-xl p-5 text-xs text-gray-300 leading-relaxed mono whitespace-pre-wrap border-l-2 border-l-blue-500/50"></div>
+                </section>
+                <div class="bg-gray-900/50 p-5 rounded-2xl border border-white/5">
+                    <h4 class="text-[10px] font-bold text-amber-500 uppercase mb-3">Toolchain</h4>
+                    <div id="drawer-tools" class="flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Horizontal Footer Restored -->
+        <footer class="p-3 bg-gray-900 border-t border-gray-800 flex justify-center space-x-6 md:space-x-12 z-20 overflow-x-auto whitespace-nowrap">
+            <div class="flex items-center space-x-2 text-[8px] font-black uppercase tracking-widest text-gray-600">
+                <i data-lucide="database" class="w-3 h-3 text-amber-500/50"></i>
+                <span>Truth vs Event</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[8px] font-black uppercase tracking-widest text-gray-600">
+                <i data-lucide="shield" class="w-3 h-3 text-amber-500/50"></i>
+                <span>Deterministic Logic</span>
+            </div>
+            <div class="flex items-center space-x-2 text-[8px] font-black uppercase tracking-widest text-gray-600">
+                <i data-lucide="award" class="w-3 h-3 text-amber-500/50"></i>
+                <span>Java Certified</span>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, arrayUnion, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, increment, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- CONFIGURATION ---
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-        // --- STATE ---
-        let currentUser = null;
-        let currentRoomId = null;
-        let roomUnsubscribe = null;
-        let gameLoopId = null;
-        let pendingAction = null; // 'create' or 'join'
-        let selectedClassId = 'knight'; // Default
-        
-        // Game Data
-        const CLASSES = [
-            { id: 'knight', name: 'Knight', color: '#ef4444', desc: 'High Defense, Short Range' },
-            { id: 'rogue', name: 'Rogue', color: '#10b981', desc: 'High Speed, Critical Hits' },
-            { id: 'wizard', name: 'Wizard', color: '#3b82f6', desc: 'Low Health, Long Range' },
-            { id: 'cleric', name: 'Cleric', color: '#f59e0b', desc: 'Healer, Party Buffs' }
-        ];
-
-        let localGrid = []; 
-        let playersMap = {}; 
-        const GRID_W = 15;
-        const GRID_H = 15;
-
-        // --- DOM ---
-        const views = {
-            loading: document.getElementById('view-loading'),
-            menu: document.getElementById('view-menu'),
-            charSelect: document.getElementById('view-character-select'),
-            join: document.getElementById('view-join-input'),
-            lobby: document.getElementById('view-lobby'),
-            game: document.getElementById('view-game')
-        };
-        const els = {
-            error: document.getElementById('error-display'),
-            canvas: document.getElementById('game-canvas'),
-            gameLoading: document.getElementById('game-loading'),
-            charGrid: document.getElementById('char-grid'),
-            charName: document.getElementById('char-desc-name'),
-            charStats: document.getElementById('char-desc-stats')
-        };
-        const ctx = els.canvas.getContext('2d');
-
-        // --- AUTH ---
-        const initAuth = async () => {
+        async function initVisitCounter() {
             try {
+                const pulseEl = document.getElementById('connection-pulse');
+                const startTime = performance.now();
+                
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+                    await signInWithCustomToken(auth, __initial_auth_token).catch(() => signInAnonymously(auth));
                 } else {
                     await signInAnonymously(auth);
                 }
-            } catch (e) { showError(e.message); }
+                
+                onAuthStateChanged(auth, async (user) => {
+                    if (!user) return;
+                    
+                    if(pulseEl) pulseEl.style.backgroundColor = '#10B981';
+                    addLog('DB_SYNC: Auth handshake complete. Connecting to Artifact Storage...', 'system');
+                    
+                    const statsDoc = doc(db, 'artifacts', appId, 'public', 'data', 'site_stats', 'global');
+                    
+                    if (!sessionStorage.getItem('visited')) {
+                        await setDoc(statsDoc, { visit_count: increment(1) }, { merge: true }).catch(err => console.error("Write Error:", err));
+                        sessionStorage.setItem('visited', 'true');
+                    }
+                    
+                    onSnapshot(statsDoc, (snapshot) => {
+                        const syncTime = Math.round(performance.now() - startTime);
+                        const data = snapshot.data();
+                        const countEl = document.getElementById('count-value');
+                        const latencyEl = document.getElementById('latency-value');
+
+                        if (latencyEl) latencyEl.innerText = `Sync: ${syncTime}ms`;
+                        
+                        if (countEl) {
+                            const finalCount = (data && data.visit_count !== undefined) ? data.visit_count : 1;
+                            countEl.innerText = finalCount.toLocaleString();
+                            addLog(`DB_SYNC: Remote state acquired. Invocations: ${finalCount} (${syncTime}ms)`, 'success');
+                            
+                            const pulse = document.getElementById('connection-pulse');
+                            if(pulse) pulse.classList.add('animate-ping');
+                            setTimeout(() => pulse && pulse.classList.remove('animate-ping'), 1000);
+                        }
+                    }, (error) => {
+                        console.error("Stats listener failed:", error);
+                        const countEl = document.getElementById('count-value');
+                        if(countEl) countEl.innerText = "OFFLINE";
+                        if(pulseEl) pulseEl.style.backgroundColor = '#EF4444';
+                        addLog('DB_SYNC_ERROR: Connection dropped. System in read-only mode.', 'error');
+                    });
+                });
+            } catch (err) {
+                console.error("Visit counter initialization failed:", err);
+            }
+        }
+        window.addEventListener('DOMContentLoaded', () => { initVisitCounter(); });
+    </script>
+
+    <script>
+        const scenarioData = {
+            'mother-ai': {
+                title: "Mother AI Orchestrator",
+                intent: "Recursive Cognitive Layer",
+                summary: "A custom desktop IDE developed to enforce AI Context Persistence, solving context loss issues across long-running development sessions.",
+                executive: {
+                    problem: "Creative projects suffer from 'context drift' where technical vision is lost during multi-step build cycles.",
+                    solution: "An IDE using dual-persistence (YAML/JSON) and recursive 'Echo' agents to synthesize event data into stable heuristics.",
+                    result: "Achieved a 60% reduction in manual status tracking and preserved 90%+ context accuracy.",
+                    value: "Transforms raw data into institutional knowledge; every lesson learned is automatically codified.",
+                    kpis: [["Accuracy", "92%"], ["Overhead", "-60%"], ["Latency", "<2s"], ["State", "Prod"]],
+                    restraint: "Automation is limited to metadata to preserve architectural integrity; manual confirmation required for code writes."
+                },
+                nodes: [
+                    { id: 'm1', x: 100, y: 300, type: 'Input', name: 'Context Siphon', icon: 'eye', purpose: 'Detects high-value file changes via GitPython to minimize LLM token bloat.', logic: 'git_diff.stdout.splitlines()\nfilter(is_relevant_file)\nsummarize_changes(llm_minimal)', metaphor: 'A digital cartographer mapping only the changes in the terrain.', input: '{ "file": "app.py", "diff": "+20, -5" }', output: '{ "summary": "Fixed logic in Step 4" }', tools: ['GitPython', 'Python'] },
+                    { id: 'm2', x: 400, y: 300, type: 'Core', name: 'Orchestrator Kernel', icon: 'cpu', purpose: 'The central frame-state manager of the Tkinter-based IDE.', logic: 'while(True):\n  event = await_intake()\n  if(event.type == "Code"):\n    dispatch(m4_echo_engine)\n  else:\n    update_ui_state(event)', metaphor: 'A librarian who remembers every book ever pulled off the shelf.', input: '{ "event": "code_save" }', output: '{ "state": "Updated" }', tools: ['Python', 'Tkinter'] },
+                    { id: 'm3', x: 700, y: 300, type: 'Memory', name: 'State Persistence', icon: 'save', purpose: 'Enforce context persistence via dual-mode storage (JSON Config/YAML Logs).', logic: 'save_to_json("active_config.json")\nappend_to_yaml("history_log.yaml", timestamp=now)', metaphor: 'A black box flight recorder for developer thoughts.', input: '{ "reflection": "API key moved to env" }', output: '{ "write": "SUCCESS" }', tools: ['PyYAML', 'JSON'] },
+                    { id: 'm4', x: 700, y: 100, type: 'Agent', name: 'Echo Engine', icon: 'message-circle', purpose: 'Synthesize meta-cognitive heuristics to adjust AI behavior over time.', logic: 'query_recent_history(limit=5)\ngenerate_heuristic_bridge()\nupdate_prompt_mask()', metaphor: 'An assistant who finishes your sentences because they know your habits.', input: '{ "task": "refactor" }', output: '{ "advice": "Use decorator pattern" }', tools: ['Gemini 1.5'] },
+                    { id: 'm5', x: 1000, y: 100, type: 'Gateway', name: 'Zapier Gateway', icon: 'zap', purpose: 'External sync.', logic: 'if(milestone_reached):\n  payload = craft_webhook()\n  POST(zapier_hook_url, payload)', metaphor: 'The diplomat relaying status reports to the high command.', input: '{ "milestone": "Prod Deployment" }', output: '{ "status": "200 OK" }', tools: ['Zapier', 'Webhooks'] },
+                    { id: 'm6', x: 1000, y: 300, type: 'Global', name: 'Heuristic Bank', icon: 'database', purpose: 'Stabilize cross-project insights into a permanent SQL knowledge base.', logic: 'INSERT INTO insights (project_id, logic_pattern, success_rate)\nON CONFLICT DO UPDATE', metaphor: 'The Master Encyclopedia of engineering lessons learned.', input: '{ "pattern": "Async retries" }', output: '{ "db_id": 492 }', tools: ['PostgreSQL'] }
+                ],
+                edges: [['m1', 'm2'], ['m2', 'm3'], ['m2', 'm4'], ['m4', 'm5'], ['m3', 'm6'], ['m5', 'm6']]
+            },
+            'zapier-debug': {
+                title: "Failed Payment Debug",
+                intent: "Financial Data Integrity",
+                summary: "Fixes a critical 'Stale Data' bug in payment reminders by introducing runtime CRM lookups.",
+                executive: {
+                    problem: "Paid customers were receiving failure emails because automation relied on Stripe's stale initial triggers.",
+                    solution: "Introduced a Step 11.5 forced CRM lookup to refresh source-of-truth before email dispatch.",
+                    result: "100% elimination of erroneous emails. Restored brand trust.",
+                    value: "Ensures communication always aligns with the live financial state.",
+                    kpis: [["Error Rate", "0%"], ["Tickets", "-40%"], ["Precision", "100%"], ["Status", "Live"]],
+                    restraint: "Fail-Closed: System halts if CRM API is unresponsive to prevent accidental sends."
+                },
+                nodes: [
+                    { id: 'z1', x: 150, y: 300, type: 'Trigger', name: 'Initial Signal', icon: 'zap', purpose: 'Ingest untrusted failure signals from payment processors.', logic: 'on_webhook_receive("charge.failed")\nparse_charge_id()\nemit_process_start()', metaphor: 'Hearing a distant alarm that might be a false positive.', input: '{ "charge": "fail", "id": "ch_123" }', output: '{ "trusted": false }', tools: ['Stripe'] },
+                    { id: 'z2', x: 450, y: 300, type: 'Buffer', name: 'Temporal Buffer', icon: 'clock', purpose: 'Introduce necessary friction to allow asynchronous retries to settle.', logic: 'sleep(3600 * 24)\nverify_current_time_window()', metaphor: 'Checking the caller ID before picking up the phone.', input: '{ "delay": "24h" }', output: '{ "ready": true }', tools: ['Zapier'] },
+                    { id: 'z3', x: 750, y: 300, type: 'Lookup', name: 'Step 11.5 Truth Sync', icon: 'search', purpose: 'Enforce strict data integrity via live CRM query before taking action.', logic: 'query_crm(contact_id)\nif(deal_status == "Paid"):\n  abort_workflow()\nelse:\n  continue_to_comms()', metaphor: 'Calling the store manager to see if the check actually cleared.', input: '{ "query": "Status" }', output: '{ "truth": "Paid" }', tools: ['CRM API'] },
+                    { id: 'z4', x: 1050, y: 300, type: 'Router', name: 'Airlock Gate', icon: 'filter', purpose: 'Automated logic branch to prevent miscommunication.', logic: 'if(payload.truth == "Paid"):\n  STOP()\nelse:\n  PASS()', metaphor: 'The security gate that only opens for people without a ticket.', input: '{ "truth": "Paid" }', output: 'TERMINATED', tools: ['Filter'] },
+                    { id: 'z5', x: 1350, y: 300, type: 'Action', name: 'Safe Comms', icon: 'mail', purpose: 'Execute engagement with 100% state confidence.', logic: 'send_personalized_email()\nlog_outreach_in_crm()', metaphor: 'Delivering mail to an address that was double-checked today.', input: '{ "action": "Email" }', output: '{ "sent": true }', tools: ['Gmail API'] }
+                ],
+                edges: [['z1', 'z2'], ['z2', 'z3'], ['z3', 'z4'], ['z4', 'z5']]
+            },
+            'ai-validation': {
+                title: "AI Validation Flow",
+                intent: "Semantic Data Hygiene",
+                summary: "Lead quality gate performing semantic validation to ensure only professional data enters the CRM.",
+                executive: {
+                    problem: "Unprotected webhooks resulting in 'Ghost Leads' that waste agent capacity.",
+                    solution: "A semantic 'Air-Lock' gate performing an LLM professional focus check.",
+                    result: "Zero spam records in CRM. 98% bot detection.",
+                    value: "Guaranteed Data Integrity and high-intent focus for sales.",
+                    kpis: [["Detection", "98%"], ["Hygiene", "100%"], ["Latency", "1.2s"], ["Status", "Live"]],
+                    restraint: "Fallback: Leads diverted to isolation logs if AI is uncertain."
+                },
+                nodes: [
+                    { id: 'v1', x: 100, y: 300, type: 'Trigger', name: 'Raw Ingestion', icon: 'zap', purpose: 'Centralize untrusted input from public-facing webhooks.', logic: 'catch_hook()\nvalidate_json_schema()\nemit_raw_payload()', metaphor: 'The sorting room at a post office.', input: '{ "name": "...", "note": "junk" }', output: '{ "schema": "Valid" }', tools: ['Make'] },
+                    { id: 'v2', x: 400, y: 300, type: 'AI Agent', name: 'Semantic Filter', icon: 'shield-check', purpose: 'Apply qualitative data analysis to determine lead professionality.', logic: 'analyze_text_intent(payload.note)\nscore_on_scale(1, 10)\nif(score < 7): mark_junk()', metaphor: 'An expert reading every letter to see if it’s real business or junk mail.', input: '{ "text": "Pls help" }', output: '{ "intent": "Spam", "score": 2 }', tools: ['Gemini'] },
+                    { id: 'v3', x: 700, y: 300, type: 'Router', name: 'Aesthetic Router', icon: 'git-branch', purpose: 'Branch execution paths based on semantic scoring.', logic: 'if(score >= 7): path_success()\nelse: path_isolation()', metaphor: 'A train conductor switching tracks based on the cargo.', input: '{ "score": 2 }', output: 'Branch: Isolation', tools: ['Logic'] },
+                    { id: 'v4', x: 1000, y: 100, type: 'Action', name: 'High-Fidelity Write', icon: 'database', purpose: 'Ingest verified data into the system of record.', logic: 'map_to_fields()\nPOST_to_CRM()\nverify_write_success()', metaphor: 'Placing a certified file into the vault.', input: '{ "verified": true }', output: '{ "record_id": 991 }', tools: ['Salesforce'] },
+                    { id: 'v5', x: 1250, y: 100, type: 'Action', name: 'Success Alert', icon: 'slack', purpose: 'Notify human operators of high-intent arrivals.', logic: 'format_slack_message()\npush_notification()', metaphor: 'Ringing the victory bell in the office.', input: '{ "id": 991 }', output: '{ "alert": "Sent" }', tools: ['Slack'] },
+                    { id: 'v6', x: 1000, y: 450, type: 'Action', name: 'Isolation Log', icon: 'alert-triangle', purpose: 'Preserve junk data for periodic audit without polluting the CRM.', logic: 'INSERT INTO audit_logs (payload, reason)\nmark_processed()', metaphor: 'The lost and found box for suspicious items.', input: '{ "reason": "Low Score" }', output: '{ "logged": true }', tools: ['PostgreSQL'] }
+                ],
+                edges: [['v1', 'v2'], ['v2', 'v3'], ['v3', 'v4'], ['v4', 'v5'], ['v3', 'v6']]
+            },
+            'attorney': {
+                title: "Attorney Pipeline v2.0",
+                intent: "Acquisition at Scale",
+                summary: "A 28-step automation system to source, qualify, and generate personalized outreach for attorneys.",
+                executive: {
+                    problem: "Indiscriminate scraping lead to high API costs and low CRM hygiene.",
+                    solution: "Staged data through GSheets for 5-layer Python deduplication and focus-grading.",
+                    result: "96% lead accuracy and 50% cost reduction in scraping.",
+                    value: "Scalable batch processing that only ingests high-intent leads.",
+                    kpis: [["Accuracy", "96%"], ["Cost", "-50%"], ["Dedupe", "5-Layer"], ["Batch", "25"]],
+                    restraint: "Manual Gate: Triggering is manual to ensure budget alignment."
+                },
+                nodes: [
+                    { id: 'at1', x: 100, y: 300, type: 'Trigger', name: 'Control Gate', icon: 'zap', purpose: 'Enforce budget control through manual initiation.', logic: 'if(operator_authenticated):\n  trigger_pipeline()\n  log_start_event()', metaphor: 'Opening the main valve when the pressure is right.', input: 'START_CMD', output: 'INITIATED', tools: ['Notion'] },
+                    { id: 'at2', x: 400, y: 300, type: 'Scraper', name: 'Relevance Scout', icon: 'search', purpose: 'Acquire high-probability targets based on territory params.', logic: 'query_scrapers(geo="US", niche="Immigration")\nfilter_missing_data()\nemit_raw_list()', metaphor: 'Scouting for specific landmarks in a new city.', input: '{ "niche": "Immigration" }', output: '[{ "firm": "..." }]', tools: ['Relevance AI'] },
+                    { id: 'at3', x: 700, y: 300, type: 'Buffer', name: 'Staging Area', icon: 'layers', purpose: 'Batch ingestion to prevent CRM rate-limiting.', logic: 'write_batch(list, size=25)\nset_ready_flag()', metaphor: 'The staging area for trucks before they enter the warehouse.', input: '25 records', output: 'Staged', tools: ['GSheets'] },
+                    { id: 'at4', x: 1000, y: 300, type: 'Logic', name: '5-Layer Dedupe', icon: 'filter', purpose: 'Maintain absolute database hygiene via exhaustive uniqueness checks.', logic: 'check(Email, Domain, Phone, FirmName, LinkedIn)\nif(match_found): purge_record()\nelse: pass_to_enrichment()', metaphor: 'A specialized security guard checking five different IDs.', input: 'Staged record', output: 'Unique record', tools: ['Python'] },
+                    { id: 'at5', x: 1300, y: 300, type: 'AI Agent', name: 'Focus Classifier', icon: 'shield-check', purpose: 'Automated lead qualification through semantic profiling.', logic: 'classify_focus(website_text)\nif("Immigration" in focus): score=HIGH\nelse: score=LOW', metaphor: 'A specialist sorting mail by urgency and importance.', input: '{ "web": "immigration.com" }', output: '{ "focus": "HIGH" }', tools: ['Gemini'] },
+                    { id: 'at6', x: 1600, y: 300, type: 'Action', name: 'Persona Drafter', icon: 'pen-tool', purpose: 'Scaling personalization without losing the human touch.', logic: 'draft_personalized_outreach(focus, firm_name)\nsave_to_drafts()', metaphor: 'A ghostwriter drafting a custom reply for your approval.', input: '{ "focus": "HIGH" }', output: 'DRAFT_SUCCESS', tools: ['OpenAI'] }
+                ],
+                edges: [['at1', 'at2'], ['at2', 'at3'], ['at3', 'at4'], ['at4', 'at5'], ['at5', 'at6']]
+            },
+            'helpscout': {
+                title: "Help Scout Sage",
+                intent: "Efficiency Multiplier",
+                summary: "Context-aware AI Co-pilot generating private internal drafts for agents using an Express service.",
+                executive: {
+                    problem: "Routine tickets consume 40% bandwidth, slowing resolutions.",
+                    solution: "Developed an Express service using Help Scout API to inject drafts as internal notes.",
+                    result: "60% reduction in response time and 80% cost reduction vs native tools.",
+                    value: "Scaling support capacity via human-in-the-loop AI assistance.",
+                    kpis: [["Costs", "-80%"], ["Adoption", "85%"], ["Drafting", "-60%"], ["Status", "Live"]],
+                    restraint: "Draft-Only: AI acts strictly as ghostwriter for agent review."
+                },
+                nodes: [
+                    { id: 'hs1', x: 100, y: 300, type: 'Trigger', name: 'Draft Request', icon: 'mouse-pointer-2', purpose: 'Capture intent from support agents via sidebar app.', logic: 'on_button_click()\nPOST(express_endpoint, thread_id)', metaphor: 'Raising your hand when you need an assistant’s help.', input: '{ "thread_id": 102 }', output: '{ "req": "ACCEPTED" }', tools: ['Node.js', 'Express'] },
+                    { id: 'hs2', x: 400, y: 300, type: 'Fetch', name: 'History Assembler', icon: 'file-search', purpose: 'Reconstruct full conversational context for accurate drafting.', logic: 'GET(HS_API, thread_history)\nconcatenate_messages(limit=10)\nemit_context()', metaphor: 'A lawyer reading through the entire case history.', input: '{ "id": 102 }', output: '{ "history": "..." }', tools: ['HS API'] },
+                    { id: 'hs3', x: 700, y: 300, type: 'Intelligence', name: 'Intent Analyzer', icon: 'brain-circuit', purpose: 'Identify core ticket issues to ensure prompt relevancy.', logic: 'detect_sentiment(history)\ndetect_issue_category()\nemit_profile()', metaphor: 'Reading between the lines to understand the customer’s mood.', input: '{ "history": "Refund pls" }', output: '{ "intent": "billing" }', tools: ['Gemini'] },
+                    { id: 'hs4', x: 1000, y: 300, type: 'AI Agent', name: 'Draft Architect', icon: 'sparkles', purpose: 'Generate professional, empathetic drafts using internal guidelines.', logic: 'generate_draft(intent, brand_voice)\nvalidate_against_policy()', metaphor: 'A ghostwriter following your specific brand guidelines.', input: '{ "intent": "billing" }', output: '{ "draft": "Hello..." }', tools: ['Gemini'] },
+                    { id: 'hs5', x: 1300, y: 300, type: 'Quality', name: 'Tone Normalizer', icon: 'check-check', purpose: 'Ensure drafting consistency across diverse agent styles.', logic: 'refine_tone(draft, target="Friendly")\nstrip_hallucinations()', metaphor: 'A professional proofreader giving the draft a final polish.', input: '{ "draft": "..." }', output: '{ "polished": "..." }', tools: ['OpenAI'] },
+                    { id: 'hs6', x: 1600, y: 300, type: 'Action', name: 'Note Injection', icon: 'send', purpose: 'Seamlessly provide draft to agent without customer visibility.', logic: 'POST(HS_API, private_note=polished)\nemit_agent_notif()', metaphor: 'Sliding a helpful sticky note onto the agent’s desk.', input: '{ "note": "..." }', output: '{ "success": true }', tools: ['HS API'] }
+                ],
+                edges: [['hs1', 'hs2'], ['hs2', 'hs3'], ['hs3', 'hs4'], ['hs4', 'hs5'], ['hs5', 'hs6']]
+            },
+            'aethelgard': {
+                title: "Aethelgard RPG",
+                intent: "Full-Stack Persistence",
+                summary: "A complex, text-based Discord RPG demonstrating modular management with 30+ source files.",
+                executive: {
+                    problem: "Complex state management leads to database bloat and slow retrieval.",
+                    solution: "Modular Python architecture with custom SQLite schema for player data.",
+                    result: "Zero data loss with sub-millisecond query performance.",
+                    value: "Manages complex state transitions and high-concurrency data events.",
+                    kpis: [["Source", "30+ Files"], ["DB", "SQLite"], ["Language", "Python"], ["State", "Legacy"]],
+                    restraint: "Strict decoupling of logic from data persistence."
+                },
+                nodes: [
+                    { id: 'ae1', x: 100, y: 300, type: 'Trigger', name: 'Command Lexer', icon: 'keyboard', purpose: 'Translate unstructured chat commands into actionable game state logic.', logic: 'regex_match(user_msg)\nif(match): dispatch_to_module()\nelse: reply_help()', metaphor: 'The referee interpreting a player’s spoken move.', input: '"!attack dragon"', output: '{ "cmd": "ATTACK", "tgt": "dragon" }', tools: ['Python'] },
+                    { id: 'ae2', x: 400, y: 300, type: 'Core', name: 'Game Engine', icon: 'swords', purpose: 'The primary logic hub managing interactions across 30+ modular files.', logic: 'calculate_battle_math(p_stats, m_stats)\ndetermine_outcome()\nemit_update()', metaphor: 'The set of rules determining what happens after the dice are rolled.', input: '{ "cmd": "ATTACK" }', output: '{ "res": "Win", "xp": 50 }', tools: ['Python'] },
+                    { id: 'ae3', x: 700, y: 300, type: 'DB', name: 'Persistence Hub', icon: 'database', purpose: 'Maintain durable state transitions for thousands of data events.', logic: 'conn.execute("UPDATE players SET xp = xp + ? WHERE id = ?", (xp, p_id))\nconn.commit()', metaphor: 'Writing the new results onto the character sheet in permanent ink.', input: '{ "xp": 50 }', output: '{ "db_commit": "OK" }', tools: ['SQLite'] },
+                    { id: 'ae4', x: 1000, y: 300, type: 'Broadcast', name: 'UI Responder', icon: 'message-circle', purpose: 'Deliver real-time feedback to players in the Discord environment.', logic: 'format_discord_embed(results)\nsend_to_channel(channel_id)', metaphor: 'Announcing the result of the battle to the stadium crowd.', input: '{ "res": "Win" }', output: 'Discord Embed Sent', tools: ['discord.py'] }
+                ],
+                edges: [['ae1', 'ae2'], ['ae2', 'ae3'], ['ae3', 'ae4']]
+            }
         };
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('user-display').textContent = `ID: ${user.uid.substr(0,4)}`;
-                renderCharSelect(); // Prep the grid
-                switchView('menu');
+        let currentActiveView = 'landing';
+        let activeScenario = null;
+        let isSimulating = false;
+        let isTerminalActive = false;
+        let isMobileMenuOpen = false;
+        let isChaosMode = false;
+        let currentScale = 1;
+        const MIN_SCALE = 0.2;
+        const MAX_SCALE = 2;
+
+        function toggleSecretStats() {
+            const count = document.getElementById('visit-count');
+            const label = document.getElementById('visit-label');
+            const version = document.getElementById('version-tag');
+            if (count.classList.contains('hidden')) {
+                count.classList.remove('hidden'); label.classList.remove('hidden');
+                version.innerText = 'system_id: root';
+            } else {
+                count.classList.add('hidden'); label.classList.add('hidden');
+                version.innerText = 'v2.5.1-stable';
+            }
+        }
+
+        function initCanvasEngine() {
+            const architectView = document.getElementById('view-architect');
+            
+            // Mouse Wheel Zoom
+            architectView.addEventListener('wheel', (e) => {
+                if (currentActiveView !== 'architect') return;
+                e.preventDefault();
+                
+                const delta = -e.deltaY;
+                const factor = 1.1;
+                const mouseX = e.clientX - architectView.getBoundingClientRect().left;
+                const mouseY = e.clientY - architectView.getBoundingClientRect().top;
+                
+                const prevScale = currentScale;
+                if (delta > 0) currentScale = Math.min(MAX_SCALE, currentScale * factor);
+                else currentScale = Math.max(MIN_SCALE, currentScale / factor);
+                
+                const ratio = currentScale / prevScale;
+                architectView.scrollLeft = (architectView.scrollLeft + mouseX) * ratio - mouseX;
+                architectView.scrollTop = (architectView.scrollTop + mouseY) * ratio - mouseY;
+                
+                updateZoomUI();
+            }, { passive: false });
+
+            // Panning State
+            let isPanning = false;
+            let panStart = { x: 0, y: 0, sL: 0, sT: 0 };
+            
+            architectView.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.node-card') || e.target.closest('button')) return;
+                isPanning = true;
+                panStart = { x: e.clientX, y: e.clientY, sL: architectView.scrollLeft, sT: architectView.scrollTop };
+            });
+            
+            window.addEventListener('mousemove', (e) => {
+                if (!isPanning) return;
+                architectView.scrollLeft = panStart.sL - (e.clientX - panStart.x);
+                architectView.scrollTop = panStart.sT - (e.clientY - panStart.y);
+            });
+            
+            window.addEventListener('mouseup', () => { isPanning = false; });
+        }
+
+        function updateZoomUI() {
+            document.getElementById('canvas-wrapper').style.transform = `scale(${currentScale})`;
+            document.getElementById('zoom-level').innerText = `${Math.round(currentScale * 100)}%`;
+        }
+
+        function changeZoom(delta) { currentScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, currentScale + delta)); updateZoomUI(); }
+        function resetZoom() { currentScale = 1; updateZoomUI(); }
+
+        function toggleMobileMenu() {
+            isMobileMenuOpen = !isMobileMenuOpen;
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (isMobileMenuOpen) { sidebar.classList.add('open'); overlay.classList.replace('hidden-overlay', 'visible'); }
+            else { sidebar.classList.remove('open'); overlay.classList.replace('visible', 'hidden-overlay'); }
+        }
+
+        function toggleChaosMode() {
+            isChaosMode = !isChaosMode;
+            document.getElementById('chaos-knob').style.left = isChaosMode ? '18px' : '4px';
+            document.getElementById('chaos-toggle').style.backgroundColor = isChaosMode ? '#EF4444' : '#374151';
+            addLog(isChaosMode ? 'CHAOS MODE: ENABLED. Instability Simulation active.' : 'DETERMINISTIC MODE: ENABLED. Core stabilized.', isChaosMode ? 'error' : 'system');
+        }
+
+        function setViewMode(mode) {
+            currentActiveView = mode;
+            ['view-landing', 'view-architect', 'view-executive'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById('main-header').classList.toggle('hidden', mode === 'landing');
+            document.getElementById(mode === 'landing' ? 'view-landing' : `view-${mode}`).classList.remove('hidden');
+            if (mode === 'architect') renderCanvas();
+            if (mode === 'executive') renderExecutiveView();
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.id === `mode-${mode}`));
+        }
+
+        function renderExecutiveView() {
+            const s = scenarioData[activeScenario];
+            if (!s) return;
+            document.getElementById('exec-title').innerText = s.title;
+            document.getElementById('exec-intent').innerText = s.intent;
+            document.getElementById('exec-problem').innerText = s.executive.problem;
+            document.getElementById('exec-solution').innerText = s.executive.solution;
+            document.getElementById('exec-result').innerText = s.executive.result;
+            document.getElementById('exec-restraint').innerText = s.executive.restraint;
+            document.getElementById('exec-value').innerText = s.executive.value;
+            document.getElementById('exec-kpis').innerHTML = s.executive.kpis.map(k => `
+                <div class="text-center group">
+                    <div class="text-[9px] font-black text-gray-600 uppercase mb-2 tracking-widest group-hover:text-amber-500 transition-colors">${k[0]}</div>
+                    <div class="text-3xl font-black text-white">${k[1]}</div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function addLog(message, type = 'info') {
+            const container = document.getElementById('log-container');
+            const log = document.createElement('div');
+            const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const colors = { success: 'text-green-400', process: 'text-amber-400 font-bold', system: 'text-blue-400', error: 'text-red-400 font-bold' };
+            log.className = `${colors[type] || 'text-gray-400'} mb-1`;
+            log.innerHTML = `<span class="opacity-20 mr-2 tracking-tighter">${time}</span> ${message}`;
+            container.appendChild(log);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function toggleTerminal(force) {
+            isTerminalActive = force !== undefined ? force : !isTerminalActive;
+            const term = document.getElementById('live-terminal');
+            term.style.opacity = isTerminalActive ? '1' : '0';
+            term.classList.toggle('pointer-events-none', !isTerminalActive);
+            term.classList.toggle('translate-y-10', !isTerminalActive);
+        }
+
+        function loadScenario(id) {
+            if (isSimulating) stopSimulation();
+            activeScenario = id;
+            if (isMobileMenuOpen) toggleMobileMenu();
+            document.getElementById('scenario-title').innerText = scenarioData[id].title;
+            setViewMode('architect');
+            addLog(`KERNEL: Loading Scenario Data [${id}]`, 'system');
+        }
+
+        function renderCanvas() {
+            const data = scenarioData[activeScenario];
+            if (!data) return;
+            const nodeLayer = document.getElementById('node-layer');
+            const svgLayer = document.getElementById('svg-layer');
+            nodeLayer.innerHTML = ''; svgLayer.innerHTML = '';
+            data.edges.forEach((edge, idx) => {
+                const s = data.nodes.find(n => n.id === edge[0]), t = data.nodes.find(n => n.id === edge[1]);
+                const x1 = s.x + 192, y1 = s.y + 70, x2 = t.x, y2 = t.y + 70;
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                line.setAttribute("d", `M ${x1} ${y1} C ${x1 + (x2-x1)/2} ${y1}, ${x1 + (x2-x1)/2} ${y2}, ${x2} ${y2}`);
+                line.setAttribute("id", `path-${activeScenario}-${idx}`);
+                line.setAttribute("stroke", "#1f2937"); line.setAttribute("stroke-width", "2");
+                line.setAttribute("fill", "none"); line.setAttribute("class", "line-flow");
+                svgLayer.appendChild(line);
+            });
+            data.nodes.forEach(node => {
+                const div = document.createElement('div');
+                div.id = `node-${node.id}`;
+                div.className = "absolute node-card w-48 p-4 rounded-xl cursor-pointer shadow-xl z-10 flex flex-col h-[140px]";
+                div.style.left = `${node.x}px`; div.style.top = `${node.y}px`;
+                div.onclick = () => openDrawer(node);
+                div.innerHTML = `<div class="glow-pulse"></div><span class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">${node.type}</span><div class="flex items-center space-x-3 mb-4"><div class="p-2 bg-gray-800 rounded-lg"><i data-lucide="${node.icon}" class="w-5 h-5"></i></div><h4 class="text-xs font-bold text-white leading-tight">${node.name}</h4></div>`;
+                nodeLayer.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        async function startSimulation() {
+            if (isSimulating || !activeScenario) return;
+            isSimulating = true; toggleTerminal(true);
+            const data = scenarioData[activeScenario];
+            const svgLayer = document.getElementById('svg-layer');
+            const packet = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            packet.setAttribute("r", "5"); packet.setAttribute("class", "data-packet");
+            svgLayer.appendChild(packet);
+            for (let i = 0; i < data.edges.length; i++) {
+                if (!isSimulating) break;
+                const edge = data.edges[i], sNode = data.nodes.find(n => n.id === edge[0]), path = document.getElementById(`path-${activeScenario}-${i}`);
+                const willFail = isChaosMode && Math.random() < 0.3 && (sNode.type === 'Core' || sNode.type === 'Agent');
+                if (sNode) {
+                    const el = document.getElementById(`node-${sNode.id}`);
+                    el.classList.add('processing'); openDrawer(sNode);
+                    addLog(`EXECUTING [${sNode.name}]`, willFail ? 'error' : 'process');
+                    await new Promise(r => setTimeout(r, 600));
+                    if (willFail) { el.classList.replace('processing', 'failed-node'); packet.setAttribute("class", "data-packet error-packet"); addLog(`EXCEPTION CAUGHT: UNSTABLE STATE IN ${sNode.name}`, 'error'); isSimulating = false; break; }
+                    el.classList.remove('processing');
+                }
+                if (path) {
+                    const len = path.getTotalLength(), start = performance.now();
+                    await new Promise(res => {
+                        function anim(t) {
+                            if (!isSimulating) return res();
+                            const p = Math.min((t - start) / 600, 1), pt = path.getPointAtLength(p * len);
+                            packet.setAttribute("cx", pt.x); packet.setAttribute("cy", pt.y);
+                            if (p < 1) requestAnimationFrame(anim); else res();
+                        }
+                        requestAnimationFrame(anim);
+                    });
+                }
+            }
+            if (isSimulating) addLog(`TRUTH SYNC COMPLETE.`, 'success');
+            isSimulating = false;
+            setTimeout(() => { packet.remove(); document.querySelectorAll('.node-card').forEach(n => n.classList.remove('failed-node')); }, 3000);
+        }
+
+        function stopSimulation() { isSimulating = false; toggleTerminal(false); }
+
+        function openDrawer(node) {
+            document.getElementById('drawer-name').innerText = node.name;
+            document.getElementById('drawer-type').innerText = node.type;
+            document.getElementById('drawer-logic').innerText = node.logic;
+            document.getElementById('drawer-metaphor').innerText = node.metaphor;
+            document.getElementById('drawer-purpose').innerText = node.purpose;
+            document.getElementById('drawer-tools').innerHTML = (node.tools || []).map(t => `<span class="px-2 py-1 bg-white/5 rounded text-[10px] text-gray-400 border border-white/5 uppercase">${t}</span>`).join('');
+            document.getElementById('drawer-icon').innerHTML = `<i data-lucide="${node.icon}" class="w-8 h-8"></i>`;
+            document.getElementById('drawer').classList.remove('translate-x-full');
+            lucide.createIcons();
+        }
+
+        function closeDrawer() { document.getElementById('drawer').classList.add('translate-x-full'); }
+
+        window.onload = () => { 
+            setViewMode('landing'); 
+            lucide.createIcons(); 
+            initCanvasEngine(); 
+            addLog('KERNEL: Initialized. Welcome, Architect.', 'system'); 
+        };
+
+        document.getElementById('terminal-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const val = this.value.trim().toLowerCase();
+                if (!val) return;
+                addLog(`> ${val}`, 'info');
+                if (val === 'help') { addLog('COMMANDS: help, trace, chaos, clear, landing', 'system'); }
+                else if (val === 'clear') { document.getElementById('log-container').innerHTML = ''; }
+                else if (val === 'trace') { startSimulation(); }
+                else if (val === 'chaos') { toggleChaosMode(); }
+                else if (val === 'landing') { setViewMode('landing'); }
+                else { addLog(`ERR: COMMAND NOT RECOGNIZED.`, 'error'); }
+                this.value = '';
             }
         });
-
-        // --- UI & NAVIGATION ---
-        function switchView(name) {
-            Object.values(views).forEach(el => el.classList.add('hidden'));
-            views[name].classList.remove('hidden');
-            els.error.classList.add('hidden');
-            if (name === 'game') resizeCanvas();
-        }
-
-        function showError(msg) {
-            els.error.textContent = msg;
-            els.error.classList.remove('hidden');
-            setTimeout(() => els.error.classList.add('hidden'), 3000);
-        }
-
-        // --- CHARACTER SELECT ---
-        function renderCharSelect() {
-            els.charGrid.innerHTML = '';
-            CLASSES.forEach(c => {
-                const el = document.createElement('div');
-                el.className = `char-card p-3 flex flex-col items-center bg-gray-900 ${c.id === selectedClassId ? 'selected' : ''}`;
-                el.onclick = () => selectClass(c.id);
-                
-                el.innerHTML = `
-                    <div class="w-8 h-8 mb-2 border-2 border-white" style="background-color: ${c.color}"></div>
-                    <span class="text-[10px] text-gray-300 uppercase">${c.name}</span>
-                `;
-                els.charGrid.appendChild(el);
-            });
-            updateCharDesc();
-        }
-
-        function selectClass(id) {
-            selectedClassId = id;
-            renderCharSelect();
-        }
-
-        function updateCharDesc() {
-            const c = CLASSES.find(x => x.id === selectedClassId);
-            els.charName.textContent = c.name;
-            els.charStats.textContent = c.desc;
-        }
-
-        function confirmCharacter() {
-            // Save selection to currentUser object for easy access
-            const c = CLASSES.find(x => x.id === selectedClassId);
-            currentUser.gameColor = c.color;
-            currentUser.gameName = c.name;
-            currentUser.gameClassId = c.id;
-
-            if (pendingAction === 'create') {
-                createRoom();
-            } else if (pendingAction === 'join') {
-                switchView('join');
-            }
-        }
-
-        // --- NETWORKING ---
-        async function createRoom() {
-            const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-            let code = "";
-            for(let i=0; i<4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
-
-            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'lobbies', code);
-            await setDoc(roomRef, {
-                hostId: currentUser.uid,
-                status: 'waiting',
-                players: [{ 
-                    uid: currentUser.uid, 
-                    name: currentUser.gameName, 
-                    color: currentUser.gameColor,
-                    classId: currentUser.gameClassId
-                }]
-            });
-            currentRoomId = code;
-            subscribeToRoom(code);
-        }
-
-        async function joinRoom(code) {
-            code = code.toUpperCase();
-            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'lobbies', code);
-            const snap = await getDoc(roomRef);
-            if (!snap.exists()) return showError("Room not found");
-            
-            const data = snap.data();
-            if (!data.players.some(p => p.uid === currentUser.uid)) {
-                if (data.status !== 'waiting') return showError("Game in progress");
-                await updateDoc(roomRef, {
-                    players: arrayUnion({ 
-                        uid: currentUser.uid, 
-                        name: currentUser.gameName, 
-                        color: currentUser.gameColor,
-                        classId: currentUser.gameClassId
-                    })
-                });
-            }
-            currentRoomId = code;
-            subscribeToRoom(code);
-        }
-
-        function subscribeToRoom(code) {
-            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'lobbies', code);
-            roomUnsubscribe = onSnapshot(roomRef, (doc) => {
-                if (!doc.exists()) { leaveRoom(); return; }
-                const data = doc.data();
-                
-                // Lobby UI Update
-                document.getElementById('display-room-code').textContent = code;
-                const list = document.getElementById('player-list');
-                list.innerHTML = '';
-                data.players.forEach(p => {
-                    const el = document.createElement('div');
-                    el.className = "flex items-center gap-2 p-2 bg-gray-900 border border-gray-700";
-                    el.innerHTML = `
-                        <div class="w-4 h-4 border border-white" style="background:${p.color}"></div>
-                        <div class="flex flex-col">
-                            <span class="text-xs text-white">${p.name}</span>
-                            <span class="text-[8px] text-gray-500">${p.uid.substr(0,4)}</span>
-                        </div>
-                    `;
-                    list.appendChild(el);
-                });
-
-                // Host/Guest controls
-                if (data.hostId === currentUser.uid) {
-                    document.getElementById('host-controls').classList.remove('hidden');
-                    document.getElementById('guest-controls').classList.add('hidden');
-                } else {
-                    document.getElementById('host-controls').classList.add('hidden');
-                    document.getElementById('guest-controls').classList.remove('hidden');
-                }
-
-                if (data.status === 'playing') {
-                    if (data.map) {
-                        localGrid = JSON.parse(data.map);
-                        playersMap = data.playerStates || {};
-                        if (views.game.classList.contains('hidden')) enterGameMode();
-                    } else {
-                        views.game.classList.contains('hidden') ? switchView('game') : null;
-                        els.gameLoading.classList.remove('hidden');
-                    }
-                }
-            });
-            switchView('lobby');
-        }
-
-        async function triggerStart() {
-            // HOST LOGIC: Generate Map
-            let map = [];
-            for(let y=0; y<GRID_H; y++) {
-                let row = [];
-                for(let x=0; x<GRID_W; x++) {
-                    if (y===0 || y===GRID_H-1 || x===0 || x===GRID_W-1) row.push(1);
-                    else if (Math.random() < 0.1) row.push(1);
-                    else row.push(0);
-                }
-                map.push(row);
-            }
-
-            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'lobbies', currentRoomId);
-            const snap = await getDoc(roomRef);
-            const players = snap.data().players;
-            
-            let initialStates = {};
-            players.forEach((p, index) => {
-                initialStates[p.uid] = {
-                    x: 2 + index,
-                    y: 2,
-                    color: p.color,
-                    name: p.name,
-                    classId: p.classId
-                };
-            });
-
-            await updateDoc(roomRef, {
-                status: 'playing',
-                map: JSON.stringify(map),
-                playerStates: initialStates
-            });
-        }
-
-        function enterGameMode() {
-            switchView('game');
-            els.gameLoading.classList.add('hidden');
-            resizeCanvas();
-            if (!gameLoopId) loop();
-        }
-
-        // --- GAMEPLAY LOGIC ---
-        function resizeCanvas() {
-            const scale = 20; 
-            els.canvas.width = GRID_W * scale;
-            els.canvas.height = GRID_H * scale;
-        }
-
-        async function movePlayer(dx, dy) {
-            if (!currentRoomId || !localGrid.length) return;
-            const myState = playersMap[currentUser.uid];
-            if (!myState) return;
-
-            const targetX = myState.x + dx;
-            const targetY = myState.y + dy;
-
-            if (localGrid[targetY] && localGrid[targetY][targetX] === 1) return; // Hit wall
-
-            myState.x = targetX;
-            myState.y = targetY;
-            
-            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'lobbies', currentRoomId);
-            const updateField = `playerStates.${currentUser.uid}`;
-            
-            try {
-                await updateDoc(roomRef, { [updateField]: myState });
-            } catch (e) { console.error("Move sync failed", e); }
-        }
-
-        function draw() {
-            ctx.fillStyle = '#111';
-            ctx.fillRect(0, 0, els.canvas.width, els.canvas.height);
-
-            if (!localGrid.length) return;
-            const tileW = els.canvas.width / GRID_W;
-            const tileH = els.canvas.height / GRID_H;
-
-            // Draw Map
-            for(let y=0; y<GRID_H; y++) {
-                for(let x=0; x<GRID_W; x++) {
-                    if (localGrid[y][x] === 1) {
-                        ctx.fillStyle = '#444'; 
-                        ctx.fillRect(x*tileW, y*tileH, tileW, tileH);
-                        ctx.fillStyle = '#555';
-                        ctx.fillRect(x*tileW, y*tileH, tileW, 4);
-                    } else {
-                        ctx.fillStyle = '#222';
-                        ctx.beginPath();
-                        ctx.arc(x*tileW + tileW/2, y*tileH + tileH/2, 2, 0, Math.PI*2);
-                        ctx.fill();
-                    }
-                }
-            }
-
-            // Draw Players
-            Object.values(playersMap).forEach(p => {
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x*tileW + 2, p.y*tileH + 2, tileW - 4, tileH - 4);
-                
-                ctx.fillStyle = 'white';
-                ctx.fillRect(p.x*tileW + 5, p.y*tileH + 5, 4, 4);
-                ctx.fillRect(p.x*tileW + 12, p.y*tileH + 5, 4, 4);
-                
-                // Tiny Class Icon on head (Simple shapes)
-                ctx.fillStyle = 'white';
-                if(p.classId === 'wizard') ctx.fillRect(p.x*tileW + tileW/2 - 2, p.y*tileH - 4, 4, 4); // Hat tip
-                
-                ctx.fillStyle = 'white';
-                ctx.font = '8px monospace';
-                ctx.textAlign = 'center';
-                ctx.fillText(p.name.substr(0,1), p.x*tileW + tileW/2, p.y*tileH + tileH - 4);
-            });
-        }
-
-        function loop() {
-            draw();
-            gameLoopId = requestAnimationFrame(loop);
-        }
-
-        // --- EVENTS ---
-        window.addEventListener('keydown', (e) => {
-            if (views.game.classList.contains('hidden')) return;
-            switch(e.key) {
-                case 'ArrowUp': case 'w': movePlayer(0, -1); break;
-                case 'ArrowDown': case 's': movePlayer(0, 1); break;
-                case 'ArrowLeft': case 'a': movePlayer(-1, 0); break;
-                case 'ArrowRight': case 'd': movePlayer(1, 0); break;
-            }
-        });
-
-        const btnUp = document.getElementById('btn-up');
-        const btnDown = document.getElementById('btn-down');
-        const btnLeft = document.getElementById('btn-left');
-        const btnRight = document.getElementById('btn-right');
-        
-        const addTouch = (el, dx, dy) => {
-            el.addEventListener('touchstart', (e) => { e.preventDefault(); movePlayer(dx, dy); });
-            el.addEventListener('mousedown', (e) => { e.preventDefault(); movePlayer(dx, dy); });
-        };
-        addTouch(btnUp, 0, -1);
-        addTouch(btnDown, 0, 1);
-        addTouch(btnLeft, -1, 0);
-        addTouch(btnRight, 1, 0);
-
-        // Buttons
-        document.getElementById('btn-create-menu').onclick = () => {
-            pendingAction = 'create';
-            switchView('charSelect');
-        };
-        document.getElementById('btn-join-menu').onclick = () => {
-            pendingAction = 'join';
-            switchView('charSelect');
-        };
-        document.getElementById('btn-back-char').onclick = () => switchView('menu');
-        document.getElementById('btn-confirm-char').onclick = confirmCharacter;
-        
-        document.getElementById('btn-back-join').onclick = () => switchView('menu');
-        document.getElementById('btn-confirm-join').onclick = () => joinRoom(document.getElementById('input-room-code').value);
-        document.getElementById('btn-start-game').onclick = triggerStart;
-        document.getElementById('btn-leave-lobby').onclick = leaveRoom;
-        document.getElementById('btn-exit-game').onclick = leaveRoom;
-
-        document.getElementById('display-room-code').onclick = () => {
-             const r = document.createRange(); r.selectNode(document.getElementById('display-room-code'));
-             window.getSelection().removeAllRanges(); window.getSelection().addRange(r);
-             document.execCommand('copy');
-             alert("Copied!");
-        };
-
-        function leaveRoom() {
-            if (roomUnsubscribe) roomUnsubscribe();
-            if (gameLoopId) cancelAnimationFrame(gameLoopId);
-            currentRoomId = null;
-            localGrid = [];
-            switchView('menu');
-        }
-
-        initAuth();
-
     </script>
 </body>
 </html>
